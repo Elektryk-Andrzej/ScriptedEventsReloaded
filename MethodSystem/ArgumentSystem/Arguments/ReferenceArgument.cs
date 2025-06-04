@@ -1,4 +1,4 @@
-﻿using SER.Helpers.ResultStructure;
+﻿using SER.Helpers.Extensions;
 using SER.MethodSystem.ArgumentSystem.Structures;
 using SER.ScriptSystem.TokenSystem.BaseTokens;
 using SER.VariableSystem;

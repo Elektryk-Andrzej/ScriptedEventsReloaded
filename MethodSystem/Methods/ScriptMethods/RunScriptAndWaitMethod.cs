@@ -15,7 +15,7 @@ public class RunScriptAndWaitMethod : YieldingMethod
         new ScriptArgument("script"),
         new VariableArgument("variablesToPass")
         {
-            ConsumesRemainingArguments = true,
+            ConsumesRemainingValues = true,
             DefaultValue = new List<IVariable>(),
             Description = "Passes an exact copy of the provided variables to the script."
         }
@@ -40,7 +40,8 @@ public class RunScriptAndWaitMethod : YieldingMethod
         }
 
         script.Run();
-        while (script.IsRunning)
+        // ReSharper disable once ConditionIsAlwaysTrueOrFalse
+        while (script is not null && script.IsRunning)
         {
             yield return Timing.WaitForOneFrame;
         }

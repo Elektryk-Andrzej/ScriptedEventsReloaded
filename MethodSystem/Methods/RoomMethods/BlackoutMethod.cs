@@ -2,7 +2,7 @@
 using System.Linq;
 using Interactables.Interobjects.DoorUtils;
 using MEC;
-using SER.Helpers;
+using SER.Helpers.Extensions;
 using SER.MethodSystem.ArgumentSystem.Arguments;
 using SER.MethodSystem.BaseMethods;
 

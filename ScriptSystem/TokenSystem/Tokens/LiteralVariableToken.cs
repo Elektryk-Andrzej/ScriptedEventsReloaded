@@ -11,11 +11,9 @@ public class LiteralVariableToken : BaseContextableToken, IUseBrackets
 {
     private int _openBrackets = 0;
 
-    public string NameWithoutBraces =>
-        RawRepresentation.Substring(1, RawRepresentation.Length - 2);
-
     public char OpeningBracket => '{';
     public char ClosingBracket => '}';
+    public string ValueWithoutBrackets => RawRepresentation.Substring(1, RawRepresentation.Length - 2);
 
     protected override void OnAddingChar(char c)
     {

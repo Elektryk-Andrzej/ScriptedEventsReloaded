@@ -2,7 +2,7 @@
 using CommandSystem;
 using LabApi.Features.Permissions;
 using LabApi.Features.Wrappers;
-using SER.ScriptSystem;
+using SER.ScriptSystem.FlagSystem;
 
 namespace SER.Plugin.Commands;
 
@@ -19,10 +19,10 @@ public class ReloadScriptsCommand : ICommand
             return false;
         }
         
-        ScriptFlagHandler.ClearIndex();
+        ScriptFlagHandler.Clear();
         FileSystem.Initalize();
-        response = "Successfully reloaded scripts. Changes in script flags are now registered.";
         
+        response = "Successfully reloaded scripts. Changes in script flags are now registered.";
         return true;
     }
 

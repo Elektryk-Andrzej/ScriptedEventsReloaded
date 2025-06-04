@@ -33,7 +33,6 @@ public class GrantLoadoutMethod : Method
             items = [];
             ammo = [];
         }
-        
 
         foreach (var player in players)
         {

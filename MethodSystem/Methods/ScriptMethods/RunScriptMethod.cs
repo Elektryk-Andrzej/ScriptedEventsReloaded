@@ -14,7 +14,7 @@ public class RunScriptMethod : Method
         new ScriptArgument("script"),
         new VariableArgument("variablesToPass")
         {
-            ConsumesRemainingArguments = true,
+            ConsumesRemainingValues = true,
             DefaultValue = new List<IVariable>(),
             Description = "Passes an exact copy of the provided variables to the script."
         }

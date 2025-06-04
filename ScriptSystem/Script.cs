@@ -6,12 +6,11 @@ using LabApi.Features.Console;
 using MEC;
 using SER.ScriptSystem.ContextSystem.Extensions;
 using SER.Helpers;
+using SER.Helpers.Exceptions;
 using SER.Helpers.ResultStructure;
-using SER.MethodSystem.Exceptions;
 using SER.Plugin;
 using SER.ScriptSystem.ContextSystem;
 using SER.ScriptSystem.ContextSystem.BaseContexts;
-using SER.ScriptSystem.ContextSystem.Structures;
 using SER.ScriptSystem.TokenSystem;
 using SER.ScriptSystem.TokenSystem.Structures;
 using SER.ScriptSystem.TokenSystem.Tokens;
@@ -24,15 +23,16 @@ public class Script
 {
     public required string Name { get; init; }
     public required string Content { get; init; }
+    
     public List<ScriptLine> Tokens = [];
     public List<BaseContext> Contexts = [];
     public int CurrentLine { get; set; } = 0;
-    public bool IsRunning = false;
+    public bool IsRunning => RunningScripts.Contains(this);
 
+    private static readonly List<Script> RunningScripts = [];
     private readonly HashSet<LiteralVariable> _localLiteralVariables = [];
     private readonly HashSet<PlayerVariable> _localPlayerVariables = [];
     private CoroutineHandle _scriptCoroutine;
-    private List<CoroutineHandle> _otherCoroutines = [];
     private bool? _isEventAllowed;
 
     public static TryGet<Script> CreateByScriptName(string scriptName)
@@ -77,33 +77,44 @@ public class Script
         };
     }
 
+    public static int StopAll()
+    {
+        var count = RunningScripts.Count;
+        foreach (var script in new List<Script>(RunningScripts))
+        {
+            script.Stop();
+        }
+
+        return count;
+    }
+
     public List<ScriptLine> GetFlagLines()
     {
         CacheTokens();
 
-        return Tokens.Where(l => l.Tokens.FirstOrDefault() is FlagToken).ToList();
+        return Tokens.Where(l => l.Tokens.FirstOrDefault() is FlagToken or FlagArgumentToken).ToList();
     }
 
     public void AddLocalLiteralVariable(LiteralVariable variable)
     {
-        RemoveLocalLiteralVariable(variable);
+        RemoveLocalLiteralVariable(variable.Name);
         _localLiteralVariables.Add(variable);
     }
 
-    public void RemoveLocalLiteralVariable(LiteralVariable variable)
+    public void RemoveLocalLiteralVariable(string name)
     {
-        _localLiteralVariables.RemoveWhere(scrVar => scrVar.Name == variable.Name);
+        _localLiteralVariables.RemoveWhere(scrVar => scrVar.Name == name);
     }
 
     public void AddLocalPlayerVariable(PlayerVariable variable)
     {
-        RemoveLocalPlayerVariable(variable);
+        RemoveLocalPlayerVariable(variable.Name);
         _localPlayerVariables.Add(variable);
     }
 
-    public void RemoveLocalPlayerVariable(PlayerVariable variable)
+    public void RemoveLocalPlayerVariable(string name)
     {
-        _localPlayerVariables.RemoveWhere(scrVar => scrVar.Name == variable.Name);
+        _localPlayerVariables.RemoveWhere(scrVar => scrVar.Name == name);
     }
 
     public void AddVariables(params IVariable[] variables)
@@ -143,17 +154,14 @@ public class Script
             return null;
         }
         
-        Plugin.MainPlugin.RunningScripts.Add(this);
-        IsRunning = true;
+        RunningScripts.Add(this);
         _scriptCoroutine = InternalExecute().Run(this, _ => _scriptCoroutine.Kill());
-        Logger.Info("returning value");
         return _isEventAllowed;
     }
 
     public void Stop()
     {
-        IsRunning = false;
-        Plugin.MainPlugin.RunningScripts.Remove(this);
+        RunningScripts.Remove(this);
         _scriptCoroutine.Kill();
         Logger.Info($"Script {Name} was stopped");
     }
@@ -219,15 +227,19 @@ public class Script
                 break;
             }
 
-            var handle = context.ExecuteBaseContext().Run(this);
-            
-            while (handle.IsRunning)
+            var handle = context.ExecuteBaseContext();
+            while (handle.MoveNext())
             {
-                yield return 0f;
+                if (!IsRunning)
+                {
+                    break;
+                }
+                
+                yield return handle.Current;
             }
         }
 
-        Plugin.MainPlugin.RunningScripts.Remove(this);
+        RunningScripts.Remove(this);
     }
 
     public TryGet<PlayerVariable> TryGetPlayerVariable(string name)

@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using MEC;
-using SER.MethodSystem.Exceptions;
+using SER.Helpers.Exceptions;
 using SER.ScriptSystem;
 
 namespace SER.Helpers;

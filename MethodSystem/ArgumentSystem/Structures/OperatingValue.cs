@@ -27,4 +27,8 @@ public enum OperatingValue
     CustomReference      = 1 << 19,
     Script               = 1 << 20,
     Variable             = 1 << 21,
+    PlayerVariableName   = 1 << 22,
+    ItemType             = 1 << 23,
+    ItemReference        = 1 << 24,
+    ItemReferences       = 1 << 25
 }

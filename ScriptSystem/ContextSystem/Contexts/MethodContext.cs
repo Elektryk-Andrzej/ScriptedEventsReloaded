@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using SER.Helpers;
+using SER.Helpers.Extensions;
 using SER.Helpers.ResultStructure;
 using SER.MethodSystem.ArgumentSystem;
 using SER.MethodSystem.BaseMethods;
@@ -15,26 +16,25 @@ public class MethodContext(MethodToken methodToken) : YieldingContext
 {
     public readonly BaseMethod Method = methodToken.Method;
     public readonly MethodArgumentProcessor Processor = new(methodToken.Method);
+    private int _providedArguments = 0;
 
     public override TryAddTokenRes TryAddToken(BaseToken token)
     {
-        if (Processor.TryGetSkeleton(token, Method.Args.Count).HasErrored(out var error, out var skeleton))
+        if (Processor.TryGetSkeleton(token, _providedArguments).HasErrored(out var error, out var skeleton))
             return TryAddTokenRes.Error(
-                $"[Line {methodToken.LineNum}] Value '{token.RawRepresentation}' is not a valid argument for method {Method.Name}, because: {error}");
+                $"[Line {methodToken.LineNum}] Value '{token.RawRepresentation}' is not a valid argument: " +
+                $"{error}");
         
         Method.Args.Add(skeleton);
+        _providedArguments++;
         return TryAddTokenRes.Continue();
     }
 
     public override Result VerifyCurrentState()
     {
-        var requiredArgs = Method.ExpectedArguments.Count(arg => arg.DefaultValue is null);
-        var providedArgs = Method.Args.Count;
-
-        return providedArgs >= requiredArgs
-            ? true
-            : $"Method '{Method.Name}' is missing required arguments! " +
-              $"Provided arguments: {providedArgs}, required arguments: {requiredArgs}";
+        return Result.Assert(_providedArguments >= Method.ExpectedArguments.Count(arg => !arg.IsOptional),
+            $"Method '{Method.Name}' is missing required arguments: " +
+            $"{", ".Join(Method.ExpectedArguments.Skip(_providedArguments).Select(arg => arg.Name))}");
     }
 
     protected override IEnumerator<float> Execute()

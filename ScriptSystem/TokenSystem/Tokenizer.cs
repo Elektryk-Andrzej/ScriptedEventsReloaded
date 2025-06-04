@@ -80,7 +80,6 @@ public class Tokenizer(Script script)
         {
             if (currentToken.IsValidSyntax().HasErrored(out var msg))
             {
-                Log.Error(script, $"Token {currentToken} has failed: '{msg}'; converting to unclassified value");
                 currentToken = new UnclassifiedValueToken(currentToken.RawRepresentation) 
                 {
                     Script = script,
@@ -128,6 +127,12 @@ public class Tokenizer(Script script)
                 };
             case '(':
                 return new ParenthesesToken
+                {
+                    Script = script,
+                    LineNum = lineNum
+                };
+            case '-':
+                return new FlagArgumentToken
                 {
                     Script = script,
                     LineNum = lineNum

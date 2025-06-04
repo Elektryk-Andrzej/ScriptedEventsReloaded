@@ -10,7 +10,7 @@ public class SetMaxHealthMethod : Method
     public override BaseMethodArgument[] ExpectedArguments { get; } =
     [
         new PlayersArgument("players"),
-        new FloatAmountArgument("maxHealth", 1)
+        new FloatArgument("maxHealth", 1)
     ];
     
     public override void Execute()

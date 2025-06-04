@@ -1,4 +1,4 @@
-﻿using SER.MethodSystem.Exceptions;
+﻿using SER.Helpers.Exceptions;
 
 namespace SER.Helpers.ResultStructure;
 

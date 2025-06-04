@@ -1,14 +1,14 @@
 ﻿using System.Diagnostics.Contracts;
+using SER.Helpers.Exceptions;
 using SER.Helpers.ResultStructure;
-using SER.MethodSystem.Exceptions;
 
 namespace SER.Helpers;
 
-public class TryGet<TValue>(TValue? value, string errorMsg)
+public class TryGet<TValue>(TValue? value, string? errorMsg)
 {
     private TValue? Value => value;
     private bool WasSuccess => string.IsNullOrEmpty(errorMsg);
-    private string ErrorMsg => errorMsg;
+    private string? ErrorMsg => errorMsg;
 
     [Pure]
     public bool HasErrored()
@@ -19,16 +19,22 @@ public class TryGet<TValue>(TValue? value, string errorMsg)
     [Pure]
     public bool HasErrored(out string error)
     {
-        error = ErrorMsg;
+        error = ErrorMsg ?? "";
         return !WasSuccess;
     }
 
     [Pure]
     public bool HasErrored(out string error, out TValue val)
     {
-        error = ErrorMsg;
+        error = ErrorMsg ?? "";
         val = Value!;
         return !WasSuccess;
+    }
+    
+    [Pure]
+    public bool WasSuccessful()
+    {
+        return WasSuccess;
     }
     
     [Pure]
@@ -41,7 +47,7 @@ public class TryGet<TValue>(TValue? value, string errorMsg)
     [Pure]
     public static implicit operator string(TryGet<TValue> result)
     {
-        return result.ErrorMsg;
+        return result.ErrorMsg ?? "";
     }
 
     [Pure]
@@ -62,5 +68,11 @@ public class TryGet<TValue>(TValue? value, string errorMsg)
     public static implicit operator TryGet<TValue>(string msg)
     {
         return new TryGet<TValue>(default, msg);
+    }
+    
+    [Pure]
+    public static implicit operator TryGet<TValue>(ResultStacker stacker)
+    {
+        return new TryGet<TValue>(default, stacker.InitMsg);
     }
 }

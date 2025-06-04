@@ -5,9 +5,10 @@ using LabApi.Features.Enums;
 using LabApi.Features.Wrappers;
 using MapGeneration;
 using SER.Helpers;
+using SER.Helpers.Exceptions;
+using SER.Helpers.Extensions;
 using SER.Helpers.ResultStructure;
 using SER.MethodSystem.ArgumentSystem.Structures;
-using SER.MethodSystem.Exceptions;
 using SER.ScriptSystem;
 using SER.ScriptSystem.TokenSystem;
 using SER.ScriptSystem.TokenSystem.BaseTokens;
@@ -20,7 +21,7 @@ public abstract class BaseMethodArgument(string name)
 {
     public string Name { get; } = name;
     
-    public bool ConsumesRemainingArguments { get; init; } = false;
+    public bool ConsumesRemainingValues { get; init; } = false;
     
     public string? Description { get; init; } = null;
     
@@ -72,7 +73,11 @@ public abstract class BaseMethodArgument(string name)
                 OperatingValue.CustomReference => "custom reference (check additional description)",
                 OperatingValue.Script => "script",
                 OperatingValue.Variable => "any variable",
-                _ => throw new DeveloperFuckupException()
+                OperatingValue.PlayerVariableName => "player variable name",
+                OperatingValue.ItemType => $"{nameof(ItemType)} enum value",
+                OperatingValue.ItemReference => $"reference to {typeof(Item).GetAccurateName()} object",
+                OperatingValue.ItemReferences => $"reference to {typeof(IEnumerable<Item>).GetAccurateName()} object",
+                _ => throw new DeveloperFuckupException($"Flag {flag} has no description.")
             }).ToList();
 
         return string.Join(" OR ", values);
@@ -94,18 +99,18 @@ public abstract class BaseMethodArgument(string name)
         BaseToken token, 
         Func<string, ArgumentEvaluation<T>.EvalRes> convertMethod)
     {
-        return VariableParser.IsVariableUsedInString(token.GetValue(), Script, out var replacedVariablesFunc)
+        return VariableParser.IsVariableUsedInString(token.RawRepresentation, Script, out var replacedVariablesFunc)
             ? new(() => convertMethod(replacedVariablesFunc()))
-            : new(convertMethod(token.GetValue()));
+            : new(convertMethod(token.RawRepresentation));
     }
     
     protected ArgumentEvaluation<T> DefaultConvertSolution<T>(
         BaseToken token, 
         Dictionary<OperatingValue, Func<object, ArgumentEvaluation<T>.EvalRes>>? converters)
     {
-        return VariableParser.IsVariableUsedInString(token.GetValue(), Script, out var replacedVariablesFunc)
+        return VariableParser.IsVariableUsedInString(token.RawRepresentation, Script, out var replacedVariablesFunc)
             ? new(() => ConvertWithDefaultConverters(replacedVariablesFunc(), converters))
-            : new(ConvertWithDefaultConverters(token.GetValue(), converters));
+            : new(ConvertWithDefaultConverters(token.RawRepresentation, converters));
     }
 
     protected ArgumentEvaluation<T>.EvalRes ConvertWithDefaultConverters<T>(
@@ -242,6 +247,56 @@ public abstract class BaseMethodArgument(string name)
                     result = res;
                     break;
                 }
+                case OperatingValue.Int:
+                {
+                    if (GetInt(value).HasErrored(out var error, out var res))
+                    {
+                        errors.Add((flag, error));
+                        continue;
+                    }
+                    
+                    result = res;
+                    break;
+                }
+                case OperatingValue.ItemType:
+                {
+                    if (GetEnum<ItemType>(value).HasErrored(out var error, out var res))
+                    {
+                        errors.Add((flag, error));
+                        continue;
+                    }
+                    
+                    result = res;
+                    break;
+                }
+                case OperatingValue.ItemReference:
+                {
+                    if (GetReference<Item>(value).HasErrored(out var error, out var item))
+                    {
+                        errors.Add((flag, error));
+                        continue;
+                    }
+                    
+                    result = item;
+                    break;
+                }
+                case OperatingValue.ItemReferences:
+                {
+                    if (GetReference<Item>(value).WasSuccessful(out var res))
+                    {
+                        result = new[] { res };
+                        break;
+                    }
+                    
+                    if (GetReference<IEnumerable<Item>>(value).HasErrored(out var error, out var listRes))
+                    {
+                        errors.Add((flag, error));
+                        continue;
+                    }
+                    
+                    result = listRes;
+                    break;
+                }
                 default:
                 {
                     return $"Input {value} failed to meet any of the following requirements: {GetExpectedValues()}.";
@@ -261,12 +316,19 @@ public abstract class BaseMethodArgument(string name)
             return converter(result);
         }
 
-        throw new DeveloperFuckupException();
+        if (errors.Count > 0)
+        {
+            return Rs.Add(
+                $"Input '{value}' is not a {GetExpectedValues()}. " + 
+                string.Join(", ", errors.Select(e => $"({e.Item1.ToString()}: {e.Item2})")));
+        }
+        
+        throw new DeveloperFuckupException($"Argument {Name} doesn't have converter for its value ({value}).");
     }
 
     private TryGet<bool> GetBoolean(string value)
     {
-        if (Condition.TryEval(value, Script).WasSuccessful(out var condResult))
+        if (ExpressionSystem.EvalCondition(value, Script).WasSuccessful(out var condResult))
         {
             return condResult;
         }

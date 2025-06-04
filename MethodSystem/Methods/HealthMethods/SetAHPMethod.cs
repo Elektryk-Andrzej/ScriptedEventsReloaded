@@ -13,16 +13,16 @@ public class SetAHPMethod : Method
     public override BaseMethodArgument[] ExpectedArguments { get; } =
     [
         new PlayersArgument("players"),
-        new FloatAmountArgument("amount", 1)
+        new FloatArgument("amount", 1)
         {
             Description = "The amount of artificial health to ADD to the player. Use a negative number to remove."
         },
-        new FloatAmountArgument("limit", 1)
+        new FloatArgument("limit", 1)
         {
             DefaultValue = 75,
             Description = "The upper limit of AHP."
         },
-        new FloatAmountArgument("decay", 0)
+        new FloatArgument("decay", 0)
         {
             DefaultValue = 1.2,
             Description = "How much AHP is lost per second."

@@ -1,13 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
+using SER.Helpers.Exceptions;
 using SER.ScriptSystem.ContextSystem.Extensions;
 using SER.ScriptSystem.TokenSystem;
 using SER.Helpers.ResultStructure;
-using SER.MethodSystem.Exceptions;
 using SER.ScriptSystem.ContextSystem.BaseContexts;
 using SER.ScriptSystem.ContextSystem.Structures;
-using SER.ScriptSystem.Exceptions;
 using SER.ScriptSystem.TokenSystem.BaseTokens;
 using SER.VariableSystem;
 
@@ -56,12 +54,7 @@ public class RepeatLoopContext : TreeContext
 
         for (var i = 0; i < _repeatCount.Value; i++)
         {
-            if (IsTerminated)
-            {
-                yield break;
-            }
-            
-            foreach (var child in Children.TakeWhile(_ => !IsTerminated))
+            foreach (var child in Children)
             {
                 var coro = child.ExecuteBaseContext();
                 while (coro.MoveNext())

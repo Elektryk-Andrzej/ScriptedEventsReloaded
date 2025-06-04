@@ -1,7 +1,7 @@
 ﻿using LabApi.Features.Wrappers;
+using SER.Helpers.Exceptions;
 using SER.MethodSystem.ArgumentSystem.Arguments;
 using SER.MethodSystem.BaseMethods;
-using SER.MethodSystem.Exceptions;
 using SER.MethodSystem.MethodDescriptors;
 
 namespace SER.MethodSystem.Methods.RoundMethods;

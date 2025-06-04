@@ -1,7 +1,5 @@
 ﻿using System;
-using LabApi.Features.Enums;
-using MapGeneration;
-using SER.Helpers.ResultStructure;
+using SER.Helpers.Extensions;
 using SER.MethodSystem.ArgumentSystem.Structures;
 using SER.Plugin.HelpSystem;
 using SER.ScriptSystem.TokenSystem.BaseTokens;
@@ -21,26 +19,7 @@ public class EnumArgument<TEnum> : BaseMethodArgument where TEnum : struct, Enum
         HelpInfoStorage.UsedEnums.Add(typeof(TEnum));
     }
     
-    public override OperatingValue Input
-    {
-        get
-        {
-            if (typeof(TEnum) == typeof(RoomName))
-            {
-                return OperatingValue.RoomName;
-            }
-            if (typeof(TEnum) == typeof(FacilityZone))
-            {
-                return OperatingValue.FacilityZone;
-            }
-            if (typeof(TEnum) == typeof(DoorName))
-            {
-                return OperatingValue.DoorName;
-            }
-
-            return OperatingValue.CustomEnum;
-        }
-    }
+    public override OperatingValue Input => OperatingValue.CustomEnum;
 
     public override string AdditionalDescription => 
         $"This argument is expecting {typeof(TEnum).GetAccurateName()} enum value.";

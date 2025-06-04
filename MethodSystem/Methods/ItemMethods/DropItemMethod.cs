@@ -1,4 +1,5 @@
 ﻿using System.Linq;
+using SER.Helpers.Extensions;
 using SER.MethodSystem.ArgumentSystem.Arguments;
 using SER.MethodSystem.BaseMethods;
 
@@ -12,7 +13,7 @@ public class DropItemMethod : Method
     [
         new PlayersArgument("players"),
         new EnumArgument<ItemType>("itemTypeToDrop"),
-        new IntAmountArgument("amountToDrop", 1)
+        new IntArgument("amountToDrop", 1)
     ];
     
     public override void Execute()
@@ -23,8 +24,10 @@ public class DropItemMethod : Method
 
         foreach (var plr in players)
         {
-            var items = plr.Items.Where(item => item.Type == itemTypeToDrop).Take(amountToDrop).ToList();
-            foreach (var item in items) plr.DropItem(item);
+            plr.Items
+                .Where(item => item.Type == itemTypeToDrop)
+                .Take(amountToDrop)
+                .ForEachItem(item => plr.DropItem(item));
         }
     }
 }

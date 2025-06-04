@@ -17,7 +17,7 @@ public class TextArgument(string name) : BaseMethodArgument(name)
     public ArgumentEvaluation<string> GetConvertSolution(BaseToken token)
     {
         var value = token is ParenthesesToken parentheses
-            ? parentheses.ValueWithoutBraces
+            ? parentheses.ValueWithoutBrackets
             : token.RawRepresentation;
 
         return VariableParser.IsVariableUsedInString(value, Script, out var getProcessedVariableValueFunc)

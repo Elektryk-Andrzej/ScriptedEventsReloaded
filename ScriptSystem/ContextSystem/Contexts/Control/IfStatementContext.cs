@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using System.Linq;
 using SER.ScriptSystem.ContextSystem.Extensions;
 using SER.ScriptSystem.TokenSystem;
 using SER.Helpers;
@@ -34,7 +33,7 @@ public class IfStatementContext : TreeContext
             yield break;
         }
 
-        if (Condition.TryEval(_condition, Script).HasErrored(out var error, out var resul))
+        if (ExpressionSystem.EvalCondition(_condition, Script).HasErrored(out var error, out var resul))
         {
             Log.Error(Script, $"Error while evaluating condition: {error}");
             yield break;
@@ -45,7 +44,7 @@ public class IfStatementContext : TreeContext
             yield break;
         }
         
-        foreach (var child in Children.TakeWhile(_ => !IsTerminated))
+        foreach (var child in Children)
         {
             var coro = child.ExecuteBaseContext();
             while (coro.MoveNext())

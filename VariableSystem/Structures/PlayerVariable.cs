@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using LabApi.Features.Wrappers;
 
 namespace SER.VariableSystem.Structures;
@@ -9,8 +8,8 @@ namespace SER.VariableSystem.Structures;
 /// This variable is intended to be used within the context of scripts
 /// to provide dynamic access to specific groups of players.
 /// </summary>
-public class PlayerVariable : IVariable
+public class PlayerVariable(string name, List<Player> players) : IVariable
 {
-    public required string Name { get; init; }
-    public required Func<List<Player>> Players { get; init; }
+    public virtual string Name => name;
+    public virtual List<Player> Players => players;
 }

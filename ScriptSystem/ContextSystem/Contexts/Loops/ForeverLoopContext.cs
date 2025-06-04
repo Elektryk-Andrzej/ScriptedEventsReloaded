@@ -8,7 +8,7 @@ using SER.ScriptSystem.TokenSystem.BaseTokens;
 
 namespace SER.ScriptSystem.ContextSystem.Contexts.Loops;
 
-public class ForeverLoopContext: TreeContext
+public class ForeverLoopContext : TreeContext
 {
     private readonly ResultStacker _rs = new("Cannot create `forever` loop.");
     private bool _skipChild = false;
@@ -27,14 +27,8 @@ public class ForeverLoopContext: TreeContext
     {
         while (true)
         {
-            if (IsTerminated)
+            foreach (var coro in Children.Select(child => child.ExecuteBaseContext()))
             {
-                yield break;
-            }
-            
-            foreach (var child in Children.TakeWhile(_ => !IsTerminated))
-            {
-                var coro = child.ExecuteBaseContext();
                 while (coro.MoveNext())
                 {
                     yield return coro.Current;

@@ -10,7 +10,7 @@ public class DamageMethod : Method
     public override BaseMethodArgument[] ExpectedArguments { get; } =
     [
         new PlayersArgument("players"),
-        new FloatAmountArgument("amount", 0),
+        new FloatArgument("amount", 0),
         new TextArgument("reason")
         {
             DefaultValue = string.Empty

@@ -6,6 +6,8 @@ namespace SER.Helpers.ResultStructure;
 [Pure]
 public class ResultStacker(string initMsg)
 {
+    public readonly string InitMsg = initMsg;
+    
     private static string Process(string value)
     {
         if (value.Length < 2) return value;
@@ -26,6 +28,6 @@ public class ResultStacker(string initMsg)
     [Pure]
     public Result Add(string other)
     {
-        return $"{other}\n-> {Process(initMsg)}";
+        return $"{other}\n-> {Process(InitMsg)}";
     }
 }

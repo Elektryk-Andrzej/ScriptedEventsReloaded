@@ -47,9 +47,11 @@ public abstract class BaseMethod
     
     private readonly List<CoroutineHandle> _coroutines = [];
     
-    protected void RunCoroutine(IEnumerator<float> coro)
+    protected CoroutineHandle RunCoroutine(IEnumerator<float> coro)
     {
-        _coroutines.Add(coro.Run(Script));
+        var handle = coro.Run(Script);
+        _coroutines.Add(handle);
+        return handle;
     }
 
     public void Terminate()

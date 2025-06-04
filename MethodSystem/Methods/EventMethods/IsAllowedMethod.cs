@@ -13,7 +13,7 @@ public class IsAllowedMethod : Method, IAdditionalDescription
         "In order for it to have any impact, the script in which the method is used must be trigger by an event, and " +
         "that event must be cancellable.";
 
-    public override BaseMethodArgument[] ExpectedArguments =>
+    public override BaseMethodArgument[] ExpectedArguments { get; } =
     [
         new BoolArgument("isAllowed")
     ];

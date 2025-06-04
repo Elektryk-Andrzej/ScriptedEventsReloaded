@@ -2,7 +2,9 @@
 using System.Collections.Generic;
 using System.Linq;
 using LabApi.Features.Wrappers;
+using MapGeneration;
 using PlayerRoles;
+using SER.Helpers.Extensions;
 using SER.VariableSystem.Structures;
 
 namespace SER.VariableSystem;
@@ -13,19 +15,36 @@ public static class PlayerVariableIndex
 
     public static void Initalize()
     {
-        Clear();
-        var allApiVariables = Enum
-            .GetValues(typeof(RoleTypeId))
-            .Cast<RoleTypeId>()
-            .Select(roleType => {
-                return new PlayerVariable
+        GlobalPlayerVariables.Clear();
+        
+        List<PredefinedPlayerVariable> allApiVariables =
+        [
+            new("allPlayers", Player.ReadyList.ToList, "Other"),
+            new("alivePlayers", () => Player.ReadyList.Where(plr => plr.IsAlive).ToList(), "Other"),
+            new("npcPlayers", () => Player.ReadyList.Where(plr => plr.IsNpc).ToList(), "Other"),
+        ];
+
+        allApiVariables.AddRange(
+            Enum.GetValues(typeof(RoleTypeId))
+                .Cast<RoleTypeId>()
+                .Where(role => role is not RoleTypeId.None)
+                .Select(roleType =>
                 {
-                    Name = roleType.ToString().First().ToString().ToLower() + roleType.ToString().Substring(1) +
-                           "Players",
-                    Players = () => Player.List.Where(plr => plr.Role == roleType).ToList()
-                };
-            })
-            .ToList();
+                    return new PredefinedPlayerVariable(roleType.ToString().Decapitalize() + "Players",
+                        () => Player.ReadyList.Where(plr => plr.Role == roleType).ToList(),
+                        "Role");
+                }));
+        
+        allApiVariables.AddRange(
+            Enum.GetValues(typeof(FacilityZone))
+                .Cast<FacilityZone>()
+                .Where(zone => zone is not FacilityZone.None and not FacilityZone.Other)
+                .Select(zone =>
+                {
+                    return new PredefinedPlayerVariable(zone.ToString().Decapitalize() + "Players",
+                        () => Player.ReadyList.Where(plr => plr.Zone == zone).ToList(),
+                        "Facility zone");
+                }));
         
         allApiVariables.AddRange(
             Enum.GetValues(typeof(Team))
@@ -42,40 +61,21 @@ public static class PlayerVariableIndex
                         name = name.Substring(0, name.Length - 1);
                     }
 
-                    name = name.First().ToString().ToLower() + name.Substring(1) + "Players";
+                    name = name.Decapitalize() + "Players";
                     if (allApiVariables.Any(v => v.Name == name))
                     {
                         return null;
                     }
-                    
-                    return new PlayerVariable
-                    {
-                        Name = name,
-                        Players = () => Player.List.Where(plr => plr.Role.GetTeam() == teamType).ToList(),
-                    };
+
+                    return new PredefinedPlayerVariable(name,
+                        () => Player.ReadyList.Where(plr => plr.Role.GetTeam() == teamType).ToList(),
+                        "Team");
                 })
-                .OfType<PlayerVariable>());
-        
-        allApiVariables.Add(
-            new PlayerVariable
-            {
-                Name = "allPlayers",
-                Players = () => Player.List.ToList()
-            });
+                .OfType<PredefinedPlayerVariable>());
 
-        foreach (var variable in allApiVariables.OfType<PlayerVariable>())
+        foreach (var variable in allApiVariables)
         {
-            AddPlayerVariable(variable);
+            GlobalPlayerVariables.Add(variable);
         }
-    }
-
-    public static void AddPlayerVariable(PlayerVariable variable)
-    {
-        GlobalPlayerVariables.Add(variable);
-    }
-
-    public static void Clear()
-    {
-        GlobalPlayerVariables.Clear();
     }
 }

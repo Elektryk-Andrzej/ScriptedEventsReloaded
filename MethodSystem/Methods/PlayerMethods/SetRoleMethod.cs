@@ -11,13 +11,25 @@ public class SetRoleMethod : Method
     public override BaseMethodArgument[] ExpectedArguments { get; } =
     [
         new PlayersArgument("players"),
-        new EnumArgument<RoleTypeId>("newRole")
+        new EnumArgument<RoleTypeId>("newRole"),
+        new EnumArgument<RoleSpawnFlags>("spawnFlags")
+        {
+            DefaultValue = RoleSpawnFlags.All
+        },
+        new EnumArgument<RoleChangeReason>("reason")
+        {
+            DefaultValue = RoleChangeReason.RemoteAdmin
+        }
     ];
 
     public override void Execute()
     {
         var players = Args.GetPlayers("players");
         var newRole = Args.GetEnum<RoleTypeId>("newRole");
-        foreach (var player in players) player.SetRole(newRole);
+        var reason = Args.GetEnum<RoleChangeReason>("reason");
+        var flags = Args.GetEnum<RoleSpawnFlags>("spawnFlags");
+        
+        foreach (var player in players) 
+            player.SetRole(newRole, reason, flags);
     }
 }

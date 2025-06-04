@@ -8,15 +8,15 @@ namespace SER.MethodSystem.Methods.MiscellaneousMethods;
 public class RandomNumMethod : TextReturningMethod, IAdditionalDescription, IPureMethod
 {
     public override string Description =>
-        "Returns a randomly generated number between provided arguments 'startingNum' and 'endingNum'.";
+        "Returns a randomly generated number.";
 
     public string AdditionalDescription =>
         "'startingNum' argument MUST be smaller than 'endingNum' argument.";
 
     public override BaseMethodArgument[] ExpectedArguments { get; } =
     [
-        new NumberArgument("startingNum"),
-        new NumberArgument("endingNum"),
+        new FloatArgument("startingNum"),
+        new FloatArgument("endingNum"),
         new OptionsArgument("numberType", "integer", "real")
         {
             Description = 
@@ -27,8 +27,8 @@ public class RandomNumMethod : TextReturningMethod, IAdditionalDescription, IPur
 
     public override void Execute()
     {
-        var startingNum = Args.GetNumber("startingNum");
-        var endingNum = Args.GetNumber("endingNum");
+        var startingNum = Args.GetFloat("startingNum");
+        var endingNum = Args.GetFloat("endingNum");
         var type = Args.GetOption("numberType");
         
         var val = Random.Range(startingNum, endingNum);

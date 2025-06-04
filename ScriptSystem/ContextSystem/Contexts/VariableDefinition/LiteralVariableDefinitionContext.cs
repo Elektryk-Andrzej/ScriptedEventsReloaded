@@ -41,7 +41,7 @@ public class LiteralVariableDefinitionContext(LiteralVariableToken varToken) : S
         {
             _variable = new()
             {
-                Name = varToken.NameWithoutBraces,
+                Name = varToken.ValueWithoutBrackets,
                 Value = () => token.RawRepresentation
             };
 
@@ -51,7 +51,7 @@ public class LiteralVariableDefinitionContext(LiteralVariableToken varToken) : S
         if (methodToken.TryGetResultingContext().HasErrored(out var err, out var context))
             return TryAddTokenRes.Error(err);
 
-        _methodContext = (MethodContext)context!;
+        _methodContext = (MethodContext)context;
 
         switch (_methodContext.Method)
         {
@@ -74,7 +74,7 @@ public class LiteralVariableDefinitionContext(LiteralVariableToken varToken) : S
     {
         var rs = new ResultStacker($"Variable '{varToken.RawRepresentation}' cannot be created.");
 
-        if (varToken.NameWithoutBraces.FirstOrDefault() != '*')
+        if (varToken.ValueWithoutBrackets.FirstOrDefault() != '*')
         {
             if (_referenceReturningMethod is not null)
             {
@@ -83,20 +83,20 @@ public class LiteralVariableDefinitionContext(LiteralVariableToken varToken) : S
                     "'*' must be used before the name e.g. {*myVariable}");
             }
             
-            if (varToken.NameWithoutBraces.Length == 0)
+            if (varToken.ValueWithoutBrackets.Length == 0)
             {
                 return rs.Add("Variable must have a name.");
             }
             
-            if (varToken.NameWithoutBraces.Any(c => !char.IsLetter(c)))
+            if (varToken.ValueWithoutBrackets.Any(c => !char.IsLetter(c)))
                 return rs.Add("Variable name can only contain letters.");
 
-            if (char.IsUpper(varToken.NameWithoutBraces.First()))
+            if (char.IsUpper(varToken.ValueWithoutBrackets.First()))
                 return rs.Add("The first character in the name must be lowercase.");
         }
         else
         {
-            if (varToken.NameWithoutBraces.Length < 2)
+            if (varToken.ValueWithoutBrackets.Length < 2)
             {
                 return rs.Add("Variable must have a name, just '*' doesn't count as name.");
             }
@@ -121,7 +121,7 @@ public class LiteralVariableDefinitionContext(LiteralVariableToken varToken) : S
             
             _variable = new()
             {
-                Name = varToken.NameWithoutBraces,
+                Name = varToken.ValueWithoutBrackets,
                 Value = () => _textReturningMethod.TextReturn
             };
         }
@@ -137,7 +137,7 @@ public class LiteralVariableDefinitionContext(LiteralVariableToken varToken) : S
 
             _variable = new()
             {
-                Name = varToken.NameWithoutBraces,
+                Name = varToken.ValueWithoutBrackets,
                 Value = () => ObjectReferenceSystem.RegisterObject(_referenceReturningMethod.ValueReturn)
             };
         }

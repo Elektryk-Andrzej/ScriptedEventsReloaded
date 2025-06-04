@@ -11,6 +11,7 @@ public static class HelpInfoStorage
     [
         typeof(RoomName),
         typeof(FacilityZone),
-        typeof(DoorName)
+        typeof(DoorName),
+        typeof(ItemType)
     ];
 }

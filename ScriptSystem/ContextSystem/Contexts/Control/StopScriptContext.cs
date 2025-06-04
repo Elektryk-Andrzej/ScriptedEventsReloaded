@@ -20,6 +20,6 @@ public class StopScriptContext: StandardContext
 
     protected override void Execute()
     {
-        Terminate(Script);
+        Script.Stop();
     }
 }

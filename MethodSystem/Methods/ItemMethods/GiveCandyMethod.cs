@@ -12,7 +12,7 @@ public class GiveCandyMethod : Method
     [
         new PlayersArgument("players"),
         new EnumArgument<CandyKindID>("candyType"),
-        new IntAmountArgument("amount", 1)
+        new IntArgument("amount", 1)
     ];
     
     public override void Execute()

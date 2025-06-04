@@ -1,10 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
+using SER.Helpers.Exceptions;
 using SER.Helpers.ResultStructure;
 using SER.ScriptSystem.ContextSystem.BaseContexts;
 using SER.ScriptSystem.ContextSystem.Structures;
-using SER.ScriptSystem.Exceptions;
 using SER.ScriptSystem.TokenSystem.BaseTokens;
 using SER.ScriptSystem.TokenSystem.Tokens;
 using SER.VariableSystem.Structures;
@@ -16,7 +15,7 @@ public class ForLoopContext: TreeContext
     private readonly ResultStacker _rs = new("The `for` loop cannot be created.");
     private bool _isInKeywordAssigned = false;
     private PlayerVariableToken? _loopCollectionToken = null;
-    private readonly PlayerVariable _loopCollectionVariable = null!;
+    private PlayerVariable _loopCollectionVariable = null!;
     private PlayerVariableToken? _loopVariableToken = null;
     private bool _skipRemainingContexts = false;
 
@@ -64,25 +63,21 @@ public class ForLoopContext: TreeContext
 
     protected override IEnumerator<float> Execute()
     {
-        if (Script.TryGetPlayerVariable(_loopCollectionToken!.NameWithoutPrefix).HasErrored())
+        if (Script.TryGetPlayerVariable(_loopCollectionToken!.NameWithoutPrefix).HasErrored(out _, out _loopCollectionVariable))
             throw new InvalidVariableException(_loopCollectionToken);
 
-        if (Script.TryGetPlayerVariable(_loopVariableToken!.NameWithoutPrefix).HasErrored())
+        if (Script.TryGetPlayerVariable(_loopVariableToken!.NameWithoutPrefix).WasSuccessful())
             throw new Exception(
                 $"Variable '{_loopVariableToken.RawRepresentation}' already exists, " +
                 $"loop cannot create a new variable under the same name.");
 
         // ReSharper disable once ForeachCanBePartlyConvertedToQueryUsingAnotherGetEnumerator
-        foreach (var plr in _loopCollectionVariable.Players())
+        foreach (var plr in _loopCollectionVariable.Players)
         {
-            var loopVariable = new PlayerVariable
-            {
-                Name = _loopVariableToken.NameWithoutPrefix,
-                Players = () => [plr]
-            };
+            var loopVariable = new PlayerVariable(_loopVariableToken.NameWithoutPrefix, [plr]);
 
             Script.AddLocalPlayerVariable(loopVariable);
-            foreach (var child in Children.TakeWhile(_ => !IsTerminated))
+            foreach (var child in Children)
             {
                 switch (child)
                 {
@@ -97,7 +92,7 @@ public class ForLoopContext: TreeContext
                         }
                         break;
                     default:
-                        throw new ArgumentOutOfRangeException(nameof(child), child, "context is not std nor yld");
+                        throw new DeveloperFuckupException();
                 }
 
                 if (!_skipRemainingContexts) continue;
@@ -106,7 +101,7 @@ public class ForLoopContext: TreeContext
                 break;
             }
 
-            Script.RemoveLocalPlayerVariable(loopVariable);
+            Script.RemoveLocalPlayerVariable(loopVariable.Name);
         }
     }
 

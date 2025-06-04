@@ -1,6 +1,6 @@
 ﻿using System;
 using LabApi.Features.Wrappers;
-using SER.Helpers;
+using SER.Helpers.Extensions;
 using SER.MethodSystem.ArgumentSystem.Arguments;
 using SER.MethodSystem.BaseMethods;
 using SER.MethodSystem.MethodDescriptors;

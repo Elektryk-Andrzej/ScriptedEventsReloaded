@@ -29,10 +29,10 @@ public class SinglePlayerArgument(string name) : BaseMethodArgument(name)
             return error;
         }
         
-        var plrs = variable.Players();
+        var plrs = variable.Players;
         if (plrs.Count != 1)
         {
-            return $"The player variable must have exactly 1 player, but has {plrs.Count} instead.";
+            return Rs.Add($"The player variable '{token.RawRepresentation}' must have exactly 1 player, but has {plrs.Count} instead.");
         }
 
         return plrs.First();

@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using SER.Helpers;
-using SER.Helpers.ResultStructure;
+using SER.Helpers.Extensions;
 
 namespace SER.VariableSystem;
 

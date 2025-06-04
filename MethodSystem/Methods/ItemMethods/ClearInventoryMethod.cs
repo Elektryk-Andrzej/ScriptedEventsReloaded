@@ -5,7 +5,7 @@ namespace SER.MethodSystem.Methods.ItemMethods;
 
 public class ClearInventoryMethod : Method
 {
-    public override string Description => "Clears inventory for players.";
+    public override string Description => "Clears player inventory.";
 
     public override BaseMethodArgument[] ExpectedArguments { get; } =
     [

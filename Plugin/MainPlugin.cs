@@ -1,14 +1,15 @@
 ﻿using System;
-using System.Collections.Generic;
 using LabApi.Features;
 using LabApi.Features.Console;
 using SER.MethodSystem;
 using SER.ScriptSystem;
+using SER.ScriptSystem.FlagSystem;
 using SER.VariableSystem;
 using Events = LabApi.Events.Handlers;
 
 namespace SER.Plugin;
 
+// ReSharper disable once ClassNeverInstantiated.Global
 public class MainPlugin : LabApi.Loader.Features.Plugins.Plugin
 {
     public override string Name => "SER";
@@ -16,29 +17,30 @@ public class MainPlugin : LabApi.Loader.Features.Plugins.Plugin
     public override string Author => "Elektryk_Andrzej";
     public override Version RequiredApiVersion => LabApiProperties.CurrentVersion;
     public override Version Version => new(0, 1, 0);
+    
     public static string GitHubLink => "https://github.com/Elektryk-Andrzej/ScriptedEventsReloaded";
     public static string WikiLink => GitHubLink + "/wiki";
+    public static MainPlugin Instance { get; private set; } = null!;
     
     public override void Enable()
     {
-        ScriptFlagHandler.Initialize();
+        Instance = this;
+        
+        Script.StopAll();
+        ScriptFlagHandler.EventInit();
         MethodIndex.Initalize();
         PlayerVariableIndex.Initalize();
         FileSystem.Initalize();
         
         Events.ServerEvents.WaitingForPlayers += OnServerFullyInit;
+        Events.ServerEvents.RoundRestarted += () => Script.StopAll();
     }
 
     public override void Disable()
     {
-        foreach (var script in RunningScripts)
-        {
-            script.Stop();
-        }
+        Script.StopAll();
     }
-
-    public static readonly List<Script> RunningScripts = [];
-
+    
     private void OnServerFullyInit()
     {
         Logger.Raw(

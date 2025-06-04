@@ -12,7 +12,7 @@ public class PlayerVariableToken: BaseContextableToken
 
     public override bool EndParsingOnChar(char c)
     {
-        return !char.IsLetter(c);
+        return !char.IsLetterOrDigit(c);
     }
 
     public override Result IsValidSyntax()

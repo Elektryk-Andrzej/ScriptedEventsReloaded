@@ -1,17 +1,16 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
 using System.Linq;
-using JetBrains.Annotations;
 using LabApi.Features.Wrappers;
-using SER.Helpers;
+using SER.Helpers.Exceptions;
+using SER.Helpers.Extensions;
 using SER.Helpers.ResultStructure;
 using SER.MethodSystem.ArgumentSystem.Arguments;
 using SER.MethodSystem.ArgumentSystem.Interfaces;
 using SER.MethodSystem.ArgumentSystem.Structures;
 using SER.MethodSystem.BaseMethods;
-using SER.MethodSystem.Exceptions;
 using SER.ScriptSystem;
+using SER.ScriptSystem.TokenSystem.Tokens;
 using SER.VariableSystem;
 using SER.VariableSystem.Structures;
 using UnityEngine;
@@ -24,6 +23,26 @@ public class ProvidedArguments(BaseMethod method)
 
     public int Count => Arguments.Count;
 
+    /// <summary>
+    /// Retrieves an array of <see cref="Item"/> instances associated with the specified argument name.
+    /// </summary>
+    /// <param name="argName">The name of the argument containing the item value.</param>
+    /// <returns>An array of <see cref="Item"/> instances that represents the retrieved items.</returns>
+    public Item[] GetItems(string argName)
+    {
+        return GetValue<Item[], ItemsArgument>(argName);
+    }
+    
+    /// <summary>
+    /// Retrieves a <see cref="PlayerVariableToken"/> instance associated with the specified argument name.
+    /// </summary>
+    /// <param name="argName">The name of the argument containing the player variable value.</param>
+    /// <returns>An instance of <see cref="PlayerVariableToken"/> that represents the retrieved player variable.</returns>
+    public PlayerVariableToken GetPlayerVariableName(string argName)
+    {
+        return GetValue<PlayerVariableToken, PlayerVariableNameArgument>(argName);
+    }
+    
     /// <summary>
     /// Retrieves the <see cref="IVariable"/> instance associated with the specified argument name.
     /// </summary>
@@ -144,7 +163,7 @@ public class ProvidedArguments(BaseMethod method)
     /// <returns>The integer value associated with the specified argument.</returns>
     public int GetIntAmount(string argName)
     {
-        return GetValue<int, IntAmountArgument>(argName);
+        return GetValue<int, IntArgument>(argName);
     }
 
     /// <summary>
@@ -154,7 +173,7 @@ public class ProvidedArguments(BaseMethod method)
     /// <returns>The float value associated with the specified argument.</returns>
     public float GetFloatAmount(string argName)
     {
-        return GetValue<float, FloatAmountArgument>(argName);
+        return GetValue<float, FloatArgument>(argName);
     }
 
     /// <summary>
@@ -192,9 +211,14 @@ public class ProvidedArguments(BaseMethod method)
     /// </summary>
     /// <param name="argName">The name of the argument containing the numeric value to retrieve.</param>
     /// <returns>A floating-point number representing the value from the argument.</returns>
-    public float GetNumber(string argName)
+    public float GetFloat(string argName)
     {
-        return GetValue<float, NumberArgument>(argName);
+        return GetValue<float, FloatArgument>(argName);
+    }
+
+    public int GetInt(string argName)
+    {
+        return GetValue<int, IntArgument>(argName);
     }
 
     /// <summary>
@@ -297,10 +321,11 @@ public class ProvidedArguments(BaseMethod method)
         {
             TValue argValue => [new ArgumentEvaluation<TValue>(argValue)],
             List<TValue> listValue => listValue.Select(IArgEvalRes (v) => new ArgumentEvaluation<TValue>(v)).ToList(),
+            null when foundArg.IsOptional => [new ArgumentEvaluation<TValue>((TValue)(object)null!)], // magik
             _ => throw new DeveloperFuckupException(
                 $"Argument {argName} for method {method.Name} has its default value set to type " +
-                $"{foundArg.DefaultValue?.GetType().Name}, expected of type {typeof(TArg).Name} or a list of " +
-                $"{typeof(TArg).Name}s.")
+                $"{foundArg.DefaultValue?.GetType().Name ?? "null"}, expected of type {typeof(TValue).Name} or a list of " +
+                $"{typeof(TValue).Name}s.")
         };
     }
 
@@ -312,6 +337,6 @@ public class ProvidedArguments(BaseMethod method)
             return;
         }
         
-        Arguments.AddOrInit((skeleton.Name, skeleton.ArgumentType), skeleton.Evaluator);
+        Arguments.AddOrInitListWithKey((skeleton.Name, skeleton.ArgumentType), skeleton.Evaluator);
     }
 }

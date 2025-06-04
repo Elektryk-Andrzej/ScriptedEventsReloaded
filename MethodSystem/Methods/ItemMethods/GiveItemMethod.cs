@@ -11,7 +11,7 @@ public class GiveItemMethod : Method
     [
         new PlayersArgument("players"),
         new EnumArgument<ItemType>("item"),
-        new IntAmountArgument("amount", 1)
+        new IntArgument("amount", 1)
         {
             DefaultValue = 1
         }

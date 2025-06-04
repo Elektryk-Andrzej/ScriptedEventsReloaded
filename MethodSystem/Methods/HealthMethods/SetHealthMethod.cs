@@ -9,13 +9,13 @@ public class SetHealthMethod : Method
     public override BaseMethodArgument[] ExpectedArguments { get; } = 
     [
         new PlayersArgument("players"),
-        new NumberArgument("health")
+        new FloatArgument("health", 0)
     ];
     
     public override void Execute()
     {
         var players = Args.GetPlayers("players");
-        var health = Args.GetNumber("health");
+        var health = Args.GetFloat("health");
         foreach (var player in players) player.Health = health;
     }
 }

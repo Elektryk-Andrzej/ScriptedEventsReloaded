@@ -14,7 +14,7 @@ public class PrintMethod : Method
         new TextArgument("text"),
         new EnumArgument<ConsoleColor>("color")
         {
-            DefaultValue = ConsoleColor.Cyan
+            DefaultValue = ConsoleColor.Green
         }
     ];
 

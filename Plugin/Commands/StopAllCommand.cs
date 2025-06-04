@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using CommandSystem;
 using LabApi.Features.Permissions;
 using LabApi.Features.Wrappers;
@@ -20,13 +19,7 @@ public class StopAllCommand : ICommand
             return false;
         }
         
-        response = $"Stopped {MainPlugin.RunningScripts.Count} scripts.";
-            
-        foreach (var script in new List<Script>(MainPlugin.RunningScripts))
-        {
-            script.Stop();
-        }
-        
+        response = $"Stopped {Script.StopAll()} scripts.";
         return true;
     }
 

@@ -4,16 +4,14 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using CommandSystem;
-using SER.Helpers.ResultStructure;
+using SER.Helpers.Exceptions;
+using SER.Helpers.Extensions;
 using SER.MethodSystem;
 using SER.MethodSystem.BaseMethods;
-using SER.MethodSystem.Exceptions;
 using SER.MethodSystem.MethodDescriptors;
-using SER.ScriptSystem;
+using SER.ScriptSystem.FlagSystem;
 using SER.VariableSystem;
 using SER.VariableSystem.Structures;
-using UnityEngine;
-using Logger = LabApi.Features.Console.Logger;
 
 namespace SER.Plugin.HelpSystem;
 
@@ -26,31 +24,37 @@ public class HelpCommand : ICommand
     public string Description => string.Empty;
     
     private static List<BaseMethod> AllMethods => MethodIndex.NameToMethodIndex.Values.ToList();
-    
-    public bool Execute(ArraySegment<string> arguments, ICommandSender sender, out string response)
+
+    public static readonly Dictionary<HelpOption, Func<string>> GeneralOptions = new()
     {
-        if (arguments.Count == 0)
+        [HelpOption.Methods] = GetMethodList,
+        [HelpOption.Variables] = GetVariableList,
+        [HelpOption.Enums] = GetEnumHelpPage,
+        [HelpOption.Events] = GetEventsHelpPage
+    };
+    
+    public bool Execute(ArraySegment<string> arguments, ICommandSender _, out string response)
+    {
+        if (arguments.Count > 0)
         {
-            response = GetOptionsList();
-            return true;
+            return GetGeneralOutput(arguments.First().ToLower(), out response);
         }
 
-        var arg = arguments.First().ToLower();
+        response = GetOptionsList();
+        return true;
+    }
 
-        switch (arg)
+    public static bool GetGeneralOutput(string arg, out string response)
+    {
+        if (Enum.TryParse(arg, true, out HelpOption option))
         {
-            case "methods":
-                response = GetMethodList();
-                return true;
-            case "variables":
-                response = GetVariableList();
-                return true;
-            case "enums":
-                response = GetEnumHelpPage();
-                return true;
-            case "events":
-                response = GetEventsHelpPage();
-                return true;
+            if (!GeneralOptions.TryGetValue(option, out var func))
+            {
+                throw new DeveloperFuckupException($"Option {option} was not added to the help system.");
+            }
+            
+            response = func();
+            return true;
         }
         
         var enumType = HelpInfoStorage.UsedEnums.FirstOrDefault(e => e.Name.ToLower() == arg);
@@ -75,7 +79,7 @@ public class HelpCommand : ICommand
             return true;
         }
 
-        response = $"There is no '{arguments.First()}' option!";
+        response = $"There is no '{arg}' option!";
         return false;
     }
 
@@ -209,7 +213,7 @@ public class HelpCommand : ICommand
         sb.AppendLine("If a method has [txt], [plr] or [... ref], it represents a method returning text, players or an object reference accordingly.");
         sb.AppendLine("If a method has 'pure' (e.g. [pure text]) it represents a method having no side effects on the server, players, map etc. Used mostly for getting/manipulating variables.");
         
-        foreach (var kvp in methodsByCategory)
+        foreach (var kvp in methodsByCategory.Reverse())
         {
             sb.AppendLine();
             sb.AppendLine($"--- {kvp.Key} methods ---");
@@ -255,10 +259,23 @@ public class HelpCommand : ICommand
     
     private static string GetVariableList()
     {
-        var allVars = PlayerVariableIndex.GlobalPlayerVariables.ToList();
+        var allVars = PlayerVariableIndex.GlobalPlayerVariables
+            .Where(var => var is PredefinedPlayerVariable)
+            .Cast<PredefinedPlayerVariable>()
+            .ToList();
+        
         var sb = new StringBuilder($"Hi! There are {allVars.Count} variables available for your use!\n");
         
-        allVars.ForEach(var => sb.AppendLine($"> @{var.Name}"));
+        var categories = allVars.Select(var => var.Category).Distinct().ToList();
+        foreach (var category in categories)
+        {
+            sb.AppendLine();
+            sb.AppendLine($"--- {category ?? "Other"} variables ---");
+            foreach (var var in allVars.Where(var => var.Category == category))
+            {
+                sb.AppendLine($"> @{var.Name}");
+            }
+        }
         
         return sb.ToString();
     }
@@ -314,6 +331,13 @@ public class HelpCommand : ICommand
             {
                 sb.AppendLine(
                     $" - Argument is optional! Default value: {argument.DefaultValue ?? "null"}");
+            }
+
+            if (argument.ConsumesRemainingValues)
+            {
+                sb.AppendLine(
+                    " - This argument consumes all remaining values; this means that every value provided AFTER " +
+                    "this one will ALSO count towards this argument's values.");
             }
 
             sb.AppendLine();

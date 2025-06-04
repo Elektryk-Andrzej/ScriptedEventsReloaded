@@ -1,9 +1,9 @@
 ﻿using System.Collections.Generic;
 using SER.Helpers;
+using SER.Helpers.Exceptions;
 using SER.ScriptSystem.ContextSystem.Extensions;
 using SER.ScriptSystem.TokenSystem;
 using SER.Helpers.ResultStructure;
-using SER.MethodSystem.Exceptions;
 using SER.ScriptSystem.ContextSystem.BaseContexts;
 using SER.ScriptSystem.ContextSystem.Structures;
 using SER.ScriptSystem.TokenSystem.BaseTokens;
@@ -31,7 +31,7 @@ public class WhileLoopContext : TreeContext
 
     protected override IEnumerator<float> Execute()
     {
-        if (Condition.TryEval(_condition!, Script).HasErrored(out var error, out var condition))
+        if (ExpressionSystem.EvalCondition(_condition!, Script).HasErrored(out var error, out var condition))
         {
             throw new MalformedConditionException(error);
         }
@@ -41,11 +41,6 @@ public class WhileLoopContext : TreeContext
             // ReSharper disable once ForeachCanBePartlyConvertedToQueryUsingAnotherGetEnumerator
             foreach (var child in Children)
             {
-                if (IsTerminated)
-                {
-                    yield break;   
-                }
-                
                 var coro = child.ExecuteBaseContext();
                 while (coro.MoveNext())
                 {
@@ -58,7 +53,7 @@ public class WhileLoopContext : TreeContext
                 break;
             }
             
-            if (Condition.TryEval(_condition!, Script).HasErrored(out var error2, out condition))
+            if (ExpressionSystem.EvalCondition(_condition!, Script).HasErrored(out var error2, out condition))
             {
                 throw new MalformedConditionException(error2);
             }

@@ -2,6 +2,7 @@
 using System.Linq;
 using LabApi.Features.Console;
 using SER.ScriptSystem;
+using SER.ScriptSystem.FlagSystem;
 
 namespace SER.Plugin;
 
@@ -41,7 +42,7 @@ public static class FileSystem
         }
         
         UpdateScriptPathCollection();
-        ScriptFlagHandler.ClearIndex();
+        ScriptFlagHandler.Clear();
         
         foreach (var scriptPath in RegisteredScriptPaths)
         {
@@ -51,6 +52,8 @@ public static class FileSystem
             
             ScriptFlagHandler.RegisterScript(lines, scriptName);
         }
+        
+        ScriptFlagHandler.RegisterCommands();
     }
     
     public static bool DoesScriptExist(string scriptName, out string path)

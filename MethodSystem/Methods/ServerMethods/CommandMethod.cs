@@ -1,6 +1,5 @@
 ﻿using RemoteAdmin;
-using SER.Helpers;
-using SER.MethodSystem.ArgumentSystem;
+using SER.Helpers.Extensions;
 using SER.MethodSystem.ArgumentSystem.Arguments;
 using SER.MethodSystem.BaseMethods;
 using SER.MethodSystem.MethodDescriptors;
@@ -15,7 +14,7 @@ public class CommandMethod : Method, IAdditionalDescription
         => "This action executes commands as the server. Therefore, the command needs '/' before it if it's a RA " +
            "command, or '.' before it if it's a console command.";
 
-    public override BaseMethodArgument[] ExpectedArguments =>
+    public override BaseMethodArgument[] ExpectedArguments { get; } =
     [
         new TextArgument("command"),
         new SinglePlayerArgument("sender")

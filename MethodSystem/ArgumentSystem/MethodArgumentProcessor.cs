@@ -3,12 +3,13 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using SER.Helpers;
+using SER.Helpers.Exceptions;
+using SER.Helpers.Extensions;
 using SER.Helpers.ResultStructure;
 using SER.MethodSystem.ArgumentSystem.Arguments;
 using SER.MethodSystem.ArgumentSystem.Interfaces;
 using SER.MethodSystem.ArgumentSystem.Structures;
 using SER.MethodSystem.BaseMethods;
-using SER.MethodSystem.Exceptions;
 using SER.ScriptSystem.TokenSystem.BaseTokens;
 
 namespace SER.MethodSystem.ArgumentSystem;
@@ -56,7 +57,7 @@ public class MethodArgumentProcessor(BaseMethod method)
         BaseMethodArgument arg;
         if (index >= method.ExpectedArguments.Length)
         {
-            if (method.ExpectedArguments.LastOrDefault()?.ConsumesRemainingArguments != true)
+            if (method.ExpectedArguments.LastOrDefault()?.ConsumesRemainingValues != true)
             {
                 return rs.Add(
                     $"Method does not expect more than {method.ExpectedArguments.Length} arguments.");
@@ -80,7 +81,7 @@ public class MethodArgumentProcessor(BaseMethod method)
                 Evaluator = evaluator,
                 ArgumentType = argType,
                 Name = arg.Name,
-                IsPartOfCollection = arg.ConsumesRemainingArguments
+                IsPartOfCollection = arg.ConsumesRemainingValues
             };
         }
         
@@ -94,7 +95,7 @@ public class MethodArgumentProcessor(BaseMethod method)
             Evaluator = evaluator,
             ArgumentType = argType,
             Name = arg.Name,
-            IsPartOfCollection = arg.ConsumesRemainingArguments
+            IsPartOfCollection = arg.ConsumesRemainingValues
         };;
     }
 }

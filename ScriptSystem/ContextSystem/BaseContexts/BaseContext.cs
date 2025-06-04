@@ -1,5 +1,4 @@
-﻿using LabApi.Features.Console;
-using SER.Helpers.ResultStructure;
+﻿using SER.Helpers.ResultStructure;
 using SER.ScriptSystem.ContextSystem.Structures;
 using SER.ScriptSystem.TokenSystem.BaseTokens;
 
@@ -21,18 +20,6 @@ public abstract class BaseContext
     }
 
     public abstract Result VerifyCurrentState();
-
-    protected virtual void Terminate(Script scr)
-    {
-        if (ParentContext != null)
-        {
-            ParentContext.Terminate(scr);
-        }
-        else
-        {
-            scr.Stop();
-        }
-    }
     
     public static BaseContext Create<TContext>((Script scr, int lineNum) info) 
         where TContext : BaseContext, new()

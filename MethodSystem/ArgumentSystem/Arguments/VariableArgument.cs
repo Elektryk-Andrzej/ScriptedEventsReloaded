@@ -38,7 +38,7 @@ public class VariableArgument(string name) : BaseMethodArgument(name)
 
     private ArgumentEvaluation<IVariable>.EvalRes DynamicLiteralVarSolver(LiteralVariableToken token)
     {
-        if (Script.TryGetLiteralVariable(token.NameWithoutBraces).HasErrored(out var error, out var variable))
+        if (Script.TryGetLiteralVariable(token.ValueWithoutBrackets).HasErrored(out var error, out var variable))
         {
             return Rs.Add(error);
         }

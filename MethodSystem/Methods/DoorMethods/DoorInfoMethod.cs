@@ -17,7 +17,9 @@ public class DoorInfoMethod : TextReturningMethod, IPureMethod
             "isOpen",
             "isClosed",
             "isLocked",
-            "isUnlocked")
+            "isUnlocked",
+            "name",
+            "unityName")
     ];
     
     public override void Execute()
@@ -28,6 +30,7 @@ public class DoorInfoMethod : TextReturningMethod, IPureMethod
         TextReturn = info switch
         {
             "name" => door.DoorName.ToString(),
+            "unityname" => door.Base.name,
             "isopen" => door.IsOpened.ToString(),
             "isclosed" => (!door.IsOpened).ToString(),
             "islocked" => door.IsLocked.ToString(),
