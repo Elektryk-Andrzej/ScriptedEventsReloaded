@@ -33,6 +33,6 @@ SER can interact with other plugins you have installed — as long as they suppo
 # Just Another Way to Make Plugins?
 Nope. SER is not here to compete with traditional plugins.
 
-To stay simple and approachable, SER doesn't support many of the more advanced features that standard plugin frameworks do.  
+To stay simple and approachable, SER supports only a few of the more advanced features that standard plugin frameworks do.  
 **Do not treat this as an all-in-one replacement** for C# plugin development.
 

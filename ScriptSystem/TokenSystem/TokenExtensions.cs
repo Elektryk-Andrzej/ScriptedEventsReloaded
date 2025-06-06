@@ -1,6 +1,7 @@
 ﻿using System.Diagnostics.Contracts;
 using SER.ScriptSystem.TokenSystem.BaseTokens;
 using SER.ScriptSystem.TokenSystem.Structures;
+using SER.ScriptSystem.TokenSystem.Tokens;
 
 namespace SER.ScriptSystem.TokenSystem;
 
@@ -9,7 +10,8 @@ public static class TokenExtensions
     [Pure]
     public static string GetValue(this BaseToken token)
     {
-        if (token is IUseBrackets parentheses) return parentheses.ValueWithoutBrackets;
+        if (token is ParenthesesToken parentheses) 
+            return parentheses.ValueWithoutBrackets;
 
         return token.RawRepresentation;
     }

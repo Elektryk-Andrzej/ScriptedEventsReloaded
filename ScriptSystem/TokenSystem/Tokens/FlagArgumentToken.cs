@@ -21,6 +21,10 @@ public class FlagArgumentToken : BaseContextableToken
 
     public override TryGet<BaseContext> TryGetResultingContext()
     {
-        return new NoOperationContext();
+        return new NoOperationContext()
+        {
+            Script = Script,
+            LineNum = LineNum
+        };
     }
 }

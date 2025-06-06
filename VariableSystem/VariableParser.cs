@@ -245,10 +245,8 @@ public static class VariableParser
 
         if (!IsVariableSyntaxUsedInString(value))
         {
-            Logger.Info($"value {value} des NOT use variable syntax");
             return false;
         }
-            
 
         processedValueFunc = () => ReplaceVariablesInContaminatedString(value, scr);
         return true;

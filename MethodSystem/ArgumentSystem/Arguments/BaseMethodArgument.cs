@@ -99,18 +99,18 @@ public abstract class BaseMethodArgument(string name)
         BaseToken token, 
         Func<string, ArgumentEvaluation<T>.EvalRes> convertMethod)
     {
-        return VariableParser.IsVariableUsedInString(token.RawRepresentation, Script, out var replacedVariablesFunc)
+        return VariableParser.IsVariableUsedInString(token.GetValue(), Script, out var replacedVariablesFunc)
             ? new(() => convertMethod(replacedVariablesFunc()))
-            : new(convertMethod(token.RawRepresentation));
+            : new(convertMethod(token.GetValue()));
     }
     
     protected ArgumentEvaluation<T> DefaultConvertSolution<T>(
         BaseToken token, 
         Dictionary<OperatingValue, Func<object, ArgumentEvaluation<T>.EvalRes>>? converters)
     {
-        return VariableParser.IsVariableUsedInString(token.RawRepresentation, Script, out var replacedVariablesFunc)
+        return VariableParser.IsVariableUsedInString(token.GetValue(), Script, out var replacedVariablesFunc)
             ? new(() => ConvertWithDefaultConverters(replacedVariablesFunc(), converters))
-            : new(ConvertWithDefaultConverters(token.RawRepresentation, converters));
+            : new(ConvertWithDefaultConverters(token.GetValue(), converters));
     }
 
     protected ArgumentEvaluation<T>.EvalRes ConvertWithDefaultConverters<T>(
@@ -297,6 +297,17 @@ public abstract class BaseMethodArgument(string name)
                     result = listRes;
                     break;
                 }
+                case OperatingValue.SingleDoorReference:
+                case OperatingValue.SingleRoomReference:
+                case OperatingValue.CustomEnum:
+                case OperatingValue.CustomOption:
+                case OperatingValue.Players:
+                case OperatingValue.Player:
+                case OperatingValue.Percentage:
+                case OperatingValue.CustomReference:
+                case OperatingValue.Script:
+                case OperatingValue.Variable:
+                case OperatingValue.PlayerVariableName:
                 default:
                 {
                     return $"Input {value} failed to meet any of the following requirements: {GetExpectedValues()}.";
