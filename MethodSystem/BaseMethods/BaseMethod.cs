@@ -1,8 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using MEC;
 using SER.Helpers;
+using SER.Helpers.Exceptions;
 using SER.MethodSystem.ArgumentSystem;
 using SER.MethodSystem.ArgumentSystem.Arguments;
 using SER.ScriptSystem;
@@ -26,7 +26,7 @@ public abstract class BaseMethod
         var name = type.Name;
         if (!name.EndsWith("Method"))
         {
-            throw new ArgumentException($"Method class name '{name}' must end with 'Method'.");
+            throw new DeveloperFuckupException($"Method class name '{name}' must end with 'Method'.");
         }
         
         Name = name.Substring(0, name.Length - "Method".Length);

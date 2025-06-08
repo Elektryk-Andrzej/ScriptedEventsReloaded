@@ -23,8 +23,11 @@ public class GetMethod : TextReturningMethod, IPureMethod
             new("team", $"{nameof(Team)} enum value"),
             new("serverId", "ID assigned by the server, usually used for commands e.g. 2"),
             new("userId", "ID attached to the account e.g. 0123456789@steam"),
-            new("room", $"{nameof(Room)} reference or UNDEFINED if not in a room"),
-            new("zone", $"{nameof(FacilityZone)} enum value"))
+            new("room", $"{nameof(Room)} reference or 'UNDEFINED' if not in a room"),
+            new("zone", $"{nameof(FacilityZone)} enum value"),
+            "posX",
+            "posY",
+            "posZ")
     ];
 
     public override void Execute()
@@ -42,6 +45,9 @@ public class GetMethod : TextReturningMethod, IPureMethod
                 ? ObjectReferenceSystem.RegisterObject(plr.Room)
                 : "UNDEFINED",
             "zone" => plr.Zone.ToString(),
+            "posx" => plr.Position.x.ToString(),
+            "posy" => plr.Position.y.ToString(),
+            "posz" => plr.Position.z.ToString(),
             _ => throw new ArgumentOutOfRangeException()
         };
     }

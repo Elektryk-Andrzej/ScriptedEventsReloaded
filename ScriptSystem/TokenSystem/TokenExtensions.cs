@@ -1,6 +1,5 @@
 ﻿using System.Diagnostics.Contracts;
 using SER.ScriptSystem.TokenSystem.BaseTokens;
-using SER.ScriptSystem.TokenSystem.Structures;
 using SER.ScriptSystem.TokenSystem.Tokens;
 
 namespace SER.ScriptSystem.TokenSystem;

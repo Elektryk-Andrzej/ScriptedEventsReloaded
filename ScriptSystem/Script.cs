@@ -35,9 +35,13 @@ public class Script
     private CoroutineHandle _scriptCoroutine;
     private bool? _isEventAllowed;
 
-    public static TryGet<Script> CreateByScriptName(string scriptName)
+    public static TryGet<Script> CreateByScriptName(string dirtyName)
     {
-        var name = Path.GetFileNameWithoutExtension(scriptName);
+        var name = Path.GetFileNameWithoutExtension(dirtyName);
+        if (dirtyName != name)
+        {
+            Logger.Info($"##");
+        }
         
         if (!FileSystem.DoesScriptExist(name, out var path))
         {
@@ -265,12 +269,18 @@ public class Script
     public TryGet<LiteralVariable> TryGetLiteralVariable(string name)
     {
         var localPlrVar = _localLiteralVariables.FirstOrDefault(v => v.Name == name);
-
         if (localPlrVar != null)
         {
             return localPlrVar;
         }
+        
+        var globalVar = LiteralVariableIndex.GlobalLiteralVariables
+            .FirstOrDefault(v => v.Name == name);
+        if (globalVar != null)
+        {
+            return globalVar;
+        }
 
-        return $"There is no literal variable named '{name}'.";
+        return $"There is no literal variable named '{{{name}}}'.";
     }
 }

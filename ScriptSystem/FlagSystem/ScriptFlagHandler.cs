@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using LabApi.Features.Console;
 using SER.Helpers;
 using SER.Helpers.Exceptions;
 using SER.Helpers.Extensions;
@@ -9,6 +8,7 @@ using SER.ScriptSystem.FlagSystem.Structures;
 using SER.ScriptSystem.TokenSystem;
 using SER.ScriptSystem.TokenSystem.Structures;
 using SER.ScriptSystem.TokenSystem.Tokens;
+using EventHandler = SER.ScriptSystem.EventSystem.EventHandler;
 
 namespace SER.ScriptSystem.FlagSystem;
 
@@ -22,7 +22,7 @@ public static partial class ScriptFlagHandler
     
     private static readonly Dictionary<Flag, Action<FlagInfo>> FlagActions = new()
     {
-        [Flag.Event] = ConnectEvent,
+        [Flag.Event] = EventHandler.ConnectEvent,
         [Flag.Command] = AssignCommandToScript
     };
 
@@ -42,7 +42,7 @@ public static partial class ScriptFlagHandler
     {
         ScriptsFlags.Clear();
         CustomScriptsFlags.Clear();
-        EventClear();
+        EventHandler.EventClear();
         CommandClear();
     }
     
@@ -147,7 +147,7 @@ public static partial class ScriptFlagHandler
         }
     }
     
-    private static List<FlagInfo> GetFlags(Flag flag)
+    internal static List<FlagInfo> GetFlags(Flag flag)
     {
         return ScriptsFlags.TryGetValue(flag, out var info) 
             ? info

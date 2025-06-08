@@ -33,7 +33,7 @@ public static class FileSystem
             .ToArray();
     }
     
-    public static void Initalize()
+    public static void Initialize()
     {
         if (!Directory.Exists(DirPath))
         {

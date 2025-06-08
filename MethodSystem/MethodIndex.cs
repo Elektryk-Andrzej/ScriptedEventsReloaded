@@ -11,7 +11,7 @@ public static class MethodIndex
 {
     public static readonly Dictionary<string, BaseMethod> NameToMethodIndex = new();
 
-    internal static void Initalize()
+    internal static void Initialize()
     {
         NameToMethodIndex.Clear();
 

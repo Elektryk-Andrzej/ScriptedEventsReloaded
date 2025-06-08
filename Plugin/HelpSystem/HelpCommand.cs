@@ -9,9 +9,9 @@ using SER.Helpers.Extensions;
 using SER.MethodSystem;
 using SER.MethodSystem.BaseMethods;
 using SER.MethodSystem.MethodDescriptors;
-using SER.ScriptSystem.FlagSystem;
 using SER.VariableSystem;
 using SER.VariableSystem.Structures;
+using EventHandler = SER.ScriptSystem.EventSystem.EventHandler;
 
 namespace SER.Plugin.HelpSystem;
 
@@ -64,7 +64,7 @@ public class HelpCommand : ICommand
             return true;
         }
         
-        var ev = ScriptFlagHandler.AvailableEvents.FirstOrDefault(e => e.Name.ToLower() == arg);
+        var ev = EventHandler.AvailableEvents.FirstOrDefault(e => e.Name.ToLower() == arg);
         if (ev is not null)
         {
             response = GetEventInfo(ev);
@@ -103,7 +103,7 @@ public class HelpCommand : ICommand
 
     private static string GetEventInfo(EventInfo ev)
     {
-        var variables = ScriptFlagHandler.GetMimicVariables(ev);
+        var variables = EventHandler.GetMimicVariables(ev);
         string msg;
         if (variables.Count > 0)
         {
@@ -143,10 +143,10 @@ public class HelpCommand : ICommand
     {
         var sb = new StringBuilder();
         
-        foreach (var category in ScriptFlagHandler.AvailableEvents.Select(ev => ev.DeclaringType).ToHashSet().OfType<Type>())
+        foreach (var category in EventHandler.AvailableEvents.Select(ev => ev.DeclaringType).ToHashSet().OfType<Type>())
         {
             sb.AppendLine($"--- {category.Name} ---");
-            sb.AppendLine(string.Join(", ",  ScriptFlagHandler.AvailableEvents
+            sb.AppendLine(string.Join(", ",  EventHandler.AvailableEvents
                 .Where(ev => ev.DeclaringType == category)
                 .Select(ev => ev.Name)));
         }
@@ -157,8 +157,8 @@ public class HelpCommand : ICommand
             If the round has started, server will invoke an event (signal) called RoundStarted.
             You can use this functionality to run your scripts when a certain event happens.
             
-            By putting `!-- RoundStarted` at the top of your script, you will run your script when the round starts.
-            You can put something different there, e.g. `!-- Death`, which will run when someone has died.
+            By putting `!-- Event RoundStarted` at the top of your script, you will run your script when the round starts.
+            You can put something different there, e.g. `!-- Event Death`, which will run when someone has died.
             
             Some events have additional information attached to them, in a form of variables.
             If you wish to know what variables are available for a given event, just use 'serhelp <eventName>'!

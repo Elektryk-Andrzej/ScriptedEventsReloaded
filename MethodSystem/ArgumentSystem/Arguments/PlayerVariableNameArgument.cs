@@ -9,7 +9,7 @@ public class PlayerVariableNameArgument(string name) : BaseMethodArgument(name)
     public override OperatingValue Input => OperatingValue.PlayerVariableName;
     public override string AdditionalDescription =>
         "This argument expects a value that's a syntactically valid player variable BUT that variable name does not " +
-        "have to be an actual variable.";
+        "(or sometimes shouldn't) have to be an actual variable.";
     
     public ArgumentEvaluation<PlayerVariableToken> GetConvertSolution(BaseToken token)
     {

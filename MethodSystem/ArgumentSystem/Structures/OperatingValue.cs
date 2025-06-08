@@ -30,5 +30,7 @@ public enum OperatingValue
     PlayerVariableName   = 1 << 22,
     ItemType             = 1 << 23,
     ItemReference        = 1 << 24,
-    ItemReferences       = 1 << 25
+    ItemReferences       = 1 << 25,
+    LiteralVariableName  = 1 << 26,
+    ElevatorGroup        = 1 << 27,
 }

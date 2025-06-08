@@ -2,9 +2,10 @@
 using LabApi.Features;
 using LabApi.Features.Console;
 using SER.MethodSystem;
+using SER.MethodSystem.Methods.LiteralVariableMethods;
 using SER.ScriptSystem;
-using SER.ScriptSystem.FlagSystem;
 using SER.VariableSystem;
+using EventHandler = SER.ScriptSystem.EventSystem.EventHandler;
 using Events = LabApi.Events.Handlers;
 
 namespace SER.Plugin;
@@ -27,13 +28,17 @@ public class MainPlugin : LabApi.Loader.Features.Plugins.Plugin
         Instance = this;
         
         Script.StopAll();
-        ScriptFlagHandler.EventInit();
-        MethodIndex.Initalize();
-        PlayerVariableIndex.Initalize();
-        FileSystem.Initalize();
+        EventHandler.Initialize();
+        MethodIndex.Initialize();
+        PlayerVariableIndex.Initialize();
+        FileSystem.Initialize();
         
         Events.ServerEvents.WaitingForPlayers += OnServerFullyInit;
-        Events.ServerEvents.RoundRestarted += () => Script.StopAll();
+        Events.ServerEvents.RoundRestarted += () =>
+        {
+            Script.StopAll();
+            SetPlayerDataMethod.PlayerData.Clear();
+        };
     }
 
     public override void Disable()

@@ -1,4 +1,5 @@
 ﻿using Interactables.Interobjects.DoorUtils;
+using LabApi.Features.Wrappers;
 using SER.MethodSystem.ArgumentSystem.Arguments;
 using SER.MethodSystem.BaseMethods;
 

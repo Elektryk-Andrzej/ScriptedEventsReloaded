@@ -21,8 +21,16 @@ public class ProvidedArguments(BaseMethod method)
 {
     private Dictionary<(string name, Type type), List<IArgEvalRes>> Arguments { get; } = [];
 
-    public int Count => Arguments.Count;
-
+    public Elevator[] GetElevators(string argName)
+    {
+        return GetValue<Elevator[], ElevatorsArgument>(argName);
+    }
+    
+    public LiteralVariableToken GetLiteralVariableName(string argName)
+    {
+        return GetValue<LiteralVariableToken, LiteralVariableNameArgument>(argName);
+    }
+    
     /// <summary>
     /// Retrieves an array of <see cref="Item"/> instances associated with the specified argument name.
     /// </summary>

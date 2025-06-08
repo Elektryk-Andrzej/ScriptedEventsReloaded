@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using Interactables.Interobjects;
 using LabApi.Features.Enums;
 using LabApi.Features.Wrappers;
 using MapGeneration;
@@ -77,7 +78,8 @@ public abstract class BaseMethodArgument(string name)
                 OperatingValue.ItemType => $"{nameof(ItemType)} enum value",
                 OperatingValue.ItemReference => $"reference to {typeof(Item).GetAccurateName()} object",
                 OperatingValue.ItemReferences => $"reference to {typeof(IEnumerable<Item>).GetAccurateName()} object",
-                _ => throw new DeveloperFuckupException($"Flag {flag} has no description.")
+                OperatingValue.ElevatorGroup => $"{nameof(ElevatorGroup)} enum value",
+                _ => $"{nameof(flag)} (developer forgot to provide description of this value)"
             }).ToList();
 
         return string.Join(" OR ", values);
@@ -295,6 +297,17 @@ public abstract class BaseMethodArgument(string name)
                     }
                     
                     result = listRes;
+                    break;
+                }
+                case OperatingValue.ElevatorGroup:
+                {
+                    if (GetEnum<ElevatorGroup>(value).HasErrored(out var error, out var res))
+                    {
+                        errors.Add((flag, error));
+                        continue;
+                    }
+                    
+                    result = res;
                     break;
                 }
                 case OperatingValue.SingleDoorReference:

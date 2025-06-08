@@ -13,7 +13,7 @@ public static class PlayerVariableIndex
 {
     public static readonly HashSet<PlayerVariable> GlobalPlayerVariables = [];
 
-    public static void Initalize()
+    public static void Initialize()
     {
         GlobalPlayerVariables.Clear();
         

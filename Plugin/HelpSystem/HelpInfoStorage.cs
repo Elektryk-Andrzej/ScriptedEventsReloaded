@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using Interactables.Interobjects;
 using LabApi.Features.Enums;
 using MapGeneration;
 
@@ -12,6 +13,7 @@ public static class HelpInfoStorage
         typeof(RoomName),
         typeof(FacilityZone),
         typeof(DoorName),
-        typeof(ItemType)
+        typeof(ItemType),
+        typeof(ElevatorGroup)
     ];
 }

@@ -5,7 +5,6 @@ using SER.ScriptSystem.TokenSystem.BaseTokens;
 
 namespace SER.MethodSystem.ArgumentSystem.Arguments;
 
-
 public class FloatArgument : BaseMethodArgument
 {
     private readonly float? _minValue;

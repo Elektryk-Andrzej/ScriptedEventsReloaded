@@ -9,7 +9,7 @@ namespace SER.MethodSystem.Methods.PlayerVariableMethods;
 
 public class GlobalPlayerVariableMethod : Method
 {
-    public override string Description => "Creates a global player variable.";
+    public override string Description => "Creates or overrides a global player variable.";
 
     public override BaseMethodArgument[] ExpectedArguments { get; } =
     [
