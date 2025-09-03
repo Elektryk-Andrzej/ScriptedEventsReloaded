@@ -3,6 +3,7 @@ using System.Linq;
 using LabApi.Features.Console;
 using SER.ScriptSystem;
 using SER.ScriptSystem.FlagSystem;
+using SER.ScriptSystem.Structures;
 
 namespace SER.Plugin;
 
@@ -48,12 +49,14 @@ public static class FileSystem
         {
             var scriptName = Path.GetFileNameWithoutExtension(scriptPath);
 
-            var lines = Script.CreateByVerifiedPath(scriptPath).GetFlagLines();
+            var lines = Script.CreateByVerifiedPath(scriptPath, ServerConsoleExecutor.Instance).GetFlagLines();
+            if (lines.IsEmpty())
+            {
+                continue;
+            }
             
             ScriptFlagHandler.RegisterScript(lines, scriptName);
         }
-        
-        ScriptFlagHandler.RegisterCommands();
     }
     
     public static bool DoesScriptExist(string scriptName, out string path)

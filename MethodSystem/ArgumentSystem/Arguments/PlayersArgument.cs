@@ -1,12 +1,15 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using JetBrains.Annotations;
 using LabApi.Features.Wrappers;
 using SER.Helpers.Exceptions;
+using SER.MethodSystem.ArgumentSystem.BaseArguments;
 using SER.MethodSystem.ArgumentSystem.Structures;
 using SER.MethodSystem.BaseMethods;
 using SER.ScriptSystem.TokenSystem;
 using SER.ScriptSystem.TokenSystem.BaseTokens;
 using SER.ScriptSystem.TokenSystem.Tokens;
+using SER.ScriptSystem.TokenSystem.Tokens.LiteralVariables;
 using SER.VariableSystem;
 
 namespace SER.MethodSystem.ArgumentSystem.Arguments;
@@ -14,11 +17,12 @@ namespace SER.MethodSystem.ArgumentSystem.Arguments;
 /// <summary>
 /// Represents a player collection argument used in a method.
 /// </summary>
-public class PlayersArgument(string name) : BaseMethodArgument(name)
+public class PlayersArgument(string name) : CustomMethodArgument(name)
 {
-    public override OperatingValue Input => OperatingValue.Players | OperatingValue.AllOfType;
     public override string? AdditionalDescription => null;
-    
+    public override string InputDescription => "player variable";
+
+    [UsedImplicitly]
     public ArgumentEvaluation<List<Player>> GetConvertSolution(BaseToken token)
     {
         if (token.GetValue() is "*")
@@ -53,7 +57,7 @@ public class PlayersArgument(string name) : BaseMethodArgument(name)
     
     private ArgumentEvaluation<List<Player>>.EvalRes GetFromLiteralToken(LiteralVariableToken token)
     {
-        if (VariableParser.TryParseMethod(token.GetValue(), Script).HasErrored(out var error, out var method))
+        if (VariableParser.TryParseMethod(token.ValueWithoutBrackets, Script).HasErrored(out var error, out var method))
         {
             return Rs.Add(error);
         }
@@ -66,7 +70,7 @@ public class PlayersArgument(string name) : BaseMethodArgument(name)
         methodWithReturn.Execute();
         if (methodWithReturn.PlayerReturn is null)
         {
-            throw new DeveloperFuckupException($"Method {methodWithReturn.Name} did not return a player value");
+            throw new AndrzejFuckedUpException($"Method {methodWithReturn.Name} did not return a player value");
         }
 
         return methodWithReturn.PlayerReturn.ToList();

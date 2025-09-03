@@ -1,9 +1,61 @@
-﻿namespace SER.MethodSystem.BaseMethods;
+﻿using System.Collections.Generic;
+using System.Linq;
+using MEC;
+using SER.Helpers;
+using SER.Helpers.Exceptions;
+using SER.MethodSystem.ArgumentSystem;
+using SER.MethodSystem.ArgumentSystem.BaseArguments;
+using SER.ScriptSystem;
+
+namespace SER.MethodSystem.BaseMethods;
 
 /// <summary>
-///     Represents a standard SER method.
+///     Represents a base method.
 /// </summary>
-public abstract class Method : BaseMethod
+/// <remarks>
+///     Do NOT use this to define a SER method, as it has no Execute() method.
+///     Use <see cref="SynchronousMethod" /> or <see cref="YieldingMethod" />.
+/// </remarks>
+public abstract class Method
 {
-    public abstract void Execute();
+    protected Method()
+    {
+        var type = GetType();
+        Subgroup = type.Namespace?.Split('.').LastOrDefault()?.Replace("Methods", "") ?? "Unknown";
+        
+        var name = type.Name;
+        if (!name.EndsWith("Method"))
+        {
+            throw new AndrzejFuckedUpException($"Method class name '{name}' must end with 'Method'.");
+        }
+        
+        Name = name.Substring(0, name.Length - "Method".Length);
+        Args = new(this);
+    }
+
+    public readonly string Name;
+    
+    public abstract string Description { get; }
+    
+    public abstract GenericMethodArgument[] ExpectedArguments { get; }
+    
+    public ProvidedArguments Args { get; }
+    
+    public Script Script { get; set; } = null!;
+
+    public readonly string Subgroup;
+    
+    private readonly List<CoroutineHandle> _coroutines = [];
+    
+    protected CoroutineHandle RunCoroutine(IEnumerator<float> coro)
+    {
+        var handle = coro.Run(Script);
+        _coroutines.Add(handle);
+        return handle;
+    }
+
+    public void Terminate()
+    {
+        _coroutines.ForEach(x => Timing.KillCoroutines(x));
+    }
 }

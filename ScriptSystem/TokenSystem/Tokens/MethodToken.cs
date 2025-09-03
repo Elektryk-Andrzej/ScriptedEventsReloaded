@@ -9,21 +9,21 @@ using SER.ScriptSystem.TokenSystem.BaseTokens;
 
 namespace SER.ScriptSystem.TokenSystem.Tokens;
 
-public class MethodToken : BaseContextableToken
+public class MethodToken : ContextableToken
 {
-    public BaseMethod Method { get; set; } = null!;
+    public Method Method { get; set; } = null!;
 
-    public override TryGet<BaseContext> TryGetResultingContext()
+    public override TryGet<Context> TryGetResultingContext()
     {
         if (!MethodIndex.NameToMethodIndex.TryGetValue(RawRepresentation, out var method))
             return $"There is no method named '{RawRepresentation}'.";
 
-        if (Activator.CreateInstance(method.GetType()) is not BaseMethod createdMethod)
+        if (Activator.CreateInstance(method.GetType()) is not Method createdMethod)
             return $"Method '{RawRepresentation}' couldn't be created.";
 
         Method = createdMethod;
         Method.Script = Script;
-
+        
         return new MethodContext(this)
         {
             Script = Script,
@@ -31,8 +31,9 @@ public class MethodToken : BaseContextableToken
         };
     }
 
-    public override bool EndParsingOnChar(char c)
+    public override bool EndParsingOnChar(char c, out BaseToken? replaceToken)
     {
+        replaceToken = null;
         return char.IsWhiteSpace(c);
     }
 

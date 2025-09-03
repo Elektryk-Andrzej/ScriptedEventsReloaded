@@ -1,16 +1,16 @@
 ﻿using System;
 using LabApi.Features.Wrappers;
 using SER.MethodSystem.ArgumentSystem.Arguments;
+using SER.MethodSystem.ArgumentSystem.BaseArguments;
 using SER.MethodSystem.BaseMethods;
-using SER.MethodSystem.MethodDescriptors;
 
 namespace SER.MethodSystem.Methods.DoorMethods;
 
-public class DoorInfoMethod : TextReturningMethod, IPureMethod
+public class DoorInfoMethod : ReferenceResolvingMethod
 {
-    public override string Description => "Returns information about the door.";
+    public override Type ReferenceType => typeof(Door);
 
-    public override BaseMethodArgument[] ExpectedArguments { get; } =
+    public override GenericMethodArgument[] ExpectedArguments { get; } =
     [
         new ReferenceArgument<Door>("door"),
         new OptionsArgument("info",
@@ -21,7 +21,7 @@ public class DoorInfoMethod : TextReturningMethod, IPureMethod
             "name",
             "unityName")
     ];
-    
+
     public override void Execute()
     {
         var door = Args.GetReference<Door>("door");

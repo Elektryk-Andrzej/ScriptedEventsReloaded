@@ -22,6 +22,7 @@ public static class PlayerVariableIndex
             new("allPlayers", Player.ReadyList.ToList, "Other"),
             new("alivePlayers", () => Player.ReadyList.Where(plr => plr.IsAlive).ToList(), "Other"),
             new("npcPlayers", () => Player.ReadyList.Where(plr => plr.IsNpc).ToList(), "Other"),
+            new("empty", () => [], "Other")
         ];
 
         allApiVariables.AddRange(
@@ -30,7 +31,7 @@ public static class PlayerVariableIndex
                 .Where(role => role is not RoleTypeId.None)
                 .Select(roleType =>
                 {
-                    return new PredefinedPlayerVariable(roleType.ToString().Decapitalize() + "Players",
+                    return new PredefinedPlayerVariable(roleType.ToString().LowerFirst() + "Players",
                         () => Player.ReadyList.Where(plr => plr.Role == roleType).ToList(),
                         "Role");
                 }));
@@ -41,7 +42,7 @@ public static class PlayerVariableIndex
                 .Where(zone => zone is not FacilityZone.None and not FacilityZone.Other)
                 .Select(zone =>
                 {
-                    return new PredefinedPlayerVariable(zone.ToString().Decapitalize() + "Players",
+                    return new PredefinedPlayerVariable(zone.ToString().LowerFirst() + "Players",
                         () => Player.ReadyList.Where(plr => plr.Zone == zone).ToList(),
                         "Facility zone");
                 }));
@@ -61,7 +62,7 @@ public static class PlayerVariableIndex
                         name = name.Substring(0, name.Length - 1);
                     }
 
-                    name = name.Decapitalize() + "Players";
+                    name = name.LowerFirst() + "Players";
                     if (allApiVariables.Any(v => v.Name == name))
                     {
                         return null;

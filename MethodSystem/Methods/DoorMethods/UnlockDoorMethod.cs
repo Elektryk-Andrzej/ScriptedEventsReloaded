@@ -1,14 +1,15 @@
 ﻿using Interactables.Interobjects.DoorUtils;
 using SER.MethodSystem.ArgumentSystem.Arguments;
+using SER.MethodSystem.ArgumentSystem.BaseArguments;
 using SER.MethodSystem.BaseMethods;
 
 namespace SER.MethodSystem.Methods.DoorMethods;
 
-public class UnlockDoorMethod : Method
+public class UnlockDoorMethod : SynchronousMethod
 {
     public override string Description => "Unlocks doors.";
 
-    public override BaseMethodArgument[] ExpectedArguments { get; } =
+    public override GenericMethodArgument[] ExpectedArguments { get; } =
     [
         new DoorsArgument("doors")
     ];

@@ -12,8 +12,8 @@ public abstract class BaseToken(string initRep = "")
 
     public void AddChar(char c)
     {
-        OnAddingChar(c);
         RawRepresentation += c;
+        OnAddChar(c);
     }
 
     [Pure]
@@ -25,9 +25,9 @@ public abstract class BaseToken(string initRep = "")
     }
 
     [Pure]
-    public abstract bool EndParsingOnChar(char c);
+    public abstract bool EndParsingOnChar(char c, out BaseToken? replaceToken);
 
-    protected virtual void OnAddingChar(char c)
+    protected virtual void OnAddChar(char c)
     {
     }
 

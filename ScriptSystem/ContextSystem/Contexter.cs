@@ -14,10 +14,10 @@ namespace SER.ScriptSystem.ContextSystem;
 /// </summary>
 public class Contexter(Script script)
 {
-    private readonly List<BaseContext> _contexts = [];
-    private readonly List<TreeContext> _treeContexts = [];
+    private readonly List<Context> _contexts = [];
+    private readonly List<TreeContext> _processingTreeContexts = [];
 
-    public TryGet<List<BaseContext>> LinkAllTokens(List<ScriptLine> lines)
+    public TryGet<List<Context>> LinkAllTokens(List<ScriptLine> lines)
     {
         var rs = new ResultStacker($"Script {script.Name} cannot compile.");
 
@@ -40,21 +40,36 @@ public class Contexter(Script script)
         return _contexts;
     }
 
-    private Result TryAddResult(BaseContext context, int lineNum)
+    private Result TryAddResult(Context context, int lineNum)
     {
         var rs = new ResultStacker($"Invalid context {context} in line {lineNum}.");
 
-        if (context is TerminationContext)
+        if (context is EndTreeContext)
         {
-            if (_treeContexts.Count == 0) return rs.Add("There is no statement to end with the `end` keyword!");
+            if (_processingTreeContexts.Count == 0) 
+                return rs.Add("There is no statement to end with the `end` keyword!");
 
-            _treeContexts.RemoveAt(_treeContexts.Count - 1);
+            _processingTreeContexts.RemoveAt(_processingTreeContexts.Count - 1);
             return true;
         }
 
-        if (context.VerifyCurrentState().HasErrored(out var error)) return rs.Add(error);
+        var currentTree = _processingTreeContexts.LastOrDefault();
+        if (context is ElseStatementContext elseStatement)
+        {
+            if (currentTree is not IfStatementContext ifStatement)
+            {
+                return rs.Add("The 'else' is not right after the 'if' statement.");
+            }
+            
+            _processingTreeContexts.RemoveAt(_processingTreeContexts.Count - 1);
+            _processingTreeContexts.Add(elseStatement);
+            ifStatement.ElseStatement = elseStatement;
+            return true;
+        }
 
-        var currentTree = _treeContexts.LastOrDefault();
+        if (context.VerifyCurrentState().HasErrored(out var error)) 
+            return rs.Add(error);
+
         if (currentTree is not null)
         {
             Log.Debug($"Adding finished context {context} to tree context {currentTree}");
@@ -67,13 +82,13 @@ public class Contexter(Script script)
             _contexts.Add(context);
         }
 
-        if (context is TreeContext treeContext) _treeContexts.Add(treeContext);
+        if (context is TreeContext treeContext) _processingTreeContexts.Add(treeContext);
 
         Log.Debug($"Line {lineNum} has been contexted to {context}");
         return true;
     }
 
-    private TryGet<BaseContext?> HandleLine(ScriptLine line)
+    private TryGet<Context?> HandleLine(ScriptLine line)
     {
         Log.Debug($"Handling line {line.LineNumber}:");
         var rs = new ResultStacker($"Line {line.LineNumber} cannot execute");
@@ -82,17 +97,16 @@ public class Contexter(Script script)
         if (firstToken == null)
         {
             Log.Debug($"Line {line.LineNumber} is empty");
-            return null as BaseContext;
+            return null as Context;
         }
 
-        if (firstToken is not BaseContextableToken contextable)
+        if (firstToken is not ContextableToken contextable)
         {
             Log.Warn(script, $"Line {line.LineNumber} does not start with a contextable token");
-            return null as BaseContext;
+            return null as Context;
         }
-
-        var res = contextable.TryGetResultingContext();
-        if (res.HasErrored(out var contextError, out var context))
+        
+        if (contextable.TryGetResultingContext().HasErrored(out var contextError, out var context))
             return rs.Add(contextError);
 
         foreach (var token in line.Tokens.Skip(1))
@@ -106,7 +120,7 @@ public class Contexter(Script script)
         return context;
     }
 
-    private static Result HandleCurrentContext(BaseToken token, BaseContext context, out bool endLineContexting)
+    private static Result HandleCurrentContext(BaseToken token, Context context, out bool endLineContexting)
     {
         var rs = new ResultStacker($"Cannot add token {token} to context {context}");
         Log.Debug($"Handling token {token} in context {context}");

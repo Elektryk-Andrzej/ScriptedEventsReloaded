@@ -12,14 +12,15 @@ public class ParenthesesToken : BaseToken, IUseBrackets
     public char ClosingBracket => ')';
     public string ValueWithoutBrackets => RawRepresentation.Substring(1, RawRepresentation.Length - 2);
 
-    protected override void OnAddingChar(char c)
+    protected override void OnAddChar(char c)
     {
         if (c == OpeningBracket) _openBrackets++;
         else if (c == ClosingBracket) _openBrackets--;
     }
 
-    public override bool EndParsingOnChar(char c)
+    public override bool EndParsingOnChar(char c, out BaseToken? replaceToken)
     {
+        replaceToken = null;
         return _openBrackets == 0;
     }
 

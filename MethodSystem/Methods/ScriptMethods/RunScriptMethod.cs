@@ -1,15 +1,16 @@
 ﻿using System.Collections.Generic;
 using SER.MethodSystem.ArgumentSystem.Arguments;
+using SER.MethodSystem.ArgumentSystem.BaseArguments;
 using SER.MethodSystem.BaseMethods;
 using SER.VariableSystem.Structures;
 
 namespace SER.MethodSystem.Methods.ScriptMethods;
 
-public class RunScriptMethod : Method
+public class RunScriptMethod : SynchronousMethod
 {
     public override string Description => "Runs a script.";
 
-    public override BaseMethodArgument[] ExpectedArguments { get; } =
+    public override GenericMethodArgument[] ExpectedArguments { get; } =
     [
         new ScriptArgument("script"),
         new VariableArgument("variablesToPass")

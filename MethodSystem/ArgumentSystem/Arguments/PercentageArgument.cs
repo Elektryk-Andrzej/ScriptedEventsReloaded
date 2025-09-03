@@ -1,4 +1,6 @@
-﻿using SER.MethodSystem.ArgumentSystem.Structures;
+﻿using JetBrains.Annotations;
+using SER.MethodSystem.ArgumentSystem.BaseArguments;
+using SER.MethodSystem.ArgumentSystem.Structures;
 using SER.ScriptSystem.TokenSystem.BaseTokens;
 
 namespace SER.MethodSystem.ArgumentSystem.Arguments;
@@ -6,11 +8,11 @@ namespace SER.MethodSystem.ArgumentSystem.Arguments;
 /// <summary>
 /// Represents a percentage argument used in a method.
 /// </summary>
-public class PercentageArgument(string name) : BaseMethodArgument(name)
+public class PercentageArgument(string name) : GenericMethodArgument(name)
 {
-    public override OperatingValue Input => OperatingValue.Percentage;
     public override string? AdditionalDescription => null;
-    
+        
+    [UsedImplicitly]
     public ArgumentEvaluation<float> GetConvertSolution(BaseToken token)
     {
         return CustomConvertSolution(token, InternalConvert);
@@ -32,6 +34,4 @@ public class PercentageArgument(string name) : BaseMethodArgument(name)
 
         return result / 100;
     }
-
-
 }

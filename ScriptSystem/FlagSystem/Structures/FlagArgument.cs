@@ -2,6 +2,9 @@
 
 public enum FlagArgument
 {
+    CommandName,
+    EventName,
     ConsoleType,
-    Arguments
+    Arguments,
+    Description,
 }

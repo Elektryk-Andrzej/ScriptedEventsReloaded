@@ -1,23 +1,28 @@
-﻿using LabApi.Features.Wrappers;
+﻿using System;
+using LabApi.Features.Wrappers;
 using SER.Helpers.Exceptions;
 using SER.MethodSystem.ArgumentSystem.Arguments;
+using SER.MethodSystem.ArgumentSystem.BaseArguments;
 using SER.MethodSystem.BaseMethods;
-using SER.MethodSystem.MethodDescriptors;
 
 namespace SER.MethodSystem.Methods.RoomMethods;
 
-public class RoomInfoMethod : TextReturningMethod, IPureMethod
+public class RoomInfoMethod : ReferenceResolvingMethod
 {
+    public override Type ReferenceType => typeof(Room);
     public override string Description => $"Returns information about a given room from a {nameof(Room)} reference.";
 
-    public override BaseMethodArgument[] ExpectedArguments { get; } =
+    public override GenericMethodArgument[] ExpectedArguments { get; } =
     [
         new ReferenceArgument<Room>("room"),
         new OptionsArgument("property",
             "shape",
             "name",
             "zone",
-            "position")
+            "pos",
+            "xPos",
+            "yPos",
+            "zPos")
     ];
     
     public override void Execute()
@@ -28,8 +33,11 @@ public class RoomInfoMethod : TextReturningMethod, IPureMethod
             "shape" => room.Shape.ToString(),
             "name" => room.Name.ToString(),
             "zone" => room.Zone.ToString(),
-            "position" => room.Position.ToString(),
-            _ => throw new DeveloperFuckupException("room info property out of range")
+            "pos" => room.Position.ToString(),
+            "xpos" => room.Position.x.ToString(),
+            "ypos" => room.Position.y.ToString(),
+            "zpos" => room.Position.z.ToString(),
+            _ => throw new AndrzejFuckedUpException("room info property out of range")
         };
     }
 }

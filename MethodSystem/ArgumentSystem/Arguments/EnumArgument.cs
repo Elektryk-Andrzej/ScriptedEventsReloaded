@@ -1,7 +1,9 @@
 ﻿using System;
+using JetBrains.Annotations;
 using SER.Helpers.Extensions;
+using SER.MethodSystem.ArgumentSystem.BaseArguments;
 using SER.MethodSystem.ArgumentSystem.Structures;
-using SER.Plugin.HelpSystem;
+using SER.Plugin.Commands.HelpSystem;
 using SER.ScriptSystem.TokenSystem.BaseTokens;
 
 namespace SER.MethodSystem.ArgumentSystem.Arguments;
@@ -12,18 +14,16 @@ namespace SER.MethodSystem.ArgumentSystem.Arguments;
 /// <typeparam name="TEnum">
 /// The specific enum type this argument represents.
 /// </typeparam>
-public class EnumArgument<TEnum> : BaseMethodArgument where TEnum : struct, Enum
+public class EnumArgument<TEnum> : CustomMethodArgument where TEnum : struct, Enum
 {
     public EnumArgument(string name) : base(name)
     {
         HelpInfoStorage.UsedEnums.Add(typeof(TEnum));
     }
     
-    public override OperatingValue Input => OperatingValue.CustomEnum;
+    public override string InputDescription => $"{typeof(TEnum).GetAccurateName()} enum value.";
 
-    public override string AdditionalDescription => 
-        $"This argument is expecting {typeof(TEnum).GetAccurateName()} enum value.";
-    
+    [UsedImplicitly]
     public ArgumentEvaluation<object> GetConvertSolution(BaseToken token)
     {
         return CustomConvertSolution(token, InternalConvert);

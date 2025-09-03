@@ -4,15 +4,16 @@ using LabApi.Features.Wrappers;
 using PlayerRoles;
 using SER.Helpers.Extensions;
 using SER.MethodSystem.ArgumentSystem.Arguments;
+using SER.MethodSystem.ArgumentSystem.BaseArguments;
 using SER.MethodSystem.BaseMethods;
 
 namespace SER.MethodSystem.Methods.MapMethods;
 
-public class DestroyRagdollsMethod : Method
+public class DestroyRagdollsMethod : SynchronousMethod
 {
     public override string Description => "Destroys ragdolls.";
 
-    public override BaseMethodArgument[] ExpectedArguments =>
+    public override GenericMethodArgument[] ExpectedArguments =>
     [
         new EnumArgument<RoleTypeId>("roleToRemove")
         {

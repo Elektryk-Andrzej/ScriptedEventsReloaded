@@ -1,11 +1,13 @@
 ﻿using System;
+using JetBrains.Annotations;
 using SER.Helpers.Exceptions;
+using SER.MethodSystem.ArgumentSystem.BaseArguments;
 using SER.MethodSystem.ArgumentSystem.Structures;
 using SER.ScriptSystem.TokenSystem.BaseTokens;
 
 namespace SER.MethodSystem.ArgumentSystem.Arguments;
 
-public class FloatArgument : BaseMethodArgument
+public class FloatArgument : GenericMethodArgument
 {
     private readonly float? _minValue;
     private readonly float? _maxValue;
@@ -14,15 +16,13 @@ public class FloatArgument : BaseMethodArgument
     {
         if (minValue.HasValue && maxValue.HasValue && minValue.Value > maxValue.Value)
         {
-            throw new DeveloperFuckupException(
+            throw new AndrzejFuckedUpException(
                 $"{nameof(FloatArgument)} has minValue at {minValue.Value} and maxValue at {maxValue.Value}.");
         }
         
         _minValue = minValue;
         _maxValue = maxValue;
     }
-    
-    public override OperatingValue Input => OperatingValue.Float;
 
     public override string? AdditionalDescription
     {
@@ -48,23 +48,21 @@ public class FloatArgument : BaseMethodArgument
             return null;
         }
     }
-
+    
+    [UsedImplicitly]
     public ArgumentEvaluation<float> GetConvertSolution(BaseToken token)
     {
-        return DefaultConvertSolution<float>(token, new()
+        return SingleSolutionConvert<float>(token, OperatingValue.Float, o =>
         {
-            [OperatingValue.Float] = o =>
-            {
-                var result = (float)o;
+            var result = (float)o;
                 
-                if (result < _minValue)
-                    return Rs.Add($"Value '{result}' is lower than allowed minimum value {_minValue}.");
+            if (result < _minValue)
+                return Rs.Add($"Value '{result}' is lower than allowed minimum value {_minValue}.");
                 
-                if (result > _maxValue)
-                    return Rs.Add($"Value '{result}' is higher than allowed maximum value {_maxValue}.");
+            if (result > _maxValue)
+                return Rs.Add($"Value '{result}' is higher than allowed maximum value {_maxValue}.");
 
-                return result;
-            }
+            return result;
         });
     }
 }

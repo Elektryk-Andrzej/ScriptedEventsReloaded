@@ -1,13 +1,14 @@
 ﻿using System.Collections.Generic;
 using LabApi.Features.Wrappers;
 using SER.MethodSystem.ArgumentSystem.Arguments;
+using SER.MethodSystem.ArgumentSystem.BaseArguments;
 using SER.MethodSystem.BaseMethods;
 using SER.MethodSystem.MethodDescriptors;
 
 namespace SER.MethodSystem.Methods.LiteralVariableMethods;
 
 // ReSharper disable once ClassNeverInstantiated.Global
-public class SetPlayerDataMethod : Method, IAdditionalDescription
+public class SetPlayerDataMethod : SynchronousMethod, IAdditionalDescription
 {
     public static readonly Dictionary<Player, Dictionary<string, string>> PlayerData = [];
     
@@ -19,9 +20,9 @@ public class SetPlayerDataMethod : Method, IAdditionalDescription
         "other players. For this, you would create a key e.g. 'surfaceTime', and under that key you can start saving " +
         "the value. It's basically a dictionary/hashmap attached to a player.";
 
-    public override BaseMethodArgument[] ExpectedArguments { get; } =
+    public override GenericMethodArgument[] ExpectedArguments { get; } =
     [
-        new SinglePlayerArgument("player"),
+        new PlayerArgument("player"),
         new TextArgument("key"),
         new TextArgument("valueToSet")
     ];

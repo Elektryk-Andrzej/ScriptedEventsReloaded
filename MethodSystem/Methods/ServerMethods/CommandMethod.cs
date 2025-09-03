@@ -1,12 +1,13 @@
 ﻿using RemoteAdmin;
 using SER.Helpers.Extensions;
 using SER.MethodSystem.ArgumentSystem.Arguments;
+using SER.MethodSystem.ArgumentSystem.BaseArguments;
 using SER.MethodSystem.BaseMethods;
 using SER.MethodSystem.MethodDescriptors;
 
 namespace SER.MethodSystem.Methods.ServerMethods;
 
-public class CommandMethod : Method, IAdditionalDescription
+public class CommandMethod : SynchronousMethod, IAdditionalDescription
 {
     public override string Description => "Runs a server command with full permission.";
 
@@ -14,10 +15,10 @@ public class CommandMethod : Method, IAdditionalDescription
         => "This action executes commands as the server. Therefore, the command needs '/' before it if it's a RA " +
            "command, or '.' before it if it's a console command.";
 
-    public override BaseMethodArgument[] ExpectedArguments { get; } =
+    public override GenericMethodArgument[] ExpectedArguments { get; } =
     [
         new TextArgument("command"),
-        new SinglePlayerArgument("sender")
+        new PlayerArgument("sender")
         {
             DefaultValue = null
         }

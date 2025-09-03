@@ -1,14 +1,15 @@
 ﻿using Respawning;
 using SER.MethodSystem.ArgumentSystem.Arguments;
+using SER.MethodSystem.ArgumentSystem.BaseArguments;
 using SER.MethodSystem.BaseMethods;
 
 namespace SER.MethodSystem.Methods.CASSIEMethods;
 
-public class CassieMethod : Method
+public class CassieMethod : SynchronousMethod
 {
     public override string Description => "Makes a CASSIE announcement.";
 
-    public override BaseMethodArgument[] ExpectedArguments { get; } =
+    public override GenericMethodArgument[] ExpectedArguments { get; } =
     [
         new OptionsArgument("mode",
             "jingle",

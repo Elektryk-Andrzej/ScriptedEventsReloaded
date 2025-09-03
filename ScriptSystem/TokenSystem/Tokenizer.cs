@@ -3,6 +3,7 @@ using SER.Helpers;
 using SER.ScriptSystem.TokenSystem.BaseTokens;
 using SER.ScriptSystem.TokenSystem.Structures;
 using SER.ScriptSystem.TokenSystem.Tokens;
+using SER.ScriptSystem.TokenSystem.Tokens.LiteralVariables;
 
 namespace SER.ScriptSystem.TokenSystem;
 
@@ -34,7 +35,7 @@ public class Tokenizer(Script script)
         {
             if (currentToken is null)
             {
-                currentToken = GetLexer(currentChar, lineNum);
+                currentToken = GetToken(currentChar, lineNum);
 
                 if (currentToken is not null)
                 {
@@ -45,9 +46,15 @@ public class Tokenizer(Script script)
                 continue;
             }
             
-            if (!currentToken.EndParsingOnChar(currentChar))
+            if (!currentToken.EndParsingOnChar(currentChar, out BaseToken? replaceToken))
             {
                 currentToken.AddChar(currentChar);
+                continue;
+            }
+
+            if (replaceToken is not null)
+            {
+                currentToken = replaceToken;
                 continue;
             }
             
@@ -59,6 +66,7 @@ public class Tokenizer(Script script)
                     Script = script,
                     LineNum = currentToken.LineNum,
                 };
+                continue;
             }
 
             AddToken();
@@ -87,14 +95,14 @@ public class Tokenizer(Script script)
                 };
             }
 
-            Log.Debug($"Token lexer {currentToken} has stopped");
+            Log.Debug($"BaseToken lexer {currentToken} has stopped");
             tokens.Add(currentToken);
             currentToken = null;
         }
     }
 
     // if C# allowed for static override this wouldve been unnecessary
-    private BaseToken? GetLexer(char character, int lineNum)
+    private BaseToken? GetToken(char character, int lineNum)
     {
         // whitespaces are ignored
         if (char.IsWhiteSpace(character)) return null;
@@ -127,6 +135,12 @@ public class Tokenizer(Script script)
                 };
             case '(':
                 return new ParenthesesToken
+                {
+                    Script = script,
+                    LineNum = lineNum
+                };
+            case '"':
+                return new TextToken
                 {
                     Script = script,
                     LineNum = lineNum

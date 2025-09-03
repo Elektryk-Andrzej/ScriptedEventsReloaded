@@ -5,16 +5,17 @@ using MEC;
 using SER.Helpers;
 using SER.Helpers.Extensions;
 using SER.MethodSystem.ArgumentSystem.Arguments;
+using SER.MethodSystem.ArgumentSystem.BaseArguments;
 using SER.MethodSystem.BaseMethods;
 using UnityEngine;
 
 namespace SER.MethodSystem.Methods.LightMethods;
 
-public class TransitionLightColorMethod : Method
+public class TransitionLightColorMethod : SynchronousMethod
 {
     public override string Description => "Transitions smoothly the light color for rooms.";
 
-    public override BaseMethodArgument[] ExpectedArguments { get; } =
+    public override GenericMethodArgument[] ExpectedArguments { get; } =
     [
         new RoomsArgument("rooms"),
         new ColorArgument("color"),
@@ -33,23 +34,23 @@ public class TransitionLightColorMethod : Method
         }
     }
     
-    // this took 3 hours because NW doesnt want you setting colors for specific light sources?????
     private static IEnumerator<float> TransitionColor(Room room, Color targetColor, float duration)
     {
         Dictionary<LightsController, Color> startColor = [];
         foreach (var lightsController in room.AllLightControllers)
         {
+            if (lightsController.OverrideLightsColor != Color.clear)
+            {
+                startColor[lightsController] = lightsController.OverrideLightsColor;
+                continue;
+            }
+            
             var roomLights = lightsController.Base.transform.parent.GetComponentsInChildren<RoomLight>(true);
             var startColorForLight = ColorUtils.AverageColor(
                 roomLights
                     .Select(l => l._overrideColorSet ? l._overrideColor : l._initialLightColor)
                     .Where(c => c != Color.clear)
                     .ToArray());
-
-            // Logger.Info(
-            //     $"{string.Join(", ", roomLights.Select(l => 
-            //         l._overrideColorSet ? l._overrideColor : l._initialLightColor).Where(c => c != Color.clear).ToArray())} " +
-            //     $"-> {startColorForLight}");
             
             startColor[lightsController] = startColorForLight;
         }

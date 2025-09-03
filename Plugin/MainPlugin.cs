@@ -1,16 +1,18 @@
 ﻿using System;
+using JetBrains.Annotations;
 using LabApi.Features;
 using LabApi.Features.Console;
 using SER.MethodSystem;
 using SER.MethodSystem.Methods.LiteralVariableMethods;
 using SER.ScriptSystem;
+using SER.ScriptSystem.FlagSystem.Structures;
 using SER.VariableSystem;
 using EventHandler = SER.ScriptSystem.EventSystem.EventHandler;
 using Events = LabApi.Events.Handlers;
 
 namespace SER.Plugin;
 
-// ReSharper disable once ClassNeverInstantiated.Global
+[UsedImplicitly]
 public class MainPlugin : LabApi.Loader.Features.Plugins.Plugin
 {
     public override string Name => "SER";
@@ -31,6 +33,7 @@ public class MainPlugin : LabApi.Loader.Features.Plugins.Plugin
         EventHandler.Initialize();
         MethodIndex.Initialize();
         PlayerVariableIndex.Initialize();
+        Flag.RegisterFlags();
         FileSystem.Initialize();
         
         Events.ServerEvents.WaitingForPlayers += OnServerFullyInit;

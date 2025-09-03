@@ -1,17 +1,18 @@
 ﻿using System;
 using System.Linq;
 using SER.MethodSystem.ArgumentSystem.Arguments;
+using SER.MethodSystem.ArgumentSystem.BaseArguments;
 using SER.MethodSystem.BaseMethods;
 using SER.VariableSystem;
 using SER.VariableSystem.Structures;
 
 namespace SER.MethodSystem.Methods.PlayerVariableMethods;
 
-public class GlobalPlayerVariableMethod : Method
+public class GlobalPlayerVariableMethod : SynchronousMethod
 {
     public override string Description => "Creates or overrides a global player variable.";
 
-    public override BaseMethodArgument[] ExpectedArguments { get; } =
+    public override GenericMethodArgument[] ExpectedArguments { get; } =
     [
         new PlayerVariableNameArgument("variableName")
         {

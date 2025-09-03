@@ -1,16 +1,17 @@
-﻿using LabApi.Features.Wrappers;
+﻿using System;
+using LabApi.Features.Wrappers;
 using SER.Helpers.Exceptions;
 using SER.MethodSystem.ArgumentSystem.Arguments;
+using SER.MethodSystem.ArgumentSystem.BaseArguments;
 using SER.MethodSystem.BaseMethods;
-using SER.MethodSystem.MethodDescriptors;
 
 namespace SER.MethodSystem.Methods.RespawnMethods;
 
-public class RespawnWaveInfoMethod : TextReturningMethod, IPureMethod
+public class RespawnWaveInfoMethod : ReferenceResolvingMethod
 {
-    public override string Description => "Returns information about a given respawn wave reference.";
+    public override Type ReferenceType => typeof(RespawnWave);
 
-    public override BaseMethodArgument[] ExpectedArguments { get; } =
+    public override GenericMethodArgument[] ExpectedArguments { get; } =
     [
         new ReferenceArgument<RespawnWave>("respawnWave"),
         new OptionsArgument("property",
@@ -20,7 +21,7 @@ public class RespawnWaveInfoMethod : TextReturningMethod, IPureMethod
             "influence",
             "secondsLeft")
     ];
-    
+
     public override void Execute()
     {
         var wave = Args.GetReference<RespawnWave>("respawnWave");
@@ -31,7 +32,7 @@ public class RespawnWaveInfoMethod : TextReturningMethod, IPureMethod
             "respawntokens" => wave.RespawnTokens.ToString(),
             "influence" => wave.Influence.ToString(),
             "secondsleft" => wave.TimeLeft.ToString(),
-            _ => throw new DeveloperFuckupException()
+            _ => throw new AndrzejFuckedUpException()
         };
     }
 }

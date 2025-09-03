@@ -7,10 +7,11 @@ using SER.ScriptSystem.TokenSystem.BaseTokens;
 
 namespace SER.ScriptSystem.TokenSystem.Tokens;
 
-public class KeywordToken : BaseContextableToken
+public class KeywordToken : ContextableToken
 {
-    public override bool EndParsingOnChar(char c)
+    public override bool EndParsingOnChar(char c, out BaseToken? replaceToken)
     {
+        replaceToken = null;
         return char.IsWhiteSpace(c);
     }
 
@@ -19,20 +20,20 @@ public class KeywordToken : BaseContextableToken
         return true;
     }
 
-    public override TryGet<BaseContext> TryGetResultingContext()
+    public override TryGet<Context> TryGetResultingContext()
     {
         var info = (Script, LineNum);
         
         return RawRepresentation.ToLower() switch
         {
-            "if" => BaseContext.Create<IfStatementContext>(info),
-            "for" => BaseContext.Create<ForLoopContext>(info),
-            "end" => BaseContext.Create<TerminationContext>(info),
-            "continue" => BaseContext.Create<LoopContinueContext>(info),
-            "repeat" => BaseContext.Create<RepeatLoopContext>(info),
-            "stop" => BaseContext.Create<StopScriptContext>(info),
-            "forever" => BaseContext.Create<ForeverLoopContext>(info),
-            "while" => BaseContext.Create<WhileLoopContext>(info),
+            "if" => Context.Create<IfStatementContext>(info),
+            "end" => Context.Create<EndTreeContext>(info),
+            "continue" => Context.Create<LoopContinueContext>(info),
+            "repeat" => Context.Create<RepeatLoopContext>(info),
+            "stop" => Context.Create<StopScriptContext>(info),
+            "forever" => Context.Create<ForeverLoopContext>(info),
+            "while" => Context.Create<WhileLoopContext>(info),
+            "else" => Context.Create<ElseStatementContext>(info),
             _ => $"Value '{RawRepresentation}' is not a keyword."
         };
     }

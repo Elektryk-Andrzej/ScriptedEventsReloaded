@@ -1,14 +1,15 @@
 ﻿using SER.MethodSystem.ArgumentSystem.Arguments;
+using SER.MethodSystem.ArgumentSystem.BaseArguments;
 using SER.MethodSystem.BaseMethods;
 using SER.ScriptSystem.EventSystem;
 
 namespace SER.MethodSystem.Methods.EventMethods;
 
-public class EnableEventMethod : Method
+public class EnableEventMethod : SynchronousMethod
 {
     public override string Description => "Enables the provided event to run after being disabled.";
 
-    public override BaseMethodArgument[] ExpectedArguments { get; } =
+    public override GenericMethodArgument[] ExpectedArguments { get; } =
     [
         new TextArgument("eventName")
     ];

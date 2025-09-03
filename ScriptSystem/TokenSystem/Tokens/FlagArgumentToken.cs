@@ -6,20 +6,21 @@ using SER.ScriptSystem.TokenSystem.BaseTokens;
 
 namespace SER.ScriptSystem.TokenSystem.Tokens;
 
-public class FlagArgumentToken : BaseContextableToken
+public class FlagArgumentToken : ContextableToken
 {
-    public override bool EndParsingOnChar(char c)
+    public override bool EndParsingOnChar(char c, out BaseToken? replaceToken)
     {
+        replaceToken = null;
         return char.IsWhiteSpace(c);
     }
 
     public override Result IsValidSyntax()
     {
         return Result.Assert(RawRepresentation == "--",
-            $"Flag argument prefix must be '--', not '{RawRepresentation}'");
+            $"FlagType argument prefix must be '--', not '{RawRepresentation}'");
     }
 
-    public override TryGet<BaseContext> TryGetResultingContext()
+    public override TryGet<Context> TryGetResultingContext()
     {
         return new NoOperationContext()
         {

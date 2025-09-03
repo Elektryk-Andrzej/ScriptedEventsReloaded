@@ -10,9 +10,9 @@ public static class DictionaryExtensions
         TCollectionValue value
     ) where TCollection : List<TCollectionValue>, new()
     {
-        if (dictionary.ContainsKey(key))
+        if (dictionary.TryGetValue(key, out var list))
         {
-            dictionary[key].Add(value);
+            list.Add(value);
         }
         else
         {

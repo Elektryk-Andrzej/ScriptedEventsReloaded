@@ -1,13 +1,14 @@
 ﻿using SER.MethodSystem.ArgumentSystem.Arguments;
+using SER.MethodSystem.ArgumentSystem.BaseArguments;
 using SER.MethodSystem.BaseMethods;
 
 namespace SER.MethodSystem.Methods.ItemMethods;
 
-public class DestroyItemMethod : Method
+public class DestroyItemMethod : SynchronousMethod
 {
     public override string Description => "Destroys an item in players' inventory.";
 
-    public override BaseMethodArgument[] ExpectedArguments { get; } =
+    public override GenericMethodArgument[] ExpectedArguments { get; } =
     [
         new PlayersArgument("players"),
         new EnumArgument<ItemType>("item"),
@@ -26,6 +27,6 @@ public class DestroyItemMethod : Method
         foreach (var plr in players)
         {
             plr.RemoveItem(item, amount);
-        };
+        }
     }
 }

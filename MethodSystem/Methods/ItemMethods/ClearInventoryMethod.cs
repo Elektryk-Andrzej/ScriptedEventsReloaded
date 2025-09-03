@@ -1,13 +1,14 @@
 ﻿using SER.MethodSystem.ArgumentSystem.Arguments;
+using SER.MethodSystem.ArgumentSystem.BaseArguments;
 using SER.MethodSystem.BaseMethods;
 
 namespace SER.MethodSystem.Methods.ItemMethods;
 
-public class ClearInventoryMethod : Method
+public class ClearInventoryMethod : SynchronousMethod
 {
     public override string Description => "Clears player inventory.";
 
-    public override BaseMethodArgument[] ExpectedArguments { get; } =
+    public override GenericMethodArgument[] ExpectedArguments { get; } =
     [
         new PlayersArgument("players")
     ];

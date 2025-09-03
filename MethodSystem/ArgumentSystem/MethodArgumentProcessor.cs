@@ -6,7 +6,7 @@ using SER.Helpers;
 using SER.Helpers.Exceptions;
 using SER.Helpers.Extensions;
 using SER.Helpers.ResultStructure;
-using SER.MethodSystem.ArgumentSystem.Arguments;
+using SER.MethodSystem.ArgumentSystem.BaseArguments;
 using SER.MethodSystem.ArgumentSystem.Interfaces;
 using SER.MethodSystem.ArgumentSystem.Structures;
 using SER.MethodSystem.BaseMethods;
@@ -14,13 +14,13 @@ using SER.ScriptSystem.TokenSystem.BaseTokens;
 
 namespace SER.MethodSystem.ArgumentSystem;
 
-public class MethodArgumentProcessor(BaseMethod method)
+public class MethodArgumentProcessor(Method method)
 {
     private class ConverterInfo(MethodInfo method)
     {
         private MethodInfo Method { get; } = method;
         
-        public IArgEvalRes Invoke(BaseToken token, BaseMethodArgument arg)
+        public IArgEvalRes Invoke(BaseToken token, GenericMethodArgument arg)
         {
             object[] parameters = [token];
             
@@ -46,7 +46,7 @@ public class MethodArgumentProcessor(BaseMethod method)
             return ConverterCache[argType] = new ConverterInfo(instanceMethod);
         }
         
-        throw new DeveloperFuckupException($"No suitable GetConvertSolution method found for {argType.GetAccurateName()}.");
+        throw new AndrzejFuckedUpException($"No suitable GetConvertSolution method found for {argType.GetAccurateName()}.");
     }
 
     public TryGet<ArgumentSkeleton> TryGetSkeleton(BaseToken token, int index)
@@ -54,7 +54,7 @@ public class MethodArgumentProcessor(BaseMethod method)
         var rs = new ResultStacker(
             $"Argument {index + 1} '{token.RawRepresentation}' for method {method.Name} is invalid.");
 
-        BaseMethodArgument arg;
+        GenericMethodArgument arg;
         if (index >= method.ExpectedArguments.Length)
         {
             if (method.ExpectedArguments.LastOrDefault()?.ConsumesRemainingValues != true)
@@ -96,6 +96,6 @@ public class MethodArgumentProcessor(BaseMethod method)
             ArgumentType = argType,
             Name = arg.Name,
             IsPartOfCollection = arg.ConsumesRemainingValues
-        };;
+        };
     }
 }

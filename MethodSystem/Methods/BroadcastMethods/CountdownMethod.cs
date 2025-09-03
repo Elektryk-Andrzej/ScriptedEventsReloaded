@@ -4,17 +4,18 @@ using LabApi.Features.Wrappers;
 using MEC;
 using SER.Helpers;
 using SER.MethodSystem.ArgumentSystem.Arguments;
+using SER.MethodSystem.ArgumentSystem.BaseArguments;
 using SER.MethodSystem.BaseMethods;
 
 namespace SER.MethodSystem.Methods.BroadcastMethods;
 
-public class CountdownMethod : Method
+public class CountdownMethod : SynchronousMethod
 {
     private static readonly Dictionary<Player, CoroutineHandle> Coroutines = new();
     
     public override string Description => "Creates a countdown using broadcasts.";
 
-    public override BaseMethodArgument[] ExpectedArguments { get; } =
+    public override GenericMethodArgument[] ExpectedArguments { get; } =
     [
         new PlayersArgument("players"),
         new DurationArgument("duration"),

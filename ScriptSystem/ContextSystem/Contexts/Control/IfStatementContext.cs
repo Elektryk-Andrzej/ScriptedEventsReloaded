@@ -1,6 +1,5 @@
 ﻿using System.Collections.Generic;
 using SER.ScriptSystem.ContextSystem.Extensions;
-using SER.ScriptSystem.TokenSystem;
 using SER.Helpers;
 using SER.Helpers.ResultStructure;
 using SER.ScriptSystem.ContextSystem.BaseContexts;
@@ -11,12 +10,13 @@ namespace SER.ScriptSystem.ContextSystem.Contexts.Control;
 
 public class IfStatementContext : TreeContext
 {
-    private string? _condition;
+    private readonly List<BaseToken> _condition = [];
+    public ElseStatementContext? ElseStatement { get; set; }
 
     public override TryAddTokenRes TryAddToken(BaseToken token)
     {
-        _condition = token.GetValue();
-        return TryAddTokenRes.End();
+        _condition.Add(token);
+        return TryAddTokenRes.Continue();
     }
 
     public override Result VerifyCurrentState()
@@ -33,22 +33,45 @@ public class IfStatementContext : TreeContext
             yield break;
         }
 
-        if (ExpressionSystem.EvalCondition(_condition, Script).HasErrored(out var error, out var resul))
+        if (ExpressionSystem.EvalCondition(_condition.ToArray(), Script).HasErrored(out var error, out var result))
         {
             Log.Error(Script, $"Error while evaluating condition: {error}");
             yield break;
         }
         
-        if (resul == false)
+        if (result == false)
         {
+            if (ElseStatement is null) yield break;
+            
+            var enumerator = ElseStatement.Run();
+            while (enumerator.MoveNext())
+            {
+                if (!Script.IsRunning)
+                {
+                    yield break;
+                }
+                
+                yield return enumerator.Current;
+            }
+
             yield break;
         }
         
         foreach (var child in Children)
         {
+            if (!Script.IsRunning)
+            {
+                yield break;
+            }
+            
             var coro = child.ExecuteBaseContext();
             while (coro.MoveNext())
             {
+                if (!Script.IsRunning)
+                {
+                    yield break;
+                }
+                
                 yield return coro.Current;
             }
         }

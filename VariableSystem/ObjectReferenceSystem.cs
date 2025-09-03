@@ -16,7 +16,7 @@ public static class ObjectReferenceSystem
     public static string RegisterObject(object obj)
     {
         var type = obj.GetType();
-        var key = $"[{type.GetAccurateName()} reference | ID {obj.GetHashCode()}]";
+        var key = $"<{type.GetAccurateName()} reference | ID {obj.GetHashCode()}>";
         StoredObjects[key] = (obj, type);
         return key;
     }

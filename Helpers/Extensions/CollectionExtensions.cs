@@ -33,8 +33,18 @@ public static class CollectionExtensions
         return source.SelectMany(x => x);
     }
 
-    public static string Join(this IEnumerable<string> source, string separator)
+    public static string JoinStrings(this IEnumerable<string> source, string separator)
     {
         return string.Join(separator, source);
+    }
+
+    public static int Len<T>(this List<T> list)
+    {
+        return list.Count;
+    }
+    
+    public static int Len<T>(this T[] array)
+    {
+        return array.Length;
     }
 }

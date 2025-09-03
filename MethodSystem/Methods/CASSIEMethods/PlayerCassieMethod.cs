@@ -5,7 +5,7 @@ public class PlayerCassieMethod : Method
 {
     public override string Description => "Makes a CASSIE announcement to specified players only.";
 
-    public override BaseMethodArgument[] ExpectedArguments { get; } =
+    public override GenericMethodArgument[] ExpectedArguments { get; } =
     [
         new PlayersArgument("players"),
         new OptionsArgument("mode",

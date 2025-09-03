@@ -11,7 +11,7 @@ public static class StringExtensions
     /// <param name="str">The input string to be modified.</param>
     /// <returns>A new string with the first character decapitalized.</returns>
     [Pure]
-    public static string Decapitalize(this string str)
+    public static string LowerFirst(this string str)
     {
         return str.Substring(0, 1).ToLower() + str.Substring(1);
     }

@@ -1,13 +1,14 @@
 ﻿using SER.MethodSystem.ArgumentSystem.Arguments;
+using SER.MethodSystem.ArgumentSystem.BaseArguments;
 using SER.MethodSystem.BaseMethods;
 
 namespace SER.MethodSystem.Methods.HealthMethods;
 
-public class SetMaxHealthMethod : Method
+public class SetMaxHealthMethod : SynchronousMethod
 {
     public override string Description => "Sets the max health of players.";
 
-    public override BaseMethodArgument[] ExpectedArguments { get; } =
+    public override GenericMethodArgument[] ExpectedArguments { get; } =
     [
         new PlayersArgument("players"),
         new FloatArgument("maxHealth", 1)

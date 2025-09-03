@@ -1,6 +1,6 @@
 ﻿namespace SER.ScriptSystem.ContextSystem.BaseContexts;
 
-public abstract class StandardContext : BaseContext
+public abstract class StandardContext : Context
 {
     public void Run()
     {

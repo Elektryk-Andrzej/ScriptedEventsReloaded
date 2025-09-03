@@ -1,13 +1,14 @@
 ﻿using SER.MethodSystem.ArgumentSystem.Arguments;
+using SER.MethodSystem.ArgumentSystem.BaseArguments;
 using SER.MethodSystem.BaseMethods;
 
 namespace SER.MethodSystem.Methods.HealthMethods;
 
-public class DamageMethod : Method
+public class DamageMethod : SynchronousMethod
 {
     public override string Description => "Damages players.";
 
-    public override BaseMethodArgument[] ExpectedArguments { get; } =
+    public override GenericMethodArgument[] ExpectedArguments { get; } =
     [
         new PlayersArgument("players"),
         new FloatArgument("amount", 0),

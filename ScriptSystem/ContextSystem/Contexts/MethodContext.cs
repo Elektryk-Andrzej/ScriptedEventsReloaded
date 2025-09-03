@@ -14,10 +14,10 @@ namespace SER.ScriptSystem.ContextSystem.Contexts;
 
 public class MethodContext(MethodToken methodToken) : YieldingContext
 {
-    public readonly BaseMethod Method = methodToken.Method;
+    public readonly Method Method = methodToken.Method;
     public readonly MethodArgumentProcessor Processor = new(methodToken.Method);
     private int _providedArguments = 0;
-
+    
     public override TryAddTokenRes TryAddToken(BaseToken token)
     {
         if (Processor.TryGetSkeleton(token, _providedArguments).HasErrored(out var error, out var skeleton))
@@ -43,7 +43,7 @@ public class MethodContext(MethodToken methodToken) : YieldingContext
 
         switch (Method)
         {
-            case Method stdAct:
+            case SynchronousMethod stdAct:
                 stdAct.Execute();
                 yield break;
             case YieldingMethod yieldAct:

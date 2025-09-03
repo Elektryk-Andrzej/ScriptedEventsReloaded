@@ -1,11 +1,12 @@
 ﻿using SER.MethodSystem.ArgumentSystem.Arguments;
+using SER.MethodSystem.ArgumentSystem.BaseArguments;
 using SER.MethodSystem.BaseMethods;
 using SER.MethodSystem.MethodDescriptors;
 using SER.ScriptSystem.TokenSystem.Structures;
 
 namespace SER.MethodSystem.Methods.EventMethods;
 
-public class IsAllowedMethod : Method, IAdditionalDescription
+public class IsAllowedMethod : SynchronousMethod, IAdditionalDescription
 {
     public override string Description => "Sets whether or not the event is allowed to run.";
 
@@ -13,7 +14,7 @@ public class IsAllowedMethod : Method, IAdditionalDescription
         "In order for it to have any impact, the script in which the method is used must be trigger by an event, and " +
         "that event must be cancellable.";
 
-    public override BaseMethodArgument[] ExpectedArguments { get; } =
+    public override GenericMethodArgument[] ExpectedArguments { get; } =
     [
         new BoolArgument("isAllowed")
     ];

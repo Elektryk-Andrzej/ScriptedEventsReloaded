@@ -3,6 +3,7 @@ using System.Linq;
 using LabApi.Features.Wrappers;
 using SER.Helpers.Extensions;
 using SER.MethodSystem.ArgumentSystem.Arguments;
+using SER.MethodSystem.ArgumentSystem.BaseArguments;
 using SER.MethodSystem.BaseMethods;
 using SER.MethodSystem.MethodDescriptors;
 
@@ -13,7 +14,7 @@ public class JoinPlayersMethod : PlayerReturningMethod, IPureMethod
     public override string Description =>
         "Returns all players that were provided from multiple player variables.";
 
-    public override BaseMethodArgument[] ExpectedArguments { get; } =
+    public override GenericMethodArgument[] ExpectedArguments { get; } =
     [
         new PlayersArgument("players")
         {

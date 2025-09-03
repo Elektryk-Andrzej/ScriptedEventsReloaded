@@ -20,7 +20,7 @@ public class RepeatLoopContext : TreeContext
 
     public override TryAddTokenRes TryAddToken(BaseToken token)
     {
-        if (VariableParser.IsVariableUsedInString(token.GetValue(), Script, out var resultFunc))
+        if (VariableParser.IsValueSyntaxUsedInString(token.GetValue(), Script, out var resultFunc))
         {
             _getStringVal = resultFunc;
             return TryAddTokenRes.End();
@@ -44,7 +44,7 @@ public class RepeatLoopContext : TreeContext
     {
         if (!_repeatCount.HasValue)
         {
-            if (_getStringVal == null) throw new DeveloperFuckupException("Repeat context has no amount specified");
+            if (_getStringVal == null) throw new AndrzejFuckedUpException("Repeat context has no amount specified");
 
             var val = _getStringVal();
             if (!int.TryParse(val, out var resultInt)) throw new InvalidValueException("integer number", val);

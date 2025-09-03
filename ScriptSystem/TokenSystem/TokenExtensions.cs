@@ -9,8 +9,8 @@ public static class TokenExtensions
     [Pure]
     public static string GetValue(this BaseToken token)
     {
-        if (token is ParenthesesToken parentheses) 
-            return parentheses.ValueWithoutBrackets;
+        if (token is TextToken text) 
+            return text.ValueWithoutBrackets;
 
         return token.RawRepresentation;
     }

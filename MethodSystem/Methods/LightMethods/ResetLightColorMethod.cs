@@ -1,15 +1,16 @@
 ﻿using SER.Helpers.Extensions;
 using SER.MethodSystem.ArgumentSystem.Arguments;
+using SER.MethodSystem.ArgumentSystem.BaseArguments;
 using SER.MethodSystem.BaseMethods;
 using UnityEngine;
 
 namespace SER.MethodSystem.Methods.LightMethods;
 
-public class ResetLightColorMethod : Method
+public class ResetLightColorMethod : SynchronousMethod
 {
     public override string Description => "Resets the light color for rooms.";
 
-    public override BaseMethodArgument[] ExpectedArguments { get; } =
+    public override GenericMethodArgument[] ExpectedArguments { get; } =
     [
         new RoomsArgument("rooms")
     ];

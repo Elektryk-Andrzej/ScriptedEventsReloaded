@@ -3,17 +3,21 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using LabApi.Features.Console;
+using LabApi.Features.Wrappers;
 using MEC;
 using SER.ScriptSystem.ContextSystem.Extensions;
 using SER.Helpers;
 using SER.Helpers.Exceptions;
+using SER.Helpers.Extensions;
 using SER.Helpers.ResultStructure;
 using SER.Plugin;
 using SER.ScriptSystem.ContextSystem;
 using SER.ScriptSystem.ContextSystem.BaseContexts;
+using SER.ScriptSystem.Structures;
 using SER.ScriptSystem.TokenSystem;
 using SER.ScriptSystem.TokenSystem.Structures;
 using SER.ScriptSystem.TokenSystem.Tokens;
+using SER.ScriptSystem.TokenSystem.Tokens.LiteralVariables;
 using SER.VariableSystem;
 using SER.VariableSystem.Structures;
 
@@ -23,9 +27,24 @@ public class Script
 {
     public required string Name { get; init; }
     public required string Content { get; init; }
+
+    private readonly ScriptExecutor? _executor;
+    public required ScriptExecutor Executor
+    {
+        get => _executor!;
+        init
+        {
+            if (value is RemoteAdminExecutor { Sender: { } sender } && Player.TryGet(sender, out var player))
+            {
+                AddLocalPlayerVariable(new("sender", [player]));
+            }
+
+            _executor = value;
+        }
+    }
     
     public List<ScriptLine> Tokens = [];
-    public List<BaseContext> Contexts = [];
+    public List<Context> Contexts = [];
     public int CurrentLine { get; set; } = 0;
     public bool IsRunning => RunningScripts.Contains(this);
 
@@ -35,14 +54,9 @@ public class Script
     private CoroutineHandle _scriptCoroutine;
     private bool? _isEventAllowed;
 
-    public static TryGet<Script> CreateByScriptName(string dirtyName)
+    public static TryGet<Script> CreateByScriptName(string dirtyName, ScriptExecutor executor)
     {
         var name = Path.GetFileNameWithoutExtension(dirtyName);
-        if (dirtyName != name)
-        {
-            Logger.Info($"##");
-        }
-        
         if (!FileSystem.DoesScriptExist(name, out var path))
         {
             return $"Script '{name}' does not exist in the SER folder or is inaccessible.";
@@ -51,11 +65,12 @@ public class Script
         return new Script
         {
             Name = name,
-            Content = File.ReadAllText(path)
+            Content = File.ReadAllText(path),
+            Executor = executor
         };
     }
     
-    public static TryGet<Script> CreateByPath(string path)
+    public static TryGet<Script> CreateByPath(string path, ScriptExecutor executor)
     {
         var name = Path.GetFileNameWithoutExtension(path);
         
@@ -67,17 +82,19 @@ public class Script
         return new Script
         {
             Name = name,
-            Content = File.ReadAllText(path)
+            Content = File.ReadAllText(path),
+            Executor = executor
         };
     }
     
-    public static Script CreateByVerifiedPath(string path)
+    public static Script CreateByVerifiedPath(string path, ScriptExecutor executor)
     {
         var name = Path.GetFileNameWithoutExtension(path);
         return new Script
         {
             Name = name,
-            Content = File.ReadAllText(path)
+            Content = File.ReadAllText(path),
+            Executor = executor
         };
     }
 
@@ -90,6 +107,16 @@ public class Script
         }
 
         return count;
+    }
+    
+    public static int StopByName(string name)
+    {
+        var matches = new List<Script>(RunningScripts)
+            .Where(scr => string.Equals(scr.Name, name, StringComparison.CurrentCultureIgnoreCase))
+            .ToArray();
+        
+        matches.ForEachItem(scr => scr.Stop());
+        return matches.Length;
     }
 
     public List<ScriptLine> GetFlagLines()
@@ -134,7 +161,7 @@ public class Script
                     AddLocalPlayerVariable(playerVariable);
                     break;
                 default:
-                    throw new DeveloperFuckupException();
+                    throw new AndrzejFuckedUpException();
             }
         }
     }
@@ -282,5 +309,23 @@ public class Script
         }
 
         return $"There is no literal variable named '{{{name}}}'.";
+    }
+    
+    public TryGet<LiteralVariable> TryGetLiteralVariable(LiteralVariableToken token)
+    {
+        var localPlrVar = _localLiteralVariables.FirstOrDefault(v => v.Name == token.ValueWithoutBrackets);
+        if (localPlrVar != null)
+        {
+            return localPlrVar;
+        }
+        
+        var globalVar = LiteralVariableIndex.GlobalLiteralVariables
+            .FirstOrDefault(v => v.Name == token.ValueWithoutBrackets);
+        if (globalVar != null)
+        {
+            return globalVar;
+        }
+
+        return $"There is no literal variable named '{token.RawRepresentation}'.";
     }
 }

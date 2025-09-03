@@ -1,13 +1,14 @@
 ﻿using SER.MethodSystem.ArgumentSystem.Arguments;
+using SER.MethodSystem.ArgumentSystem.BaseArguments;
 using SER.MethodSystem.BaseMethods;
 
 namespace SER.MethodSystem.Methods.ItemMethods;
 
-public class GiveItemMethod : Method
+public class GiveItemMethod : SynchronousMethod
 {
     public override string Description => "Gives an item to players.";
 
-    public override BaseMethodArgument[] ExpectedArguments { get; } =
+    public override GenericMethodArgument[] ExpectedArguments { get; } =
     [
         new PlayersArgument("players"),
         new EnumArgument<ItemType>("item"),
@@ -29,6 +30,6 @@ public class GiveItemMethod : Method
             {
                 plr.AddItem(item);
             }
-        };
+        }
     }
 }

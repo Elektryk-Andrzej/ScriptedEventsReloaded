@@ -8,5 +8,5 @@ namespace SER.VariableSystem.Structures;
 public class LiteralVariable : IVariable
 {
     public virtual required string Name { get; init; }
-    public required Func<string> Value { get; init; }
+    public virtual required Func<string> Value { get; init; }
 }

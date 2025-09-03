@@ -1,8 +1,7 @@
 ﻿using System.Diagnostics.Contracts;
+using UnityEngine;
 
 namespace SER.Helpers;
-
-using UnityEngine;
 
 public static class ColorUtils
 {

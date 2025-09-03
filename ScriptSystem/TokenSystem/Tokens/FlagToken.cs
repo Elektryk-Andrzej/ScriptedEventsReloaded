@@ -6,10 +6,11 @@ using SER.ScriptSystem.TokenSystem.BaseTokens;
 
 namespace SER.ScriptSystem.TokenSystem.Tokens;
 
-public class FlagToken : BaseContextableToken
+public class FlagToken : ContextableToken
 {
-    public override bool EndParsingOnChar(char c)
+    public override bool EndParsingOnChar(char c, out BaseToken? replaceToken)
     {
+        replaceToken = null;
         return char.IsWhiteSpace(c);
     }
 
@@ -20,7 +21,7 @@ public class FlagToken : BaseContextableToken
             $"Script flag should start with '!--', not '{RawRepresentation}'.");
     }
 
-    public override TryGet<BaseContext> TryGetResultingContext()
+    public override TryGet<Context> TryGetResultingContext()
     {
         return new NoOperationContext
         {

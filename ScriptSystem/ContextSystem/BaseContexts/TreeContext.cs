@@ -6,7 +6,7 @@ namespace SER.ScriptSystem.ContextSystem.BaseContexts;
 
 public abstract class TreeContext : YieldingContext
 {
-    public readonly List<BaseContext> Children = [];
+    public readonly List<Context> Children = [];
     
     public void SendControlMessage(ParentContextControlMessage msg)
     {

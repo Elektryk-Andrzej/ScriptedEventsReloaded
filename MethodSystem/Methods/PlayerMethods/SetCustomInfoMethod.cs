@@ -1,14 +1,15 @@
 ﻿using SER.MethodSystem.ArgumentSystem.Arguments;
+using SER.MethodSystem.ArgumentSystem.BaseArguments;
 using SER.MethodSystem.BaseMethods;
 
 namespace SER.MethodSystem.Methods.PlayerMethods;
 
-public class SetCustomInfoMethod : Method
+public class SetCustomInfoMethod : SynchronousMethod
 {
     public override string Description =>
         "Sets custom info (overhead text) for specific players, visible to specific target players.";
 
-    public override BaseMethodArgument[] ExpectedArguments { get; } =
+    public override GenericMethodArgument[] ExpectedArguments { get; } =
     [
         new PlayersArgument("playersToAffect"),
         new TextArgument("customInfoText"),

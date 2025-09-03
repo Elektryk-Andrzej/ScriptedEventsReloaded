@@ -9,7 +9,7 @@ namespace SER.MethodSystem;
 
 public static class MethodIndex
 {
-    public static readonly Dictionary<string, BaseMethod> NameToMethodIndex = new();
+    public static readonly Dictionary<string, Method> NameToMethodIndex = new();
 
     internal static void Initialize()
     {
@@ -21,11 +21,11 @@ public static class MethodIndex
     public static void AddAllDefinedMethodsInAssembly()
     {
         var definedMethods = Assembly.GetCallingAssembly().GetTypes()
-            .Where(t => t.IsClass && !t.IsAbstract && typeof(BaseMethod).IsAssignableFrom(t))
-            .Select(t => Activator.CreateInstance(t) as BaseMethod)
+            .Where(t => t.IsClass && !t.IsAbstract && typeof(Method).IsAssignableFrom(t))
+            .Select(t => Activator.CreateInstance(t) as Method)
             .ToList();
         
-        foreach (var method in definedMethods.OfType<BaseMethod>())
+        foreach (var method in definedMethods.OfType<Method>())
         {
             AddMethod(method);
         }
@@ -34,7 +34,7 @@ public static class MethodIndex
         Logger.Info($"'{assemblyName}' plugin has added {definedMethods.Count} methods.");
     }
 
-    public static void AddMethod(BaseMethod method)
+    public static void AddMethod(Method method)
     {
         if (NameToMethodIndex.ContainsKey(method.Name))
         {

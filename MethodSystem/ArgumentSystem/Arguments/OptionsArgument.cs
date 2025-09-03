@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Linq;
+using JetBrains.Annotations;
+using SER.MethodSystem.ArgumentSystem.BaseArguments;
 using SER.MethodSystem.ArgumentSystem.Structures;
 using SER.ScriptSystem.TokenSystem.BaseTokens;
 
@@ -9,16 +11,17 @@ namespace SER.MethodSystem.ArgumentSystem.Arguments;
 /// Represents an argument that consists of a set of predefined options.
 /// The options specify the acceptable values for this argument.
 /// </summary>
-public class OptionsArgument(string name, params Option[] options) : BaseMethodArgument(name)
+public class OptionsArgument(string name, params Option[] options) : CustomMethodArgument(name)
 {
     public readonly Option[] Options = options;
-    
-    public override OperatingValue Input => OperatingValue.CustomOption;
 
-    public override string? AdditionalDescription =>
-        $"This argument accepts only the following values: {string.Join(", ", Options.Select(o => o.Value))}.";
+    public override string InputDescription =>
+        "One of the following values:\n * " +
+        string.Join("\n * ", Options.Select(o => string.IsNullOrEmpty(o.Description) 
+            ? o.Value
+            : $"{o.Value} ({o.Description})"));
 
-
+    [UsedImplicitly]
     public ArgumentEvaluation<string> GetConvertSolution(BaseToken token)
     {
         return CustomConvertSolution(token, InternalConvert);

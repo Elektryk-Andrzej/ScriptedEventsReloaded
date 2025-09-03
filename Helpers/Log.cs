@@ -25,7 +25,7 @@ public static class Log
     public static void Error(Script scr, object obj)
     {
         var ident = scr.CurrentLine == 0 ? "Compile error" : $"Error in line {scr.CurrentLine}";
-        Logger.Raw($"[Script '{scr.Name}'] [{ident}] {obj!.ToString()}", ConsoleColor.Red);
+        Logger.Raw($"[Script '{scr.Name}'] [{ident}] {obj}", ConsoleColor.Red);
     }
     
     public static void Error(string scrName, string msg)

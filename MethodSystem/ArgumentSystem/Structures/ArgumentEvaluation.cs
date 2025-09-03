@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Diagnostics.Contracts;
+using SER.Helpers;
+using SER.Helpers.Exceptions;
 using SER.Helpers.ResultStructure;
 using SER.MethodSystem.ArgumentSystem.Interfaces;
 
@@ -56,14 +58,34 @@ public class ArgumentEvaluation<T> : IArgEvalRes
         return new ArgumentEvaluation<T>(dynamicResult);
     }
     
-    [Pure]
-    public Func<T> GetValue { get; }
+    public static implicit operator ArgumentEvaluation<T>(Result result)
+    {
+        if (result.WasSuccess)
+        {
+            throw new AndrzejFuckedUpException("used result on success");
+        }
+        
+        return new ArgumentEvaluation<T>(result.ErrorMsg);
+    }
+    
+    public static implicit operator ArgumentEvaluation<T>(TryGet<T> tryGet)
+    {
+        if (tryGet.HasErrored(out var error, out var value))
+        {
+            return error;
+        }
 
-    [Pure]
-    public bool IsStatic { get; }
+        return value;
+    }
     
     [Pure]
-    public Func<Result> GetResult { get; }
+    public Func<T> GetValue { get; init; }
+
+    [Pure]
+    public bool IsStatic { get; init; }
+    
+    [Pure]
+    public Func<Result> GetResult { get; init; }
 
     [Pure]
     public class EvalRes
@@ -96,6 +118,16 @@ public class ArgumentEvaluation<T> : IArgEvalRes
                 Value = value,
                 Result = true
             };
+        }
+        
+        public static implicit operator EvalRes(TryGet<T> tryGet)
+        {
+            if (tryGet.HasErrored(out var error, out var value))
+            {
+                return error;
+            }
+
+            return value;
         }
     }
 }

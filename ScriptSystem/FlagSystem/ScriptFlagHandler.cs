@@ -1,10 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using LabApi.Features.Console;
 using SER.Helpers;
 using SER.Helpers.Exceptions;
 using SER.Helpers.Extensions;
 using SER.ScriptSystem.FlagSystem.Structures;
+using SER.ScriptSystem.Structures;
 using SER.ScriptSystem.TokenSystem;
 using SER.ScriptSystem.TokenSystem.Structures;
 using SER.ScriptSystem.TokenSystem.Tokens;
@@ -12,42 +14,25 @@ using EventHandler = SER.ScriptSystem.EventSystem.EventHandler;
 
 namespace SER.ScriptSystem.FlagSystem;
 
-public static partial class ScriptFlagHandler
-{   
-    public record FlagInfo(string ScriptName, string[] InlineArguments);
+public static class ScriptFlagHandler
+{
+    private static readonly Dictionary<string, List<Flag>> ScriptsFlags = [];
     
-    private static readonly Dictionary<Flag, List<FlagInfo>> ScriptsFlags = [];
+    private static readonly Dictionary<string, List<(string scriptName, string[] arguments)>> CustomScriptsFlags = [];
     
-    private static readonly Dictionary<string, List<FlagInfo>> CustomScriptsFlags = [];
-    
-    private static readonly Dictionary<Flag, Action<FlagInfo>> FlagActions = new()
-    {
-        [Flag.Event] = EventHandler.ConnectEvent,
-        [Flag.Command] = AssignCommandToScript
-    };
-
-    private static readonly Dictionary<Flag, Dictionary<FlagArgument, Action<string[]>>> AllowedFlagArguments = new()
-    {
-        [Flag.Command] = new()
-        {
-            [FlagArgument.Arguments] = AddCommandArguments,
-            [FlagArgument.ConsoleType] = AddCommandConsoleType
-        }
-    };
-
-    private static FlagInfo? _lastFlagInfo;
-    private static Flag? _lastFlag;
+    private static Flag? _currentFlag;
 
     internal static void Clear()
     {
+        ScriptsFlags.Values.ForEachItem(script => script.ForEach(flag => flag.Unbind()));
         ScriptsFlags.Clear();
         CustomScriptsFlags.Clear();
         EventHandler.EventClear();
-        CommandClear();
     }
     
     internal static void RegisterScript(List<ScriptLine> scriptLinesWithFlags, string scriptName)
     {
+        Logger.Info($"handling flag lines in script {scriptName}");
         foreach (var tokens in scriptLinesWithFlags.Select(scrLine => scrLine.Tokens))
         {
             var name = tokens.Skip(1).FirstOrDefault()?.GetValue();
@@ -68,90 +53,61 @@ public static partial class ScriptFlagHandler
                     HandleFlagArgument(name, args, scriptName);
                     break;
                 default:
-                    throw new DeveloperFuckupException($"{prefix} not flag or flag arg");
+                    throw new AndrzejFuckedUpException($"{prefix} not flag or flag arg");
             }
         }
     }
 
-    private static void HandleFlagArgument(string name, string[] arguments, string scriptName)
+    private static void HandleFlagArgument(string argName, string[] arguments, string scriptName)
     {
-        if (_lastFlag is null)
+        if (_currentFlag is null)
         {
-            Log.Warn(scriptName, "You cannot provide flag arguments if there is no SER flag above.");
-            return;
-        }
-
-        if (!AllowedFlagArguments.TryGetValue(_lastFlag.Value, out var allowedFlagArguments))
-        {
-            Log.Warn(scriptName, $"Flag {_lastFlag.Value} does not accept any additional arguments.");
+            Log.Error(scriptName, "You cannot provide flag arguments if there is no SER defined flag above.");
             return;
         }
         
-        if (!Enum.TryParse(name, true, out FlagArgument arg))
+        if (!Enum.TryParse(argName, true, out FlagArgument arg))
         {
-            Log.Warn(scriptName, $"There is no flag argument name called '{name}'");
+            Log.Error(scriptName, $"There is no flag argument called '{argName}'");
             return;
         }
 
-        if (!allowedFlagArguments.TryGetValue(arg, out var registerAction))
+        if (!_currentFlag.Arguments.TryGetValue(arg, out var registerAction))
         {
-            Log.Warn(scriptName, $"Flag {_lastFlag.Value} does not accept the {arg} argument.");
+            Log.Error(scriptName, $"Flag {_currentFlag.Type} does not accept the '{arg}' argument.");
             return;
         }
-        
-        registerAction(arguments);
+
+        if (registerAction(arguments).HasErrored(out var error))
+        {
+            Log.Error(scriptName, $"Error while handling flag argument '{argName}' in flag '{_currentFlag.Type}': {error}");
+        }
     }
 
     private static void HandleFlag(string name, string[] arguments, string scriptName)
     {
-        _lastFlagInfo = new FlagInfo(scriptName, arguments);
-        
-        if (!Enum.TryParse(name, true, out Flag flag))
+        _currentFlag?.Confirm();
+
+        Logger.Info($"handling flag {name} with args [{arguments.JoinStrings(" ")}] in script {scriptName}");
+        if (!Enum.TryParse(name, out FlagType flagType))
         {
-            _lastFlag = null;
-            CustomScriptsFlags.AddOrInitListWithKey(name, _lastFlagInfo);
+            _currentFlag = null;
+            Logger.Info("adding custom flag");
+            CustomScriptsFlags.AddOrInitListWithKey(scriptName, (name, arguments));
             return;
         }
         
-        _lastFlag = flag;
-        ScriptsFlags.AddOrInitListWithKey(flag, _lastFlagInfo);
+        Logger.Info($"adding normal flag {flagType}");
+        _currentFlag = Flag.Get(flagType, scriptName);
         
-        FlagActions.TryGetValue(flag, out var action);
-        action?.Invoke(_lastFlagInfo);
-    }
-    
-    public static bool? RunScript(FlagInfo info, Action<Script>? beforeScriptRanAction = null)
-    {
-        if (Script.CreateByScriptName(info.ScriptName).HasErrored(out var err, out var script))
+        if (_currentFlag.TryBind(arguments).HasErrored(out var error))
         {
-            Log.Error(info.ScriptName, err);
-            return null;
+            _currentFlag = null;
+            Log.Error(scriptName, $"Error while handling flag '{name}': {error}");
+            return;
         }
         
-        beforeScriptRanAction?.Invoke(script);
-        return script.RunForEvent();
-    }
-
-    public static List<FlagInfo> GetCustomFlags(string flagName)
-    {
-        return CustomScriptsFlags.TryGetValue(flagName, out var info) 
-            ? info
-            : [];
-    }
-
-    public static void RunScriptsWithCustomFlag(string flagName)
-    {
-        foreach (var info in GetCustomFlags(flagName))
-        {
-            RunScript(info);
-        }
-    }
-    
-    internal static List<FlagInfo> GetFlags(Flag flag)
-    {
-        return ScriptsFlags.TryGetValue(flag, out var info) 
-            ? info
-            : [];
+        ScriptsFlags.AddOrInitListWithKey(scriptName, _currentFlag);
     }
 }
 

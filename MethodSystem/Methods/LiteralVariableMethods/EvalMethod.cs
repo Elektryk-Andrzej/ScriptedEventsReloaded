@@ -1,6 +1,7 @@
 ﻿using SER.Helpers;
 using SER.Helpers.Exceptions;
 using SER.MethodSystem.ArgumentSystem.Arguments;
+using SER.MethodSystem.ArgumentSystem.BaseArguments;
 using SER.MethodSystem.BaseMethods;
 using SER.MethodSystem.MethodDescriptors;
 
@@ -11,7 +12,7 @@ public class EvalMethod : TextReturningMethod, IPureMethod
     public override string Description => 
         "Evaluates the provided expression and returns the result. Used for math operations.";
 
-    public override BaseMethodArgument[] ExpectedArguments { get; } =
+    public override GenericMethodArgument[] ExpectedArguments { get; } =
     [
         new TextArgument("value")
     ];

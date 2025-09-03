@@ -5,26 +5,47 @@ using System.Text;
 using System.Text.RegularExpressions;
 using SER.Helpers;
 using SER.Helpers.Exceptions;
+using SER.Helpers.Extensions;
 using SER.Helpers.ResultStructure;
 using SER.MethodSystem.BaseMethods;
 using SER.ScriptSystem;
 using SER.ScriptSystem.ContextSystem;
 using SER.ScriptSystem.ContextSystem.Contexts;
 using SER.ScriptSystem.TokenSystem;
+using SER.ScriptSystem.TokenSystem.Tokens.LiteralVariables;
 using SER.VariableSystem.Structures;
 
 namespace SER.VariableSystem;
 
 /// <summary>
-///     Replaces variables in contaminated strings.
+/// Provides methods to parse and process variables within strings.
+/// This includes replacing placeholders with actual variable values,
+/// extracting variable coordinates, checking for variable syntax in strings,
+/// and parsing methods or expressions involving variables.
+/// Probably one of the most inefficient classes in the entire project.
 /// </summary>
 public static class VariableParser
 {
+    private const string PlayerVariableRegex = @"@[a-z][a-zA-Z0-9]+\.\w+";
+
     public static string ReplaceVariablesInContaminatedString(string input, Script scr)
     {
         var result = new StringBuilder();
         var i = 0;
 
+        // player variables
+        foreach (var match in Regex.Matches(input, PlayerVariableRegex).Cast<Match>().Reverse())
+        {
+            if (!TryGetPlayerPropertyInfo(match.Value, scr).WasSuccessful(out var property))
+            {
+                continue;
+            }
+            
+            input = input.Substring(0, match.Index) 
+                    + property
+                    + input.Substring(match.Index + match.Length);
+        }
+        
         while (i < input.Length)
         {
             if (input[i] != '{')
@@ -60,50 +81,21 @@ public static class VariableParser
             }
 
             var inner = input.Substring(start + 1, i - start - 2);
-            Log.Debug($"Changing {{{inner}}} to its value");
-
-            void AddUnparsed()
-            {
-                result.Append($"{{{inner}}}");
-            }
-
             if (string.IsNullOrEmpty(inner))
             {
                 AddUnparsed();
                 continue;
             }
 
+            var tokenizedLine = new Tokenizer(scr).GetTokensFromLine(inner.ToCharArray(), 0);
+            
             // method parsing
             if (char.IsUpper(inner[0]))
             {
-                var tokens = new Tokenizer(scr).GetTokensFromLine(inner.ToCharArray(), -1);
-
-                // todo: better system
-                if (new Contexter(scr).LinkAllTokens([tokens])
-                    .HasErrored(out var linkError, out var contexts))
+                if (!new Contexter(scr).LinkAllTokens([tokenizedLine]).WasSuccessful(out var contexts)
+                    || contexts.Count != 1
+                    || contexts.First() is not MethodContext { Method: TextReturningMethod textMethod })
                 {
-                    Log.Debug(linkError);
-                    AddUnparsed();
-                    continue;
-                }
-
-                if (contexts.Count != 1)
-                {
-                    Log.Debug($"{{{inner}}} should be a single context, but fetched {contexts.Count}");
-                    AddUnparsed();
-                    continue;
-                }
-
-                if (contexts.First() is not MethodContext methodContext)
-                {
-                    Log.Debug($"{{{inner}}} should be method, but is a {contexts.First().GetType().Name}");
-                    AddUnparsed();
-                    continue;
-                }
-
-                if (methodContext.Method is not TextReturningMethod textMethod)
-                {
-                    Log.Debug($"{{{inner}}} method does not return a value!");
                     AddUnparsed();
                     continue;
                 }
@@ -112,44 +104,78 @@ public static class VariableParser
                 result.Append(textMethod.TextReturn);
                 continue;
             }
-
+            
             if (scr.TryGetLiteralVariable(inner).WasSuccessful(out var variable))
             {
-                Log.Debug($"success! {inner} is a valid var, setting {variable.Value()} as");
                 result.Append(variable.Value());
                 continue;
             }
+            
+            AddUnparsed();
+            continue;
 
-            Log.Debug($"error! {inner} is not a valid variable");
-            result.Append($"{{{inner}}}");
+            void AddUnparsed()
+            {
+                result.Append($"{{{inner}}}");
+            }
         }
 
         return result.ToString();
     }
     
-    public static List<VariableCoordinate> GetVariableCoordinatesInContaminatedString(
+    public static TryGet<List<ValueCoordinate>> GetVariableCoordinatesInContaminatedString(
         string input,
         Script scr
     )
     {
-        var coordinates = new List<VariableCoordinate>();
-        var i = 0;
-
-        while (i < input.Length)
+        var rs = new ResultStacker("Isolating variables from a contaminated string failed.");
+        
+        var coordinates = new List<ValueCoordinate>();
+        var index = -1;
+        while (index+1 < input.Length)
         {
-            if (input[i] != '{')
+            index++;
+            if (input[index] == '@')
             {
-                i++;
+                var endIndex = input.IndexOf(' ', index) - 1;
+
+                string varName;
+                if (endIndex == -2)
+                {
+                    endIndex = input.Length - 1;
+                    varName = input.Substring(index);
+                }
+                else
+                {
+                    varName = input.Substring(index, endIndex - index + 1);
+                }
+
+                if (TryGetPlayerPropertyInfo(varName, scr).HasErrored(out var error, out var value))
+                {
+                    return rs.Add(error);
+                }
+                
+                coordinates.Add(new ValueCoordinate
+                {
+                    StartIndex = index,
+                    EndIndex = endIndex,
+                    OriginalValue = varName,
+                    ResolvedValue = value,
+                });
                 continue;
             }
-
-            var start = i;
-            var depth = 1;
-            i++;
-
-            while (i < input.Length && depth > 0)
+            
+            if (input[index] != '{')
             {
-                switch (input[i])
+                continue;
+            }
+            
+            var varSyntaxStart = index;
+            index++;
+            var depth = 1;
+            while (index < input.Length && depth > 0)
+            {
+                switch (input[index])
                 {
                     case '{':
                         depth++;
@@ -159,90 +185,81 @@ public static class VariableParser
                         break;
                 }
 
-                i++;
+                index++;
             }
-
+            
             if (depth > 0)
             {
-                // Unclosed brace - skip this malformed placeholder
-                break;
+                return rs.Add(
+                    $"There is an unclosed variable syntax in the string: '{input.Substring(varSyntaxStart)}'.");
             }
 
-            var inner = input.Substring(start + 1, i - start - 2);
-            Log.Debug($"Found placeholder {{{inner}}} at position {start}-{i - 1}");
-
+            var inner = input.Substring(varSyntaxStart + 1, index - varSyntaxStart - 2);
             if (string.IsNullOrEmpty(inner))
             {
                 continue;
             }
 
             string resolvedValue;
-            var coordinateType = VariableCoordinateType.Invalid;
-
             // Method parsing
             if (char.IsUpper(inner[0]))
             {
                 var tokens = new Tokenizer(scr).GetTokensFromLine(inner.ToCharArray(), -1);
 
-                if (!new Contexter(scr).LinkAllTokens([tokens])
-                    .HasErrored(out var linkError, out var contexts))
+                if (!new Contexter(scr).LinkAllTokens([tokens]).WasSuccessful(out var contexts) ||
+                    contexts.Count != 1 || 
+                    contexts.First() is not MethodContext { Method: TextReturningMethod textMethod })
                 {
-                    if (contexts.Count == 1 && 
-                        contexts.First() is MethodContext { Method: TextReturningMethod textMethod })
-                    {
-                        textMethod.Execute();
+                    return rs.Add($"Value '{inner}' is not a valid method.");
+                }
 
-                        resolvedValue = textMethod.TextReturn ?? throw new DeveloperFuckupException(
-                            $"Method '{textMethod.Name}' did not return a text value.");
-                        
-                        coordinateType = VariableCoordinateType.Method;
-                    }
-                    else
-                    {
-                        throw new MalformedConditionException($"Value '{inner}' is not a valid method.");
-                    }
-                }
-                else
-                {
-                    throw new MalformedConditionException($"Value '{inner}' is not a valid method.");
-                }
+                textMethod.Execute();
+
+                resolvedValue = textMethod.TextReturn ?? throw new AndrzejFuckedUpException(
+                    $"Method '{textMethod.Name}' did not return a text value.");
             }
             else if (scr.TryGetLiteralVariable(inner).WasSuccessful(out var variable))
             {
-                resolvedValue = variable.Value() ?? throw new DeveloperFuckupException(
+                resolvedValue = variable.Value() ?? throw new AndrzejFuckedUpException(
                     $"Variable '{variable.Name}' did not return a text value.");
-                
-                coordinateType = VariableCoordinateType.Variable;
             }
             else
             {
-                throw new MalformedConditionException($"Value '{inner}' is not a valid variable.");
+                return rs.Add($"Value '{inner}' is not a valid variable.");
             }
-
-            coordinates.Add(new VariableCoordinate
+            
+            coordinates.Add(new ValueCoordinate
             {
-                StartIndex = start,
-                EndIndex = i - 1,
-                PlaceholderText = $"{{{inner}}}",
-                VariableName = inner,
+                StartIndex = varSyntaxStart,
+                EndIndex = index - 1,
+                OriginalValue = inner,
                 ResolvedValue = resolvedValue,
-                Type = coordinateType
             });
         }
 
         return coordinates;
     }
     
-    public static bool IsVariableSyntaxUsedInString(string value)
+    public static bool IsValueSyntaxUsedInString(string value)
     {
-        return Regex.Matches(value, "({.*?})").Count > 0;
+        if (Regex.Matches(value, "({.*?})").Count > 0)
+        {
+            return true;
+        }
+
+        if (Regex.Matches(value, PlayerVariableRegex).Count > 0)
+        {
+            return true;
+        }
+        
+        return false;
     }
 
-    public static bool IsVariableUsedInString(string value, Script scr, out Func<string> processedValueFunc)
+    public static bool IsValueSyntaxUsedInString(string value, Script scr, out Func<string> processedValueFunc)
     {
         processedValueFunc = null!;
 
-        if (!IsVariableSyntaxUsedInString(value))
+        if (!IsValueSyntaxUsedInString(value))
         {
             return false;
         }
@@ -251,55 +268,10 @@ public static class VariableParser
         return true;
     }
 
-    public static string[] SplitWithCharIgnoringVariables(string input, Func<char, bool> splitChar)
-    {
-        List<string> parts = [];
-        var current = new StringBuilder();
-        var depth = 0;
-
-        foreach (var c in input)
-        {
-            switch (c)
-            {
-                case '{':
-                    depth++;
-                    current.Append(c);
-                    continue;
-                case '}':
-                    depth = Math.Max(0, depth - 1);
-                    current.Append(c);
-                    continue;
-            }
-
-            if (splitChar(c) && depth == 0)
-            {
-                if (current.Length > 0)
-                {
-                    parts.Add(current.ToString());
-                    current.Clear();
-                }
-
-                continue;
-            }
-
-            current.Append(c);
-        }
-
-        if (current.Length > 0)
-            parts.Add(current.ToString());
-
-        return parts.ToArray();
-    }
-
-    public static bool IsValidVariableSyntax(string input)
-    {
-        return input.Length > 2 && input.StartsWith("{") && input.EndsWith("}");
-    }
-
-    public static TryGet<BaseMethod> TryParseMethod(string value, Script scr)
+    public static TryGet<Method> TryParseMethod(string value, Script scr)
     {
         var rs = new ResultStacker($"Value '{value}' is not a valid method.");
-        if (!char.IsUpper(value[0])) return rs.Add("Methods don't start with an uppercase letter.");
+        if (!char.IsUpper(value[0])) return rs.Add("Methods must start with an uppercase letter.");
         
         var tokens = new Tokenizer(scr).GetTokensFromLine(value, -1);
 
@@ -316,5 +288,36 @@ public static class VariableParser
         }
 
         return methodContext.Method;
+    }
+
+    private static TryGet<string> TryGetPlayerPropertyInfo(string value, Script scr)
+    {
+        var error = $"Value '{value}' is not a valid player property access.";
+        var parts = value.Split('.');
+        if (parts.Len() != 2)
+        {
+            return new(null, error);
+        }
+
+        var varName = parts.First();
+        if (!varName.StartsWith("@"))
+        {
+            return new(null, error);
+        }
+        
+        varName = varName.Substring(1);
+        if (!scr.TryGetPlayerVariable(varName).WasSuccessful(out var variable) 
+            || variable.Players.Len() != 1)
+        {
+            return new(null, error);
+        }
+
+        var key = parts.Last().ToLower();
+        if (!PlayerPropertyAccessToken.CaseInsensitiveAccessiblePlayerProperties.TryGetValue(key, out var info))
+        {
+            return new(null, error);
+        }
+
+        return new(info.getAction(variable.Players.First()), null);
     }
 }

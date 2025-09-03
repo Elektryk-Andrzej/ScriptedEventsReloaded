@@ -1,4 +1,5 @@
 ﻿using SER.MethodSystem.ArgumentSystem.Arguments;
+using SER.MethodSystem.ArgumentSystem.BaseArguments;
 using SER.MethodSystem.BaseMethods;
 using SER.MethodSystem.MethodDescriptors;
 
@@ -8,7 +9,7 @@ public class SaveMethod : TextReturningMethod, IPureMethod
 {
     public override string Description => "Returns the provided text, which can be saved to a variable.";
 
-    public override BaseMethodArgument[] ExpectedArguments { get; } =
+    public override GenericMethodArgument[] ExpectedArguments { get; } =
     [
         new TextArgument("text")
     ];

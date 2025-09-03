@@ -2,7 +2,7 @@
 
 namespace SER.ScriptSystem.ContextSystem.BaseContexts;
 
-public abstract class YieldingContext : BaseContext
+public abstract class YieldingContext : Context
 {
     public IEnumerator<float> Run()
     {

@@ -1,6 +1,9 @@
-﻿using SER.MethodSystem.ArgumentSystem.Structures;
+﻿using JetBrains.Annotations;
+using SER.MethodSystem.ArgumentSystem.BaseArguments;
+using SER.MethodSystem.ArgumentSystem.Structures;
 using SER.ScriptSystem.TokenSystem.BaseTokens;
 using SER.ScriptSystem.TokenSystem.Tokens;
+using SER.ScriptSystem.TokenSystem.Tokens.LiteralVariables;
 using SER.VariableSystem.Structures;
 
 namespace SER.MethodSystem.ArgumentSystem.Arguments;
@@ -8,12 +11,12 @@ namespace SER.MethodSystem.ArgumentSystem.Arguments;
 /// <summary>
 /// Represents any IVariable argument used in a method.
 /// </summary>
-public class VariableArgument(string name) : BaseMethodArgument(name)
+public class VariableArgument(string name) : CustomMethodArgument(name)
 {
-    public override OperatingValue Input => OperatingValue.Variable;
-    
     public override string? AdditionalDescription => null;
-    
+    public override string InputDescription => "Any variable";
+
+    [UsedImplicitly]
     public ArgumentEvaluation<IVariable> GetConvertSolution(BaseToken token)
     {
         return token switch

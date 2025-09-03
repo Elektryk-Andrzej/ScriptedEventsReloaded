@@ -61,7 +61,7 @@ public class TryGet<TValue>(TValue? value, string? errorMsg)
     {
         if (res.HasErrored(out var msg)) return new TryGet<TValue>(default, msg);
 
-        throw new DeveloperFuckupException("implicit operator TryGet<TValue>(Result res) called when not errored");
+        throw new AndrzejFuckedUpException("implicit operator TryGet<TValue>(Result res) called when not errored");
     }
 
     [Pure]
@@ -74,5 +74,17 @@ public class TryGet<TValue>(TValue? value, string? errorMsg)
     public static implicit operator TryGet<TValue>(ResultStacker stacker)
     {
         return new TryGet<TValue>(default, stacker.InitMsg);
+    }
+    
+    [Pure]
+    public static TryGet<TValue> Error(string errorMsg)
+    {
+        return new TryGet<TValue>(default, errorMsg);
+    }
+    
+    [Pure]
+    public static TryGet<TValue> Success(TValue value)
+    {
+        return new TryGet<TValue>(value, null);
     }
 }

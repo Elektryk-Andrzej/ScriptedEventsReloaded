@@ -1,16 +1,17 @@
 ﻿using System;
 using PlayerStatsSystem;
 using SER.MethodSystem.ArgumentSystem.Arguments;
+using SER.MethodSystem.ArgumentSystem.BaseArguments;
 using SER.MethodSystem.BaseMethods;
 
 namespace SER.MethodSystem.Methods.HealthMethods;
 
 // ReSharper disable once InconsistentNaming
-public class SetAHPMethod : Method
+public class SetAHPMethod : SynchronousMethod
 {
     public override string Description => "Sets the amount of AHP for players.";
 
-    public override BaseMethodArgument[] ExpectedArguments { get; } =
+    public override GenericMethodArgument[] ExpectedArguments { get; } =
     [
         new PlayersArgument("players"),
         new FloatArgument("amount", 1)

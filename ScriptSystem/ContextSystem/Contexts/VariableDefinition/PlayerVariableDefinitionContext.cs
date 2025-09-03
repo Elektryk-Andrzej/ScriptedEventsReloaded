@@ -105,7 +105,7 @@ public class PlayerVariableDefinitionContext(PlayerVariableToken varToken) : Sta
 
             if (_method.PlayerReturn == null)
             {
-                throw new DeveloperFuckupException($"Method {_method.Name} hasnt returned a value.");
+                throw new AndrzejFuckedUpException($"Method {_method.Name} hasnt returned a value.");
             }
 
             Script.AddLocalPlayerVariable(
@@ -114,7 +114,7 @@ public class PlayerVariableDefinitionContext(PlayerVariableToken varToken) : Sta
         }
 
         if (_playerVariableToken == null)
-            throw new DeveloperFuckupException("Method and var token are both null, this should never happen.");
+            throw new AndrzejFuckedUpException("Method and var token are both null, this should never happen.");
         
         if (!Script.TryGetPlayerVariable(_playerVariableToken.NameWithoutPrefix).WasSuccessful(out var variable))
         {

@@ -1,4 +1,6 @@
-﻿using SER.Helpers.Extensions;
+﻿using JetBrains.Annotations;
+using SER.Helpers.Extensions;
+using SER.MethodSystem.ArgumentSystem.BaseArguments;
 using SER.MethodSystem.ArgumentSystem.Structures;
 using SER.ScriptSystem.TokenSystem.BaseTokens;
 using SER.VariableSystem;
@@ -12,12 +14,11 @@ namespace SER.MethodSystem.ArgumentSystem.Arguments;
 /// </remarks>
 /// </summary>
 /// <typeparam name="TValue">The type of the reference being held by this argument.</typeparam>
-public class ReferenceArgument<TValue>(string name) : BaseMethodArgument(name)
+public class ReferenceArgument<TValue>(string name) : CustomMethodArgument(name)
 {
-    public override OperatingValue Input => OperatingValue.CustomReference;
-    public override string AdditionalDescription => 
-        $"A reference to {typeof(TValue).GetAccurateName()} object.";
+    public override string InputDescription => $"A reference to {typeof(TValue).GetAccurateName()} object.";
     
+    [UsedImplicitly]
     public ArgumentEvaluation<TValue> GetConvertSolution(BaseToken token)
     {
         return CustomConvertSolution(token, InternalConvert);

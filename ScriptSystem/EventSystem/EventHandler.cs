@@ -10,8 +10,11 @@ using LabApi.Loader;
 using SER.Helpers;
 using SER.Helpers.Exceptions;
 using SER.Helpers.Extensions;
+using SER.Helpers.ResultStructure;
 using SER.ScriptSystem.FlagSystem;
+using SER.ScriptSystem.FlagSystem.Flags;
 using SER.ScriptSystem.FlagSystem.Structures;
+using SER.ScriptSystem.Structures;
 using SER.VariableSystem;
 using SER.VariableSystem.Structures;
 
@@ -20,7 +23,7 @@ namespace SER.ScriptSystem.EventSystem;
 public static class EventHandler
 {
     private static readonly Dictionary<string, Action> UnsubscribeActions = [];
-    private static readonly HashSet<string> ConnectedEvents = [];
+    private static readonly Dictionary<string, List<string>> ScriptsUsingEvent = [];
     private static readonly HashSet<string> DisabledEvents = [];
     private static MethodInfo? _onNonArgumentedEvent;
     private static MethodInfo? _onArgumentedEvent;
@@ -37,17 +40,17 @@ public static class EventHandler
         _onNonArgumentedEvent = typeof(EventHandler).GetMethod(
                                     nameof(OnNonArgumentedEvent), 
                                     BindingFlags.Static | BindingFlags.NonPublic) 
-                                ?? throw new DeveloperFuckupException("non arg error");
+                                ?? throw new AndrzejFuckedUpException("non arg error");
         
         _onArgumentedEvent = typeof(EventHandler).GetMethod(
                                  nameof(OnArgumentedEvent), 
                                  BindingFlags.Static | BindingFlags.NonPublic) 
-                             ?? throw new DeveloperFuckupException("arg error"); 
+                             ?? throw new AndrzejFuckedUpException("arg error"); 
     }
     
     internal static void EventClear()
     {
-        ConnectedEvents.Clear();
+        ScriptsUsingEvent.Clear();
         UnsubscribeActions.Values.ForEachItem(act => act());
         UnsubscribeActions.Clear();
         DisabledEvents.Clear();
@@ -56,7 +59,7 @@ public static class EventHandler
     internal static void DisableEvent(string evName, string scriptName)
     {
         DisabledEvents.Add(evName);
-        InternalConnectEvent(evName, scriptName, false);
+        ConnectEvent(evName, scriptName, false);
     }
 
     internal static void EnableEvent(string evName, bool unsubscribe = false)
@@ -68,52 +71,43 @@ public static class EventHandler
         }
     }
     
-    internal static void ConnectEvent(ScriptFlagHandler.FlagInfo info)
+    internal static Result ConnectEvent(string evName, string scriptName, bool allowNonArg = true) 
     {
-        if (info.InlineArguments.Length == 0)
+        if (ScriptsUsingEvent.TryGetValue(evName, out var scriptsConnected))
         {
-            Log.Warn(info.ScriptName, "Script is using the event flag, but has not specified the event name.");
-            return;
+            scriptsConnected.Add(scriptName);
+            return true;
         }
         
-        InternalConnectEvent(info.InlineArguments[0], info.ScriptName);
-    }
+        ScriptsUsingEvent.Add(evName, [scriptName]);
 
-    private static void InternalConnectEvent(string evName, string scriptName, bool allowNonArg = true) 
-    {
-        if (!ConnectedEvents.Add(evName))
-        {
-            return;
-        }
-        
         EventInfo? matchingEventInfo = AvailableEvents.FirstOrDefault(e => e.Name == evName);
         if (matchingEventInfo == null)
         {
-            Log.Error(scriptName, $"Event '{evName}' does not exist!");
-            return;
+            return $"Event '{evName}' does not exist!"; 
         }
         
         var genericType = matchingEventInfo.EventHandlerType.GetGenericArguments().FirstOrDefault();
         if (genericType is not null)
         {
             BindArgumented(matchingEventInfo, genericType);
-            return;
+            return true;
         }
 
         if (!allowNonArg)
         {
-            Log.Error(scriptName, $"Event '{evName}' must be an argumented event!");
-            return;
+            return $"Event '{evName}' must be an argumented event!";
         }
         
         BindNonArgumented(matchingEventInfo);
+        return true;
     }
     
     private static void BindNonArgumented(EventInfo eventInfo)
     {
         if (_onNonArgumentedEvent is null)
         {
-            throw new DeveloperFuckupException();
+            throw new AndrzejFuckedUpException();
         }
     
         var handlerToUse = Delegate.CreateDelegate(
@@ -129,7 +123,7 @@ public static class EventHandler
     {
         if (_onArgumentedEvent is null)
         {
-            throw new DeveloperFuckupException();
+            throw new AndrzejFuckedUpException();
         }
 
         var handlerToUse = Delegate.CreateDelegate(
@@ -144,49 +138,62 @@ public static class EventHandler
     private static void OnNonArgumentedEvent()
     {
         var evName = new StackFrame(2).GetMethod().Name.Substring("on".Length);
-        
-        ScriptFlagHandler.GetFlags(Flag.Event)
-            .Where(info => info.InlineArguments.FirstOrDefault()?.ToLower() == evName.ToLower())
-            .ForEachItem(info => ScriptFlagHandler.RunScript(info));
+
+        if (ScriptsUsingEvent.TryGetValue(evName, out var scriptsConnected))
+        {
+            foreach (var scrName in scriptsConnected)
+            {
+                var rs = new ResultStacker($"Failed to run script '{scrName}' connected to event '{evName}'");
+                if (Script.CreateByScriptName(scrName, ScriptExecutor.Get()).HasErrored(out var error, out var script))
+                {
+                    Log.Error(scrName, rs.Add(error));
+                    continue;
+                }
+                
+                script.Run();
+            }
+        }
     }
 
     private static void OnArgumentedEvent<T>(T ev) where T : EventArgs
     {
         var evName = new StackFrame(2).GetMethod().Name.Substring("on".Length);
         
-        if (ev is ICancellableEvent cancellable1 && DisabledEvents.Contains(evName))
+        if (ev is ICancellableEvent cancellable && DisabledEvents.Contains(evName))
         {
-            cancellable1.IsAllowed = false;
+            cancellable.IsAllowed = false;
             return;
         }
         
         var variables = GetVariablesFromEvent(ev);
-        
-        ScriptFlagHandler.GetFlags(Flag.Event)
-            .Where(info => info.InlineArguments.FirstOrDefault()?.ToLower() == evName.ToLower())
-            .ForEachItem(info =>
+        if (ScriptsUsingEvent.TryGetValue(evName, out var scriptsConnected))
+        {
+            foreach (var scrName in scriptsConnected)
             {
-                var runResult = ScriptFlagHandler.RunScript(info, scr =>
+                var rs = new ResultStacker($"Failed to run script '{scrName}' connected to event '{evName}'");
+                if (Script.CreateByScriptName(scrName, ScriptExecutor.Get()).HasErrored(out var error, out var script))
                 {
-                    scr.AddVariables(variables.ToArray());
-                });
-                
-                if (!runResult.HasValue) return;
-
-                if (ev is ICancellableEvent cancellable2)
-                {
-                    cancellable2.IsAllowed = runResult.Value;
+                    Log.Error(scrName, rs.Add(error));
+                    continue;
                 }
-            });
+
+                script.AddVariables(variables);
+                var isAllowed = script.RunForEvent();
+                if (isAllowed.HasValue && ev is ICancellableEvent cancellable1)
+                {
+                    cancellable1.IsAllowed = isAllowed.Value;
+                }
+            }
+        }
     }
     
-    public static List<IVariable> GetVariablesFromEvent(EventArgs ev)
+    public static IVariable[] GetVariablesFromEvent(EventArgs ev)
     {
-        List<(object, string)> properties = (
+        List<(object, string, Type)> properties = (
             from prop in ev.GetType().GetProperties()
             let value = prop.GetValue(ev)
-            where value is not null
-            select (value, prop.Name)
+            let type = prop.PropertyType
+            select (value, prop.Name, type)
         ).ToList();
         
         return InternalGetVariablesFromProperties(properties);
@@ -210,10 +217,10 @@ public static class EventHandler
         return GetMimicVariablesForEventHelp(properties);
     }
 
-    private static List<IVariable> InternalGetVariablesFromProperties(List<(object value, string name)> properties)
+    private static IVariable[] InternalGetVariablesFromProperties(List<(object value, string name, Type type)> properties)
     {
         List<IVariable> variables = [];
-        foreach (var (value, name) in properties)
+        foreach (var (value, name, type) in properties)
         {
             switch (value)
             {
@@ -234,6 +241,7 @@ public static class EventHandler
                         Value = value.ToString
                     });
                     continue;
+                
                 case Enum enumValue:
                     variables.Add(new LiteralVariable
                     {
@@ -246,6 +254,12 @@ public static class EventHandler
                     continue;
                 case IEnumerable<Player> players:
                     variables.Add(new PlayerVariable(GetName(), players.ToList()));
+                    continue;
+                case null:
+                    if (type == typeof(Player))
+                    {
+                         variables.Add(new PlayerVariable(GetName(), []));
+                    }
                     continue;
                 default:
                     var registeredObject = ObjectReferenceSystem.RegisterObject(value);
@@ -267,7 +281,7 @@ public static class EventHandler
             }
         }
 
-        return variables;
+        return variables.ToArray();
     }
     
     private static List<IVariable> GetMimicVariablesForEventHelp(List<(Type type, string name)> properties)

@@ -5,7 +5,7 @@ using SER.ScriptSystem.TokenSystem.BaseTokens;
 
 namespace SER.ScriptSystem.ContextSystem.Contexts.Control;
 
-public class TerminationContext: StandardContext
+public class EndTreeContext : StandardContext
 {
     public override TryAddTokenRes TryAddToken(BaseToken token)
     {

@@ -1,7 +1,7 @@
 ﻿using System;
 using LabApi.Features.Wrappers;
 using SER.Helpers.Extensions;
-using SER.MethodSystem.ArgumentSystem.Arguments;
+using SER.MethodSystem.ArgumentSystem.BaseArguments;
 using SER.MethodSystem.BaseMethods;
 using SER.MethodSystem.MethodDescriptors;
 
@@ -13,7 +13,7 @@ public class GetRandomDoorMethod : ReferenceReturningMethod, IPureMethod
     
     public override Type ReturnType => typeof(Door);
 
-    public override BaseMethodArgument[] ExpectedArguments { get; } = [];
+    public override GenericMethodArgument[] ExpectedArguments { get; } = [];
     
     public override void Execute()
     {

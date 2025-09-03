@@ -1,13 +1,14 @@
 ﻿using SER.MethodSystem.ArgumentSystem.Arguments;
+using SER.MethodSystem.ArgumentSystem.BaseArguments;
 using SER.MethodSystem.BaseMethods;
 
 namespace SER.MethodSystem.Methods.DoorMethods;
 
-public class OpenDoorMethod : Method
+public class OpenDoorMethod : SynchronousMethod
 {
     public override string Description => "Opens doors.";
 
-    public override BaseMethodArgument[] ExpectedArguments { get; } =
+    public override GenericMethodArgument[] ExpectedArguments { get; } =
     [       
         new DoorsArgument("doors")
     ];

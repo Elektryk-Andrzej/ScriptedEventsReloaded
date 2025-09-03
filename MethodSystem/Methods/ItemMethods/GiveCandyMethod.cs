@@ -1,14 +1,15 @@
 ﻿using InventorySystem.Items.Usables.Scp330;
 using SER.MethodSystem.ArgumentSystem.Arguments;
+using SER.MethodSystem.ArgumentSystem.BaseArguments;
 using SER.MethodSystem.BaseMethods;
 
 namespace SER.MethodSystem.Methods.ItemMethods;
 
-public class GiveCandyMethod : Method
+public class GiveCandyMethod : SynchronousMethod
 {
     public override string Description => "Gives candy to players.";
 
-    public override BaseMethodArgument[] ExpectedArguments { get; } =
+    public override GenericMethodArgument[] ExpectedArguments { get; } =
     [
         new PlayersArgument("players"),
         new EnumArgument<CandyKindID>("candyType"),

@@ -7,6 +7,7 @@ namespace SER.ScriptSystem.ContextSystem.Contexts.Loops;
 
 public class LoopContinueContext : StandardContext
 {
+    
     public override TryAddTokenRes TryAddToken(BaseToken token)
     {
         return TryAddTokenRes.Error("The continue keyword does not expect arguments after it.");

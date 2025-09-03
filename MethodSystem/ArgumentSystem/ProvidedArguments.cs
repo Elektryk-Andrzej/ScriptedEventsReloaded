@@ -11,16 +11,22 @@ using SER.MethodSystem.ArgumentSystem.Structures;
 using SER.MethodSystem.BaseMethods;
 using SER.ScriptSystem;
 using SER.ScriptSystem.TokenSystem.Tokens;
+using SER.ScriptSystem.TokenSystem.Tokens.LiteralVariables;
 using SER.VariableSystem;
 using SER.VariableSystem.Structures;
 using UnityEngine;
 
 namespace SER.MethodSystem.ArgumentSystem;
 
-public class ProvidedArguments(BaseMethod method)
+public class ProvidedArguments(Method method)
 {
     private Dictionary<(string name, Type type), List<IArgEvalRes>> Arguments { get; } = [];
 
+    public Room GetSingleRoom(string argName)
+    {
+        return GetValue<Room, RoomArgument>(argName);
+    }
+    
     public Elevator[] GetElevators(string argName)
     {
         return GetValue<Elevator[], ElevatorsArgument>(argName);
@@ -141,6 +147,11 @@ public class ProvidedArguments(BaseMethod method)
     {
         return GetValue<Door[], DoorsArgument>(argName);
     }
+    
+    public Door GetDoor(string argName)
+    {
+        return GetValue<Door, DoorArgument>(argName);
+    }
 
     /// <summary>
     /// Retrieves a duration value associated with the specified argument name.
@@ -211,7 +222,7 @@ public class ProvidedArguments(BaseMethod method)
     /// <returns>A Player object representing the single player value from the argument.</returns>
     public Player GetSinglePlayer(string argName)
     {
-        return GetValue<Player, SinglePlayerArgument>(argName);
+        return GetValue<Player, PlayerArgument>(argName);
     }
 
     /// <summary>
@@ -235,12 +246,12 @@ public class ProvidedArguments(BaseMethod method)
     /// <param name="argName">The name of the argument to retrieve the enumeration value from.</param>
     /// <typeparam name="TEnum">The type of the enumeration to convert the argument value to.</typeparam>
     /// <returns>The value of the argument converted to the specified enumeration type.</returns>
-    /// <exception cref="DeveloperFuckupException">Thrown if the argument cannot be converted to the specified enumeration type.</exception>
+    /// <exception cref="AndrzejFuckedUpException">Thrown if the argument cannot be converted to the specified enumeration type.</exception>
     public TEnum GetEnum<TEnum>(string argName) where TEnum : struct, Enum
     {
         var obj = GetValue<object, EnumArgument<TEnum>>(argName);
         if (obj is not TEnum value)
-            throw new DeveloperFuckupException($"Cannot convert {obj.GetType().Name} to {typeof(TEnum).Name}");
+            throw new AndrzejFuckedUpException($"Cannot convert {obj.GetType().Name} to {typeof(TEnum).Name}");
 
         return value;
     }
@@ -265,15 +276,15 @@ public class ProvidedArguments(BaseMethod method)
     /// <param name="argName">The name of the argument to retrieve and process remaining values.</param>
     /// <typeparam name="TValue">The type of values to be extracted from the arguments.</typeparam>
     /// <typeparam name="TArg">The argument type that corresponds to the specified argument name.</typeparam>
-    /// <returns>A list of <typeparamref name="TValue"/> objects extracted from the remaining arguments.</returns>
-    public List<TValue> GetRemainingArguments<TValue, TArg>(string argName)
+    /// <returns><typeparamref name="TValue"/> array objects extracted from the remaining arguments.</returns>
+    public TValue[] GetRemainingArguments<TValue, TArg>(string argName)
     {
         return GetValues<TValue, TArg>(argName);
     }
     
-    private List<TValue> GetValues<TValue, TArg>(string argName)
+    private TValue[] GetValues<TValue, TArg>(string argName)
     {
-        return GetEvaluators<TValue, TArg>(argName).Select(ev => ev.GetValue()).ToList();
+        return GetEvaluators<TValue, TArg>(argName).Select(ev => ev.GetValue()).ToArray();
     }
 
     private TValue GetValue<TValue, TArg>(string argName)
@@ -298,7 +309,7 @@ public class ProvidedArguments(BaseMethod method)
             }
 
             if (evaluator is not ArgumentEvaluation<TValue> argEvalRes)
-                throw new DeveloperFuckupException(
+                throw new AndrzejFuckedUpException(
                     rs.Add($"Argument value is not of type {typeof(TValue).Name}"));
 
             resultList.Add(argEvalRes);
@@ -317,7 +328,7 @@ public class ProvidedArguments(BaseMethod method)
         var foundArg = method.ExpectedArguments.FirstOrDefault(arg => arg.Name == argName);
         if (foundArg is null)
         {
-            throw new DeveloperFuckupException($"There is no argument registered of type '{nameof(TArg)}' and name '{argName}'.");
+            throw new AndrzejFuckedUpException($"There is no argument registered of type '{nameof(TArg)}' and name '{argName}'.");
         }
 
         if (!foundArg.IsOptional)
@@ -330,7 +341,7 @@ public class ProvidedArguments(BaseMethod method)
             TValue argValue => [new ArgumentEvaluation<TValue>(argValue)],
             List<TValue> listValue => listValue.Select(IArgEvalRes (v) => new ArgumentEvaluation<TValue>(v)).ToList(),
             null when foundArg.IsOptional => [new ArgumentEvaluation<TValue>((TValue)(object)null!)], // magik
-            _ => throw new DeveloperFuckupException(
+            _ => throw new AndrzejFuckedUpException(
                 $"Argument {argName} for method {method.Name} has its default value set to type " +
                 $"{foundArg.DefaultValue?.GetType().Name ?? "null"}, expected of type {typeof(TValue).Name} or a list of " +
                 $"{typeof(TValue).Name}s.")

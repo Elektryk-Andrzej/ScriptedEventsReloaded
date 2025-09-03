@@ -2,15 +2,16 @@
 using InventorySystem.Configs;
 using PlayerRoles;
 using SER.MethodSystem.ArgumentSystem.Arguments;
+using SER.MethodSystem.ArgumentSystem.BaseArguments;
 using SER.MethodSystem.BaseMethods;
 
 namespace SER.MethodSystem.Methods.ItemMethods;
 
-public class GrantLoadoutMethod : Method
+public class GrantLoadoutMethod : SynchronousMethod
 {
     public override string Description => "Grants players a class loadout.";
 
-    public override BaseMethodArgument[] ExpectedArguments { get; } =
+    public override GenericMethodArgument[] ExpectedArguments { get; } =
     [
         new PlayersArgument("players"),
         new EnumArgument<RoleTypeId>("roleLoadout")

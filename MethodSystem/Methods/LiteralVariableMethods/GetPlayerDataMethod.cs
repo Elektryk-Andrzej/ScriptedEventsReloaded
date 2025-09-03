@@ -1,4 +1,5 @@
 ﻿using SER.MethodSystem.ArgumentSystem.Arguments;
+using SER.MethodSystem.ArgumentSystem.BaseArguments;
 using SER.MethodSystem.BaseMethods;
 using SER.MethodSystem.MethodDescriptors;
 
@@ -9,11 +10,11 @@ public class GetPlayerDataMethod : TextReturningMethod, IPureMethod, IAdditional
     public override string Description => "Gets player data from the key.";
 
     public string AdditionalDescription =>
-        "If the provided key has no associated value for this player, 'UNDEFINED' will be returned instead.";
+        "If the provided key has no associated value for this player, 'none' will be returned instead.";
     
-    public override BaseMethodArgument[] ExpectedArguments { get; } =
+    public override GenericMethodArgument[] ExpectedArguments { get; } =
     [
-        new SinglePlayerArgument("player"),
+        new PlayerArgument("player"),
         new TextArgument("key")
     ];
 
@@ -25,7 +26,7 @@ public class GetPlayerDataMethod : TextReturningMethod, IPureMethod, IAdditional
         if (!SetPlayerDataMethod.PlayerData.TryGetValue(player, out var dict) || 
             !dict.TryGetValue(key, out var value))
         {
-            TextReturn = "UNDEFINED";
+            TextReturn = "none";
             return;
         }
 
