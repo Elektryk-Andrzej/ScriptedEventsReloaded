@@ -16,13 +16,14 @@ namespace SER.ScriptSystem.TokenSystem.Tokens.LiteralVariables;
 public class PlayerPropertyAccessToken(string initRep = "") : BaseToken(initRep), ILiteralValueSyntaxToken
 {
     private string PlayerVarName => RawRepresentation.Split('.')[0];
+
     private string Property => RawRepresentation.Split('.')[1];
-    
-    public static readonly Dictionary<string, (string description, Func<Player, string> getAction)>
+
+    public static readonly Dictionary<Union<string, string[]>, (string description, Func<Player, string> getAction)>
         AccessiblePlayerProperties = new()
         {
-            ["name"] = ("Standard name", plr => plr.Nickname),
-            ["displayName"] = ("Visible name", plr => plr.DisplayName),
+            ["name"] = ("Name", plr => plr.Nickname),
+            ["displayName"] = ("Override name", plr => plr.DisplayName),
             ["role"] = ($"Current role ({nameof(RoleTypeId)} enum value)", plr => plr.Role.ToString()),
             ["team"] = ($"Current team ({nameof(Team)} enum value)", plr => plr.Role.GetTeam().ToString()),
             ["serverID"] = ("ID assigned by the server e.g. 2", plr => plr.PlayerId.ToString()),
@@ -31,32 +32,48 @@ public class PlayerPropertyAccessToken(string initRep = "") : BaseToken(initRep)
                 "A reference to the room the player is currently in, or 'none' if they are not in a room.",
                 plr => plr.Room is not null ? ObjectReferenceSystem.RegisterObject(plr.Room) : "none"),
             ["zone"] = ($"Current zone ({nameof(FacilityZone)} enum value)", plr => plr.Zone.ToString()),
-            ["posX"] = ("X position", plr => plr.Position.x.ToString()),
-            ["positionX"] = ("X position", plr => plr.Position.x.ToString()),
-            ["posY"] = ("Y position", plr => plr.Position.y.ToString()),
-            ["positionY"] = ("Y position", plr => plr.Position.y.ToString()),
-            ["posZ"] = ("Z position", plr => plr.Position.z.ToString()),
-            ["positionZ"] = ("Z position", plr => plr.Position.z.ToString()),
-            ["pos"] = ("(X, Y, Z) position vector", plr => $"({plr.Position.x}, {plr.Position.y}, {plr.Position.z})"),
-            ["position"] = ("(X, Y, Z) position vector", plr => $"({plr.Position.x}, {plr.Position.y}, {plr.Position.z})"),
-            ["health"] = ("Current health", plr => plr.Health.ToString()),
-            ["HP"] = ("Current health", plr => plr.Health.ToString()),
-            ["maxHealth"] = ("Maximum health", plr => plr.MaxHealth.ToString()),
-            ["maxHP"] = ("Maximum health", plr => plr.MaxHealth.ToString()),
-            ["AHP"] = ("Current artificial health", plr => plr.ArtificialHealth.ToString()),
-            ["maxAHP"] = ("Maximum artificial health", plr => plr.MaxArtificialHealth.ToString()),
-            ["HS"] = ("Current hume shield", plr => plr.HumeShield.ToString()),
-            ["maxHS"] = ("Maximum hume shield", plr => plr.MaxHumeShield.ToString()),
+            [new[] { "posX", "positionX" }] = ("X position", plr => plr.Position.x.ToString()),
+            [new[] { "posY", "positionY" }] = ("Y position", plr => plr.Position.y.ToString()),
+            [new[] { "posZ", "positionZ" }] = ("Z position", plr => plr.Position.z.ToString()),
+            [new[] { "pos", "position" }] = ("(X, Y, Z) position vector", plr => $"({plr.Position.x}, {plr.Position.y}, {plr.Position.z})"),
+            [new[] { "health", "HP" }] = ("Current health", plr => plr.Health.ToString()),
+            [new[] { "maxHealth", "maxHP" }] = ("Maximum health", plr => plr.MaxHealth.ToString()),
+            [new[] { "AHP" }] = ("Current artificial health", plr => plr.ArtificialHealth.ToString()),
+            [new[] { "maxAHP" }] = ("Maximum artificial health", plr => plr.MaxArtificialHealth.ToString()),
+            [new[] { "HS" }] = ("Current hume shield", plr => plr.HumeShield.ToString()),
+            [new[] { "maxHS" }] = ("Maximum hume shield", plr => plr.MaxHumeShield.ToString()),
             ["IP"] = ("IP adress", plr => plr.IpAddress),
             ["heldItem"] = (
                 "A reference to the currently held item, or 'none' if no item is held.",
                 plr => plr.CurrentItem is not null ? ObjectReferenceSystem.RegisterObject(plr.CurrentItem) : "none"),
             ["itemAmount"] = ("Amount of items in inventory", plr => plr.Items.Count(i => i is not AmmoItem).ToString()),
         };
-    
+
+
     public static readonly Dictionary<string, (string description, Func<Player, string> getAction)>
-        CaseInsensitiveAccessiblePlayerProperties = AccessiblePlayerProperties.Select(kvp => (kvp.Key.ToLower(), kvp.Value))
-            .ToDictionary(kvp => kvp.Item1, kvp => kvp.Value);
+        CaseInsensitiveAccessiblePlayerProperties =
+            AccessiblePlayerProperties
+                .SelectMany(kvp =>
+                {
+                    if (kvp.Key.Item1 is { } str)
+                    {
+                        return
+                        [
+                            new KeyValuePair<string, (string description, Func<Player, string> getAction)>(
+                                str.ToLower(), kvp.Value)
+                        ];
+                    }
+
+                    if (kvp.Key.Item2 is { } array)
+                    {
+                        return array.Select(alias =>
+                            new KeyValuePair<string, (string description, Func<Player, string> getAction)>(
+                                alias.ToLower(), kvp.Value));
+                    }
+
+                    throw new AndrzejFuckedUpException();
+                })
+                .ToDictionary(kvp => kvp.Key, kvp => kvp.Value);
     
     public override bool EndParsingOnChar(char c, out BaseToken? replaceToken)
     {

@@ -4,6 +4,7 @@ using System.Linq;
 using CommandSystem;
 using JetBrains.Annotations;
 using LabApi.Features.Console;
+using LabApi.Features.Wrappers;
 using RemoteAdmin;
 using SER.Helpers.Exceptions;
 using SER.Helpers.Extensions;
@@ -158,6 +159,16 @@ public class CommandFlag : Flag
             .HasErrored(out var error, out var script))
         {
             return error;
+        }
+
+        switch (sender)
+        {
+            case PlayerConsoleExecutor playerConsole:
+                script.AddLocalPlayerVariable(new("sender", [Player.Get(playerConsole.Sender)]));
+                break;
+            case RemoteAdminExecutor remoteAdminExecutor:
+                script.AddLocalPlayerVariable(new("sender", [Player.Get(remoteAdminExecutor.Sender)]));
+                break;
         }
 
         for (var index = 0; index < requestingCommand.Usage.Length; index++)
