@@ -11,6 +11,7 @@ using SER.MethodSystem.ArgumentSystem.BaseArguments;
 using SER.MethodSystem.BaseMethods;
 using SER.MethodSystem.MethodDescriptors;
 using SER.Plugin.Commands.Interfaces;
+using SER.ScriptSystem.TokenSystem.Tokens.LiteralVariables;
 using SER.VariableSystem;
 using SER.VariableSystem.Structures;
 using EventHandler = SER.ScriptSystem.EventSystem.EventHandler;
@@ -33,7 +34,8 @@ public class HelpCommand : ICommand
         [HelpOption.Variables] = GetVariableList,
         [HelpOption.Enums] = GetEnumHelpPage,
         [HelpOption.Events] = GetEventsHelpPage,
-        [HelpOption.RefResMethods] = GetReferenceResolvingMethodsHelpPage
+        [HelpOption.RefResMethods] = GetReferenceResolvingMethodsHelpPage,
+        [HelpOption.PlayerProperty] = GetPlayerInfoAccessorsHelpPage
     };
     
     public bool Execute(ArraySegment<string> arguments, ICommandSender _, out string response)
@@ -401,7 +403,41 @@ public class HelpCommand : ICommand
         }
         
         return sb.ToString();
-    }   
+    }
+
+    public static string GetPlayerInfoAccessorsHelpPage()
+    {
+        var accessors = PlayerPropertyAccessToken.AccessiblePlayerProperties.Select(kvp =>
+        {
+            if (kvp.Key.Item1 is { } name)
+            {
+                return $".{name}\nReturns: {kvp.Value.description}";
+            }
+
+            if (kvp.Key.Item2 is { } names)
+            {
+                return $"{names.Select(n => $".{n}").JoinStrings(" or ")}\nReturns: {kvp.Value.description}";
+            }
+
+            throw new AndrzejFuckedUpException();
+        }).JoinStrings("\n\n");
+        
+        return 
+            """
+            Player property accessors are suffixes added to a player variable with a single player to extract information about said player.
+
+            Assuming you have a variable called '@myPlayer' that has 1 player, you can access properties like:
+            name:   @myPlayer.name
+            role:   @myPlayer.role
+            health: @myPlayer.health
+            etc.
+            
+            This works like any other literal variable, so you can save it to a variable, use it in a method, etc.
+
+            Here is a list of all player property accessors and their definitions:
+            
+            """ + accessors;
+    }
 }
 
 
