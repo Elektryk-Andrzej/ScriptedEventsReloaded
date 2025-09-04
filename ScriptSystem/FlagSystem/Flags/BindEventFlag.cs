@@ -7,14 +7,17 @@ using EventHandler = SER.ScriptSystem.EventSystem.EventHandler;
 
 namespace SER.ScriptSystem.FlagSystem.Flags;
 
-public class EventFlag : Flag
+public class BindEventFlag : Flag
 {
-    public override FlagType Type => FlagType.Event;
+    public override string Description =>
+        "Binds a script to an in-game event. When the event happens, the script will execute. " +
+        "Events can sometimes also carry information of their own, ";
 
-    public override FlagArgument? InlineArgument => FlagArgument.EventName;
-
-    public override Dictionary<FlagArgument, Func<string[], Result>> Arguments => new();
+    public override (string argName, string description)? InlineArgDescription =>
+        ("eventName", "The name of the event to bind to.");
     
+    public override Dictionary<string, (string description, Func<string[], Result> handler)> Arguments => new();
+
     public override Result TryBind(string[] inlineArgs)
     {
         switch (inlineArgs.Length)

@@ -1,7 +1,4 @@
-﻿using RemoteAdmin;
-using UnityEngine;
-
-namespace SER.ScriptSystem.Structures;
+﻿namespace SER.ScriptSystem.Structures;
 
 public class PlayerConsoleExecutor : ScriptExecutor
 {

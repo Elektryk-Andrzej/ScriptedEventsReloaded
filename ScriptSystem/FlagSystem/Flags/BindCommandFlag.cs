@@ -15,17 +15,33 @@ using SER.ScriptSystem.Structures;
 namespace SER.ScriptSystem.FlagSystem.Flags;
 
 [UsedImplicitly]
-public class CommandFlag : Flag
+public class BindCommandFlag : Flag
 {
-    public override FlagType Type => FlagType.Command;
+    public override string Description => 
+        "Creates a command and binds it to the script. When the command is ran, it executes the script.";
 
-    public override FlagArgument? InlineArgument => FlagArgument.CommandName;
+    public override (string argName, string description)? InlineArgDescription =>
+        ("commandName", "The name of the command; cannot have any whitespace.");
 
-    public override Dictionary<FlagArgument, Func<string[], Result>> Arguments => new()
+    public override Dictionary<string, (string description, Func<string[], Result> handler)> Arguments => new()
     {
-        [FlagArgument.Arguments] = AddCommandArguments,
-        [FlagArgument.ConsoleType] = AddCommandConsoleType,
-        [FlagArgument.Description] = AddCommandDescription
+        ["arguments"] = (
+            "The arguments that this command expects in order to run. " +
+            "The script cannot run unless every single argument is specified. " +
+            "When the command is ran, the provided values for the arguments turn into their own literal local " +
+            "variables for you to use in the script. " +
+            "For example: making a command with an argument 'x' will then create a local variable {x} in your script. " +
+            "Side note: when a player is running the command, a @sender local player variable will also be created.", 
+            AddArguments
+        ),
+        ["availableFor"] = (
+            $"Specifies from which console the command can be executed from. Accepts {nameof(ConsoleType)} enum values.",
+            AddConsoleType
+        ),
+        ["description"] = (
+            "The description of the command.", 
+            AddDescription
+        )
     };
 
     public override Result TryBind(string[] inlineArgs)
@@ -55,6 +71,11 @@ public class CommandFlag : Flag
 
     public override void Confirm()
     {
+        if (ScriptCommands.ContainsKey(Command))
+        {
+            return;
+        }
+        
         ScriptCommands.Add(Command, this);
         
         foreach (var console in Command.ConsoleTypes.GetFlags())
@@ -124,13 +145,12 @@ public class CommandFlag : Flag
         public string[] Usage { get; set; } = [];
         public string GetHelp(ArraySegment<string> arguments)
         {
-            Logger.Info($"arguments: {arguments.JoinStrings(" ")}, usage: {Usage.JoinStrings(" ")}");
             return $"Description: {Description}\n" +
                    $"Arguments: {Usage.Select(arg => $"[{arg}]").JoinStrings(" ")}";
         }
     }
 
-    public static readonly Dictionary<CustomCommand, CommandFlag> ScriptCommands = [];
+    public static readonly Dictionary<CustomCommand, BindCommandFlag> ScriptCommands = [];
 
     public CustomCommand Command = null!;
 
@@ -144,15 +164,13 @@ public class CommandFlag : Flag
         if (args.Length < requestingCommand.Usage.Length)
         {
             return "Not enough arguments. " +
-                   $"Expected {requestingCommand.Usage.Length} but got {args.Length}. " +
-                   $"Usage: {requestingCommand.GetHelp(new ArraySegment<string>(args))}";
+                   $"Expected {requestingCommand.Usage.Length} but got {args.Length}.";
         }
 
         if (args.Length > requestingCommand.Usage.Length)
         {
             return "Too many arguments. " +
-                   $"Expected {requestingCommand.Usage.Length} but got {args.Length}. " +
-                   $"Usage: {requestingCommand.GetHelp(new ArraySegment<string>(args))}";
+                   $"Expected {requestingCommand.Usage.Length} but got {args.Length}.";
         }
 
         if (Script.CreateByScriptName(flag.ScriptName, sender)
@@ -188,7 +206,7 @@ public class CommandFlag : Flag
         return true;
     }
     
-    private Result AddCommandArguments(string[] args)
+    private Result AddArguments(string[] args)
     {
         foreach (var arg in args)
         {
@@ -202,7 +220,7 @@ public class CommandFlag : Flag
         return true;
     }
 
-    private Result AddCommandConsoleType(string[] args)
+    private Result AddConsoleType(string[] args)
     {
         ConsoleType types = ConsoleType.None;
 
@@ -221,7 +239,7 @@ public class CommandFlag : Flag
         return true;
     }
 
-    private Result AddCommandDescription(string[] args)
+    private Result AddDescription(string[] args)
     {
         Command.Description = args.JoinStrings(" ");
         return true;

@@ -11,6 +11,7 @@ using SER.MethodSystem.ArgumentSystem.BaseArguments;
 using SER.MethodSystem.BaseMethods;
 using SER.MethodSystem.MethodDescriptors;
 using SER.Plugin.Commands.Interfaces;
+using SER.ScriptSystem.FlagSystem.Structures;
 using SER.ScriptSystem.TokenSystem.Tokens.LiteralVariables;
 using SER.VariableSystem;
 using SER.VariableSystem.Structures;
@@ -35,7 +36,8 @@ public class HelpCommand : ICommand
         [HelpOption.Enums] = GetEnumHelpPage,
         [HelpOption.Events] = GetEventsHelpPage,
         [HelpOption.RefResMethods] = GetReferenceResolvingMethodsHelpPage,
-        [HelpOption.PlayerProperty] = GetPlayerInfoAccessorsHelpPage
+        [HelpOption.PlayerProperty] = GetPlayerInfoAccessorsHelpPage,
+        [HelpOption.Flags] = GetFlagHelpPage
     };
     
     public bool Execute(ArraySegment<string> arguments, ICommandSender _, out string response)
@@ -84,6 +86,13 @@ public class HelpCommand : ICommand
             return true;
         }
 
+        var correctFlagName = Flag.FlagInfos.Keys.FirstOrDefault(k => k.ToLower() == arg);
+        if (correctFlagName is not null)
+        {
+            response = GetFlagInfo(correctFlagName);
+            return true;
+        }
+
         response = $"There is no '{arg}' option!";
         return false;
     }
@@ -113,6 +122,48 @@ public class HelpCommand : ICommand
                         => $"{c.Command} (permission: {(c as IUsePermissions)?.Permission ?? "not required"})" + 
                            $"\n{(string.IsNullOrEmpty(c.Description) ? string.Empty : c.Description + "\n")}"))}
                 """;
+    }
+
+    private static string GetFlagHelpPage()
+    {
+        var flags = Flag.FlagInfos.Keys
+            .Select(f => $"> {f}")
+            .JoinStrings("\n");
+        
+        return
+            """
+            Flags are a way to change script behavior depending on your needs.
+            
+            This how they are used:
+            !-- SomeFlag argValue1 argValue2
+            -- customFlagArgument "some value"
+            
+            Flags should be used at the top of the script.
+            
+            Below is a list of all flags available in SER:
+            (for more info about their usage, use 'serhelp flagName')
+            """ + flags;
+    }
+
+    private static string GetFlagInfo(string flagName)
+    {
+        var info = Flag.FlagInfos[flagName];
+        var flagArgs = info.argDescription.Keys.Select(a => $"-- {a} ...").JoinStrings("\n");
+        var flagArgsInfo = info.argDescription.Select(kvp => $"{kvp.Key}: {kvp.Value}").JoinStrings("\n\n");
+        
+        return
+            $"""
+             ===== {flagName} =====
+             > {info.description}
+             
+             Usage:
+             !-- {flagName} {(info.inlineArgDescription?.argName is { } name ? $"{name}" : "")}
+             {flagArgs}
+             
+             Argument information:
+             {(info.inlineArgDescription is { } inlineArg ? $"{inlineArg.argName}: {inlineArg.description}\n" : "")}
+             {flagArgsInfo}
+             """;
     }
 
     private static string GetEventInfo(EventInfo ev)

@@ -1,9 +1,7 @@
 ﻿using System;
 using System.Linq;
 using CommandSystem;
-using Query;
 using RemoteAdmin;
-using SER.Helpers.Exceptions;
 
 namespace SER.ScriptSystem.Structures;
 
