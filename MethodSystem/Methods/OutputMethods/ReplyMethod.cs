@@ -4,7 +4,7 @@ using SER.MethodSystem.ArgumentSystem.Arguments;
 using SER.MethodSystem.ArgumentSystem.BaseArguments;
 using SER.MethodSystem.BaseMethods;
 
-namespace SER.MethodSystem.Methods.InputOutputMethods;
+namespace SER.MethodSystem.Methods.OutputMethods;
 
 public class ReplyMethod : SynchronousMethod
 {
