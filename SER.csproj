@@ -1,0 +1,336 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+    <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+    <PropertyGroup>
+        <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+        <Platform Condition=" '$(Platform)' == '' ">x64</Platform>
+        <ProjectGuid>{FA94121F-C3B2-462E-A741-9D90790DE268}</ProjectGuid>
+        <OutputType>Library</OutputType>
+        <AppDesignerFolder>Properties</AppDesignerFolder>
+        <RootNamespace>SER</RootNamespace>
+        <AssemblyName>SER</AssemblyName>
+        <TargetFrameworkVersion>v4.8.1</TargetFrameworkVersion>
+        <FileAlignment>512</FileAlignment>
+        <LangVersion>14</LangVersion>
+        <Nullable>enable</Nullable>
+        <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    </PropertyGroup>
+    <Target Name="PostBuild" AfterTargets="PostBuildEvent">
+      <Copy SourceFiles="bin\Debug\SER.dll" 
+        DestinationFolder="C:\Users\Olgie\AppData\Roaming\SCP Secret Laboratory\LabAPI\plugins\global" />
+    </Target>
+    <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+        <LangVersion>latest</LangVersion>
+        <PlatformTarget>x64</PlatformTarget>
+        <DebugSymbols>true</DebugSymbols>
+        <DebugType>embedded</DebugType>
+        <Optimize>false</Optimize>
+        <OutputPath>bin\Debug\</OutputPath>
+        <DefineConstants>DEBUG;TRACE</DefineConstants>
+        <ErrorReport>prompt</ErrorReport>
+        <WarningLevel>4</WarningLevel>
+    </PropertyGroup>
+    <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+       <LangVersion>latest</LangVersion>
+        <PlatformTarget>x64</PlatformTarget>
+        <DebugType>embedded</DebugType>
+        <Optimize>true</Optimize>
+        <OutputPath>bin\Release\</OutputPath>
+        <DefineConstants>TRACE</DefineConstants>
+        <ErrorReport>prompt</ErrorReport>
+        <WarningLevel>4</WarningLevel>
+        <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    </PropertyGroup>
+    <ItemGroup>
+      <Reference Include="0Harmony">
+        <HintPath>$(SL_DEV_REFERENCES)\0Harmony.dll</HintPath>
+      </Reference>
+      <Reference Include="Assembly-CSharp">
+        <HintPath>$(SL_DEV_REFERENCES)\Assembly-CSharp-Publicized.dll</HintPath>
+      </Reference>
+      <Reference Include="Assembly-CSharp-firstpass">
+        <HintPath>$(SL_DEV_REFERENCES)\Assembly-CSharp-firstpass.dll</HintPath>
+      </Reference>
+      <Reference Include="CommandSystem.Core">
+        <HintPath>$(SL_DEV_REFERENCES)\CommandSystem.Core.dll</HintPath>
+        <Private>true</Private>
+      </Reference>
+      <Reference Include="LabApi">
+        <HintPath>$(SL_DEV_REFERENCES)\LabApi.dll</HintPath>
+      </Reference>
+      <Reference Include="Mirror">
+        <HintPath>$(SL_DEV_REFERENCES)\Mirror.dll</HintPath>
+      </Reference>
+      <Reference Include="NCalc">
+        <HintPath>$(SL_DEV_REFERENCES)\NCalc.dll</HintPath>
+      </Reference>
+      <Reference Include="NorthwoodLib">
+        <HintPath>$(SL_DEV_REFERENCES)\NorthwoodLib.dll</HintPath>
+      </Reference>
+      <Reference Include="Pooling">
+        <HintPath>$(SL_DEV_REFERENCES)\Pooling.dll</HintPath>
+      </Reference>
+      <Reference Include="System" />
+      <Reference Include="UnityEngine">
+        <HintPath>$(SL_DEV_REFERENCES)\UnityEngine.dll</HintPath>
+      </Reference>
+      <Reference Include="UnityEngine.CoreModule">
+        <HintPath>$(SL_DEV_REFERENCES)\UnityEngine.CoreModule.dll</HintPath>
+      </Reference>
+    </ItemGroup>
+    <ItemGroup>
+        <Compile Include="Helpers\ColorUtils.cs" />
+        <Compile Include="Helpers\Compiler\CompilerRequiredAttributes.cs" />
+        <Compile Include="Helpers\Compiler\IsExternalInit.cs.cs" />
+        <Compile Include="Helpers\Exceptions\ArgumentFetchException.cs" />
+        <Compile Include="Helpers\Exceptions\AndrzejFuckedUpException.cs" />
+        <Compile Include="Helpers\Exceptions\InvalidValueException.cs" />
+        <Compile Include="Helpers\Exceptions\InvalidVariableException.cs" />
+        <Compile Include="Helpers\Exceptions\MalformedConditionException.cs" />
+        <Compile Include="Helpers\Exceptions\MissingArgumentException.cs" />
+        <Compile Include="Helpers\ExpressionSystem.cs" />
+        <Compile Include="Helpers\Extensions\CollectionExtensions.cs" />
+        <Compile Include="Helpers\Extensions\DictionaryExtensions.cs" />
+        <Compile Include="Helpers\Extensions\DoubleExtensions.cs" />
+        <Compile Include="Helpers\Extensions\EnumExtensions.cs" />
+        <Compile Include="Helpers\Extensions\ObjectExtensions.cs" />
+        <Compile Include="Helpers\Extensions\StringExtensions.cs" />
+        <Compile Include="Helpers\Extensions\TypeExtensions.cs" />
+        <Compile Include="Helpers\TryGet.cs" />
+        <Compile Include="Helpers\Union.cs" />
+        <Compile Include="MethodSystem\ArgumentSystem\Arguments\DoorArgument.cs" />
+        <Compile Include="MethodSystem\ArgumentSystem\Arguments\RoomArgument.cs" />
+        <Compile Include="MethodSystem\ArgumentSystem\BaseArguments\GenericMethodArgument.cs" />
+        <Compile Include="MethodSystem\ArgumentSystem\BaseArguments\CustomMethodArgument.cs" />
+        <Compile Include="MethodSystem\ArgumentSystem\Arguments\ColorArgument.cs" />
+        <Compile Include="MethodSystem\ArgumentSystem\Arguments\ElevatorArgument.cs" />
+        <Compile Include="MethodSystem\ArgumentSystem\Arguments\FloatArgument.cs" />
+        <Compile Include="MethodSystem\ArgumentSystem\Arguments\IntArgument.cs" />
+        <Compile Include="MethodSystem\ArgumentSystem\Arguments\BoolArgument.cs" />
+        <Compile Include="MethodSystem\ArgumentSystem\Arguments\DoorsArgument.cs" />
+        <Compile Include="MethodSystem\ArgumentSystem\Arguments\DurationArgument.cs" />
+        <Compile Include="MethodSystem\ArgumentSystem\Arguments\EnumArgument.cs" />
+        <Compile Include="MethodSystem\ArgumentSystem\Arguments\ItemsArgument.cs" />
+        <Compile Include="MethodSystem\ArgumentSystem\Arguments\LiteralVariableNameArgument.cs" />
+        <Compile Include="MethodSystem\ArgumentSystem\Arguments\OptionsArgument.cs" />
+        <Compile Include="MethodSystem\ArgumentSystem\Arguments\PercentageArgument.cs" />
+        <Compile Include="MethodSystem\ArgumentSystem\Arguments\PlayersArgument.cs" />
+        <Compile Include="MethodSystem\ArgumentSystem\Arguments\PlayerVariableNameArgument.cs" />
+        <Compile Include="MethodSystem\ArgumentSystem\Arguments\ReferenceArgument.cs" />
+        <Compile Include="MethodSystem\ArgumentSystem\Arguments\RoomsArgument.cs" />
+        <Compile Include="MethodSystem\ArgumentSystem\Arguments\ScriptArgument.cs" />
+        <Compile Include="MethodSystem\ArgumentSystem\Arguments\PlayerArgument.cs" />
+        <Compile Include="MethodSystem\ArgumentSystem\Arguments\TextArgument.cs" />
+        <Compile Include="MethodSystem\ArgumentSystem\Arguments\VariableArgument.cs" />
+        <Compile Include="MethodSystem\ArgumentSystem\Interfaces\IArgEvalRes.cs" />
+        <Compile Include="MethodSystem\ArgumentSystem\MethodArgumentProcessor.cs" />
+        <Compile Include="MethodSystem\ArgumentSystem\ProvidedArguments.cs" />
+        <Compile Include="MethodSystem\ArgumentSystem\Structures\ArgumentEvaluation.cs" />
+        <Compile Include="MethodSystem\ArgumentSystem\Structures\ArgumentSkeleton.cs" />
+        <Compile Include="MethodSystem\ArgumentSystem\Structures\OperatingValue.cs" />
+        <Compile Include="MethodSystem\ArgumentSystem\Structures\Option.cs" />
+        <Compile Include="MethodSystem\BaseMethods\Method.cs" />
+        <Compile Include="MethodSystem\BaseMethods\PlayerReturningMethod.cs" />
+        <Compile Include="MethodSystem\BaseMethods\SynchronousMethod.cs" />
+        <Compile Include="MethodSystem\BaseMethods\ReferenceResolvingMethod.cs" />
+        <Compile Include="MethodSystem\BaseMethods\ReferenceReturningMethod.cs" />
+        <Compile Include="MethodSystem\BaseMethods\TextReturningMethod.cs" />
+        <Compile Include="MethodSystem\BaseMethods\YieldingMethod.cs" />
+        <Compile Include="MethodSystem\MethodDescriptors\IAdditionalDescription.cs" />
+        <Compile Include="MethodSystem\MethodDescriptors\IPureMethod.cs" />
+        <Compile Include="MethodSystem\MethodDescriptors\IReferenceResolvingMethod.cs" />
+        <Compile Include="MethodSystem\MethodIndex.cs" />
+        <Compile Include="MethodSystem\Methods\BroadcastMethods\CountdownMethod.cs" />
+        <Compile Include="MethodSystem\Methods\CASSIEMethods\IsCassieSpeakingMethod.cs" />
+        <Compile Include="MethodSystem\Methods\ElevatorMethods\LockElevatorMethod.cs" />
+        <Compile Include="MethodSystem\Methods\ElevatorMethods\SendElevatorMethod.cs" />
+        <Compile Include="MethodSystem\Methods\ElevatorMethods\UnlockElevatorMethod.cs" />
+        <Compile Include="MethodSystem\Methods\EventMethods\DisableEventMethod.cs" />
+        <Compile Include="MethodSystem\Methods\EventMethods\EnableEventMethod.cs" />
+        <Compile Include="MethodSystem\Methods\EventMethods\IsAllowedMethod.cs" />
+        <Compile Include="MethodSystem\Methods\HealthMethods\DamageInfoMethod.cs" />
+        <Compile Include="MethodSystem\Methods\OutputMethods\ErrorMethod.cs" />
+        <Compile Include="MethodSystem\Methods\OutputMethods\PrintMethod.cs" />
+        <Compile Include="MethodSystem\Methods\OutputMethods\ReplyMethod.cs" />
+        <Compile Include="MethodSystem\Methods\ItemMethods\AdvDestroyItemMethod.cs" />
+        <Compile Include="MethodSystem\Methods\ItemMethods\AdvDropItemMethod.cs" />
+        <Compile Include="MethodSystem\Methods\ItemMethods\DestroyItemMethod.cs" />
+        <Compile Include="MethodSystem\Methods\LiteralVariableMethods\GetPlayerDataMethod.cs" />
+        <Compile Include="MethodSystem\Methods\LiteralVariableMethods\GlobalLiteralVariableMethod.cs" />
+        <Compile Include="MethodSystem\Methods\LiteralVariableMethods\SetPlayerDataMethod.cs" />
+        <Compile Include="MethodSystem\Methods\MapMethods\DestroyRagdollMethod.cs" />
+        <Compile Include="MethodSystem\Methods\MathMethods\RandomNumMethod.cs" />
+        <Compile Include="MethodSystem\Methods\PickupMethods\AddPickupToInventoryMethod.cs" />
+        <Compile Include="MethodSystem\Methods\PlayerMethods\BypassMethod.cs" />
+        <Compile Include="MethodSystem\Methods\PlayerMethods\SetCustomInfoMethod.cs" />
+        <Compile Include="MethodSystem\Methods\PlayerMethods\GodModeMethod.cs" />
+        <Compile Include="MethodSystem\Methods\PlayerMethods\NoclipMethod.cs" />
+        <Compile Include="MethodSystem\Methods\PlayerVariableMethods\GetPlayerFromReferenceMethod.cs" />
+        <Compile Include="MethodSystem\Methods\PlayerVariableMethods\GlobalPlayerVariableMethod.cs" />
+        <Compile Include="MethodSystem\Methods\PlayerVariableMethods\JoinPlayersMethod.cs" />
+        <Compile Include="MethodSystem\Methods\PlayerVariableMethods\LimitPlayersMethod.cs" />
+        <Compile Include="MethodSystem\Methods\PlayerVariableMethods\RemovePlayersMethod.cs" />
+        <Compile Include="MethodSystem\Methods\RespawnMethods\RespawnWaveInfoMethod.cs" />
+        <Compile Include="MethodSystem\Methods\RoleMethods\RoleInfoMethod.cs" />
+        <Compile Include="MethodSystem\Methods\RoleMethods\SetRoleMethod.cs" />
+        <Compile Include="MethodSystem\Methods\RoomMethods\GetRoomByNameMethod.cs" />
+        <Compile Include="MethodSystem\Methods\RoomMethods\RoomInfoMethod.cs" />
+        <Compile Include="MethodSystem\Methods\RoundMethods\RoundInfoMethod.cs" />
+        <Compile Include="MethodSystem\Methods\ScriptMethods\TransferVariablesMethod.cs" />
+        <Compile Include="MethodSystem\Methods\ServerMethods\CommandMethod.cs" />
+        <Compile Include="MethodSystem\Methods\BroadcastMethods\BroadcastMethod.cs" />
+        <Compile Include="MethodSystem\Methods\BroadcastMethods\ClearBroadcastsMethod.cs" />
+        <Compile Include="MethodSystem\Methods\BroadcastMethods\HintMethod.cs" />
+        <Compile Include="MethodSystem\Methods\CASSIEMethods\CassieMethod.cs" />
+        <Compile Include="MethodSystem\Methods\CASSIEMethods\ClearCassieMethod.cs" />
+        <Compile Include="MethodSystem\Methods\CASSIEMethods\PlayerCassieMethod.cs" />
+        <Compile Include="MethodSystem\Methods\DoorMethods\CloseDoorMethod.cs" />
+        <Compile Include="MethodSystem\Methods\DoorMethods\DoorInfoMethod.cs" />
+        <Compile Include="MethodSystem\Methods\DoorMethods\GetRandomDoorMethod.cs" />
+        <Compile Include="MethodSystem\Methods\DoorMethods\LockDoorMethod.cs" />
+        <Compile Include="MethodSystem\Methods\DoorMethods\OpenDoorMethod.cs" />
+        <Compile Include="MethodSystem\Methods\DoorMethods\UnlockDoorMethod.cs" />
+        <Compile Include="MethodSystem\Methods\HealthMethods\DamageMethod.cs" />
+        <Compile Include="MethodSystem\Methods\HealthMethods\KillMethod.cs" />
+        <Compile Include="MethodSystem\Methods\HealthMethods\SetAHPMethod.cs" />
+        <Compile Include="MethodSystem\Methods\HealthMethods\SetHealthMethod.cs" />
+        <Compile Include="MethodSystem\Methods\HealthMethods\SetMaxHealthMethod.cs" />
+        <Compile Include="MethodSystem\Methods\ItemMethods\ClearInventoryMethod.cs" />
+        <Compile Include="MethodSystem\Methods\ItemMethods\DropItemMethod.cs" />
+        <Compile Include="MethodSystem\Methods\ItemMethods\GiveCandyMethod.cs" />
+        <Compile Include="MethodSystem\Methods\ItemMethods\GiveItemMethod.cs" />
+        <Compile Include="MethodSystem\Methods\ItemMethods\GrantLoadoutMethod.cs" />
+        <Compile Include="MethodSystem\Methods\PlayerMethods\AmountOfMethod.cs" />
+        <Compile Include="MethodSystem\Methods\PlayerMethods\BanMethod.cs" />
+        <Compile Include="MethodSystem\Methods\PlayerMethods\ExplodeMethod.cs" />
+        <Compile Include="MethodSystem\Methods\PlayerMethods\KickMethod.cs" />
+        <Compile Include="MethodSystem\Methods\LightMethods\LightsOutMethod.cs" />
+        <Compile Include="MethodSystem\Methods\LightMethods\ResetLightColorMethod.cs" />
+        <Compile Include="MethodSystem\Methods\LightMethods\SetLightColorMethod.cs" />
+        <Compile Include="MethodSystem\Methods\LightMethods\TransitionLightColorMethod.cs" />
+        <Compile Include="MethodSystem\Methods\RoomMethods\BlackoutMethod.cs" />
+        <Compile Include="MethodSystem\Methods\ScriptMethods\RunScriptAndWaitMethod.cs" />
+        <Compile Include="MethodSystem\Methods\ScriptMethods\RunScriptMethod.cs" />
+        <Compile Include="MethodSystem\Methods\LiteralVariableMethods\EvalMethod.cs" />
+        <Compile Include="MethodSystem\Methods\LiteralVariableMethods\SaveMethod.cs" />
+        <Compile Include="MethodSystem\Methods\TeleportMethods\TPDoorMethod.cs" />
+        <Compile Include="MethodSystem\Methods\TeleportMethods\TPPlayerMethod.cs" />
+        <Compile Include="MethodSystem\Methods\TeleportMethods\TPPositionMethod.cs" />
+        <Compile Include="MethodSystem\Methods\TeleportMethods\TPRoomMethod.cs" />
+        <Compile Include="MethodSystem\Methods\TeleportMethods\TPSpawnMethod.cs" />
+        <Compile Include="MethodSystem\Methods\TimeMethods\TimeInfoMethod.cs" />
+        <Compile Include="MethodSystem\Methods\WarheadMethods\DetonateWarheadMethod.cs" />
+        <Compile Include="MethodSystem\Methods\WaitingMethods\WaitMethod.cs" />
+        <Compile Include="MethodSystem\Methods\WaitingMethods\WaitUntilMethod.cs" />
+        <Compile Include="Helpers\ResultStructure\Result.cs" />
+        <Compile Include="Helpers\ResultStructure\ResultStacker.cs" />
+        <Compile Include="Helpers\BetterCoros.cs" />
+        <Compile Include="Plugin\Commands\HelpSystem\DocsCommand.cs" />
+        <Compile Include="Plugin\Commands\HelpSystem\HelpCommand.cs" />
+        <Compile Include="Plugin\Commands\HelpSystem\HelpInfoStorage.cs" />
+        <Compile Include="Plugin\Commands\HelpSystem\HelpOption.cs" />
+        <Compile Include="Plugin\Commands\Interfaces\IUsePermissions.cs" />
+        <Compile Include="Plugin\Commands\MethodCommand.cs" />
+        <Compile Include="Plugin\Commands\ReloadCommand.cs" />
+        <Compile Include="Plugin\Commands\RunCommand.cs" />
+        <Compile Include="Plugin\Commands\StopAllCommand.cs" />
+        <Compile Include="Plugin\Commands\StopCommand.cs" />
+        <Compile Include="Plugin\FileSystem.cs" />
+        <Compile Include="Plugin\MainPlugin.cs" />
+        <Compile Include="Helpers\Log.cs" />
+        <Compile Include="ScriptSystem\ContextSystem\BaseContexts\Context.cs" />
+        <Compile Include="ScriptSystem\ContextSystem\BaseContexts\StandardContext.cs" />
+        <Compile Include="ScriptSystem\ContextSystem\BaseContexts\StatementContext.cs" />
+        <Compile Include="ScriptSystem\ContextSystem\BaseContexts\YieldingContext.cs" />
+        <Compile Include="ScriptSystem\ContextSystem\Contexter.cs" />
+        <Compile Include="ScriptSystem\ContextSystem\Contexts\Control\ElifStatementContext.cs" />
+        <Compile Include="ScriptSystem\ContextSystem\Contexts\Control\EndStatementContext.cs" />
+        <Compile Include="ScriptSystem\ContextSystem\Contexts\Control\ElseStatementContext.cs" />
+        <Compile Include="ScriptSystem\ContextSystem\Contexts\Control\IfStatementContext.cs" />
+        <Compile Include="ScriptSystem\ContextSystem\Contexts\Control\Loops\ForeachLoopContext.cs" />
+        <Compile Include="ScriptSystem\ContextSystem\Contexts\Control\Loops\ForeverLoopContext.cs" />
+        <Compile Include="ScriptSystem\ContextSystem\Contexts\Control\Loops\LoopContinueContext.cs" />
+        <Compile Include="ScriptSystem\ContextSystem\Contexts\Control\Loops\RepeatLoopContext.cs" />
+        <Compile Include="ScriptSystem\ContextSystem\Contexts\Control\Loops\WhileLoopContext.cs" />
+        <Compile Include="ScriptSystem\ContextSystem\Contexts\Control\StopScriptContext.cs" />
+        <Compile Include="ScriptSystem\ContextSystem\Contexts\MethodContext.cs" />
+        <Compile Include="ScriptSystem\ContextSystem\Contexts\NoOperationContext.cs" />
+        <Compile Include="ScriptSystem\ContextSystem\Contexts\VariableDefinition\LiteralVariableDefinitionContext.cs" />
+        <Compile Include="ScriptSystem\ContextSystem\Contexts\VariableDefinition\PlayerVariableDefinitionContext.cs" />
+        <Compile Include="ScriptSystem\ContextSystem\Extensions\BaseContextExtensions.cs" />
+        <Compile Include="ScriptSystem\ContextSystem\Structures\IExtendableStatement.cs" />
+        <Compile Include="ScriptSystem\ContextSystem\Structures\IKeywordContext.cs" />
+        <Compile Include="ScriptSystem\ContextSystem\Structures\IStatementExtender.cs" />
+        <Compile Include="ScriptSystem\ContextSystem\Structures\ParentContextControlMessage.cs" />
+        <Compile Include="ScriptSystem\ContextSystem\Structures\TryAddContextRes.cs" />
+        <Compile Include="ScriptSystem\ContextSystem\Structures\TryAddTokenRes.cs" />
+        <Compile Include="ScriptSystem\EventSystem\EventHandler.cs" />
+        <Compile Include="ScriptSystem\FlagSystem\Flags\BindCommandFlag.cs" />
+        <Compile Include="ScriptSystem\FlagSystem\Flags\BindEventFlag.cs" />
+        <Compile Include="ScriptSystem\FlagSystem\ScriptFlagHandler.cs" />
+        <Compile Include="ScriptSystem\FlagSystem\Structures\ConsoleType.cs" />
+        <Compile Include="ScriptSystem\FlagSystem\Structures\Flag.cs" />
+        <Compile Include="ScriptSystem\Script.cs" />
+        <Compile Include="ScriptSystem\Structures\PlayerConsoleExecutor.cs" />
+        <Compile Include="ScriptSystem\Structures\RemoteAdminExecutor.cs" />
+        <Compile Include="ScriptSystem\Structures\ServerConsoleExecutor.cs" />
+        <Compile Include="ScriptSystem\Structures\ScriptExecutor.cs" />
+        <Compile Include="ScriptSystem\TokenSystem\BaseTokens\ContextableToken.cs" />
+        <Compile Include="ScriptSystem\TokenSystem\BaseTokens\BaseToken.cs" />
+        <Compile Include="ScriptSystem\TokenSystem\Structures\ScriptControlMessage.cs" />
+        <Compile Include="ScriptSystem\TokenSystem\TokenExtensions.cs" />
+        <Compile Include="ScriptSystem\TokenSystem\Structures\EndTokenParsingRes.cs" />
+        <Compile Include="ScriptSystem\TokenSystem\Structures\IUseBrackets.cs" />
+        <Compile Include="ScriptSystem\TokenSystem\Structures\ScriptLine.cs" />
+        <Compile Include="ScriptSystem\TokenSystem\Tokenizer.cs" />
+        <Compile Include="Properties\AssemblyInfo.cs" />
+        <Compile Include="ScriptSystem\TokenSystem\Tokens\FlagArgumentToken.cs" />
+        <Compile Include="ScriptSystem\TokenSystem\Tokens\LiteralVariables\AnyLiteralVariableToken.cs" />
+        <Compile Include="ScriptSystem\TokenSystem\Tokens\LiteralVariables\LiteralVariableToken.cs" />
+        <Compile Include="ScriptSystem\TokenSystem\Tokens\LiteralVariables\PlayerPropertyAccessToken.cs" />
+        <Compile Include="ScriptSystem\TokenSystem\Tokens\MethodToken.cs" />
+        <Compile Include="ScriptSystem\TokenSystem\Tokens\CommentToken.cs" />
+        <Compile Include="ScriptSystem\TokenSystem\Tokens\KeywordToken.cs" />
+        <Compile Include="ScriptSystem\TokenSystem\Tokens\FlagToken.cs" />
+        <Compile Include="ScriptSystem\TokenSystem\Tokens\ParenthesesToken.cs" />
+        <Compile Include="ScriptSystem\TokenSystem\Tokens\PlayerVariableToken.cs" />
+        <Compile Include="ScriptSystem\TokenSystem\Tokens\TextToken.cs" />
+        <Compile Include="ScriptSystem\TokenSystem\Tokens\UnclassifiedValueToken.cs" />
+        <Compile Include="VariableSystem\LiteralVariableIndex.cs" />
+        <Compile Include="VariableSystem\ObjectReferenceSystem.cs" />
+        <Compile Include="VariableSystem\Structures\IVariable.cs" />
+        <Compile Include="VariableSystem\Structures\LiteralVariable.cs" />
+        <Compile Include="VariableSystem\Structures\PlayerVariable.cs" />
+        <Compile Include="VariableSystem\PlayerVariableIndex.cs" />
+        <Compile Include="VariableSystem\Structures\PredefinedPlayerVariable.cs" />
+        <Compile Include="VariableSystem\Structures\ReferenceVariable.cs" />
+        <Compile Include="VariableSystem\Structures\ValueCoordinate.cs" />
+        <Compile Include="VariableSystem\VariableParser.cs" />
+    </ItemGroup>
+    <ItemGroup>
+      <None Include="App.config" />
+      <None Include="packages.config" />
+    </ItemGroup>
+    <ItemGroup>
+      <Content Include=".gitignore" />
+      <Content Include="README.md" />
+    </ItemGroup>
+    <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+    <Import Project="packages\NETStandard.Library.2.0.3\build\netstandard2.0\NETStandard.Library.targets" Condition="Exists('packages\NETStandard.Library.2.0.3\build\netstandard2.0\NETStandard.Library.targets')" />
+    <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
+      <PropertyGroup>
+        <ErrorText>This project references NuGet package(s) that are missing on this computer. Enable NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105.The missing file is {0}.</ErrorText>
+      </PropertyGroup>
+      <Error Condition="!Exists('packages\NETStandard.Library.2.0.3\build\netstandard2.0\NETStandard.Library.targets')" Text="$([System.String]::Format('$(ErrorText)', 'packages\NETStandard.Library.2.0.3\build\netstandard2.0\NETStandard.Library.targets'))" />
+      <Error Condition="!Exists('packages\System.ValueTuple.4.6.1\build\net471\System.ValueTuple.targets')" Text="$([System.String]::Format('$(ErrorText)', 'packages\System.ValueTuple.4.6.1\build\net471\System.ValueTuple.targets'))" />
+    </Target>
+    <Import Project="packages\System.ValueTuple.4.6.1\build\net471\System.ValueTuple.targets" Condition="Exists('packages\System.ValueTuple.4.6.1\build\net471\System.ValueTuple.targets')" />
+    <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+         Other similar extension points exist, see Microsoft.Common.targets.
+    <Target Name="BeforeBuild">
+    </Target>
+    <Target Name="AfterBuild">
+    </Target>
+    -->
+
+</Project>
