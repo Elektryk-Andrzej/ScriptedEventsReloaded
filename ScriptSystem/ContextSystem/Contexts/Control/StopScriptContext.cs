@@ -12,7 +12,7 @@ public class StopScriptContext: StandardContext, IKeywordContext
     public string Description =>
         "Stops the script from executing.";
 
-    public string? Arguments => null;
+    public string[] Arguments => [];
     
     public override TryAddTokenRes TryAddToken(BaseToken token)
     {

@@ -70,7 +70,7 @@ public class HelpCommand : ICommand
         
         var keyword = KeywordToken.KeywordInfo.FirstOrDefault(kvp => kvp.Key == arg);
         // ReSharper disable once UsageOfDefaultStructEquality
-        if (!keyword.Equals(default(KeyValuePair<string, (Type, string, string?)>)))
+        if (!keyword.Equals(default(KeyValuePair<string, (Type, string, string[])>)))
         {
             response = GetKeywordInfo(
                 keyword.Key,
@@ -142,7 +142,7 @@ public class HelpCommand : ICommand
                 """;
     }
 
-    private static string GetKeywordInfo(string name, string description, string? arguments, bool isStatement, Type type)
+    private static string GetKeywordInfo(string name, string description, string[] arguments, bool isStatement, Type type)
     {
         var usageInfo = Activator.CreateInstance(type) is IStatementExtender extender
             ? $"""
@@ -153,13 +153,13 @@ public class HelpCommand : ICommand
                
                somekeyword
                    # some code
-               {name} {(arguments != null ? $"[{arguments}]" : string.Empty)}
+               {name} {arguments.JoinStrings(" ")}
                    # some other code
                end
                """
             : $"""
                --- Usage ---
-               {name} {(arguments != null ? $"[{arguments}]" : string.Empty)}
+               {name} {arguments.JoinStrings(" ")}
                {(isStatement ? "\t# some code\nend" : string.Empty)}
                """;
         

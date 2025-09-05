@@ -15,7 +15,7 @@ public class ForeverLoopContext : StatementContext, IKeywordContext
     
     public string Keyword => "forever";
     public string Description => "Makes the code inside the statement run indefinitely.";
-    public string? Arguments => null;
+    public string[] Arguments => [];
 
     public override TryAddTokenRes TryAddToken(BaseToken token)
     {

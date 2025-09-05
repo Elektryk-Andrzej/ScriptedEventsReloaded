@@ -4,5 +4,5 @@ public interface IKeywordContext
 {
     public string Keyword { get; }
     public string Description { get; }
-    public string? Arguments { get; }
+    public string[] Arguments { get; }
 }

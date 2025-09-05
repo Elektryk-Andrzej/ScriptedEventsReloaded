@@ -12,7 +12,7 @@ public class ElseStatementContext : StatementContext, IStatementExtender, IKeywo
     public string Keyword => "else";
     public string Description =>
         "If the statement above it didn't execute, 'else' statement will execute instead.";
-    public string? Arguments => null;
+    public string[] Arguments => [];
     
     public IExtendableStatement.Signal Extends => IExtendableStatement.Signal.DidntExecute;
 

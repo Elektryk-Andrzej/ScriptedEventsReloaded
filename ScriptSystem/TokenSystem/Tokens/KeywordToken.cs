@@ -12,7 +12,7 @@ namespace SER.ScriptSystem.TokenSystem.Tokens;
 
 public class KeywordToken : ContextableToken
 {
-    public static Dictionary<string, (Type type, string description, string? arguments)> KeywordInfo = new();
+    public static Dictionary<string, (Type type, string description, string[] arguments)> KeywordInfo = new();
     
     public static void RegisterKeywords()
     {
