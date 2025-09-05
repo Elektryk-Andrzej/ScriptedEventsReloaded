@@ -69,7 +69,6 @@ public class ForeachLoopContext : StatementContext, IExtendableStatement, IKeywo
 
     public override IEnumerator<float> Execute()
     {
-        // todo
         yield break;
     }
 }
