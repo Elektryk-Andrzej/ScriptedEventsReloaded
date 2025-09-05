@@ -1,20 +1,26 @@
 ﻿using System.Collections.Generic;
 using SER.Helpers;
 using SER.Helpers.Exceptions;
-using SER.ScriptSystem.ContextSystem.Extensions;
-using SER.ScriptSystem.TokenSystem;
 using SER.Helpers.ResultStructure;
 using SER.ScriptSystem.ContextSystem.BaseContexts;
+using SER.ScriptSystem.ContextSystem.Extensions;
 using SER.ScriptSystem.ContextSystem.Structures;
 using SER.ScriptSystem.TokenSystem.BaseTokens;
 
-namespace SER.ScriptSystem.ContextSystem.Contexts.Loops;
+namespace SER.ScriptSystem.ContextSystem.Contexts.Control.Loops;
 
-public class WhileLoopContext : TreeContext
+public class WhileLoopContext : StatementContext, IKeywordContext
 {
     private readonly ResultStacker _rs = new("Cannot create `while` loop.");
     private readonly List<BaseToken> _condition = []; 
     private bool _skipChild = false;
+    
+    public string Keyword => "while";
+
+    public string Description =>
+        "A statement which will execute its body as long as the provided condition is evaluated to true.";
+
+    public string Arguments => "condition";
 
     public override TryAddTokenRes TryAddToken(BaseToken token)
     {

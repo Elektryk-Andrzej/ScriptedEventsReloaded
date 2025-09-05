@@ -11,7 +11,10 @@ using SER.MethodSystem.ArgumentSystem.BaseArguments;
 using SER.MethodSystem.BaseMethods;
 using SER.MethodSystem.MethodDescriptors;
 using SER.Plugin.Commands.Interfaces;
+using SER.ScriptSystem.ContextSystem.BaseContexts;
+using SER.ScriptSystem.ContextSystem.Structures;
 using SER.ScriptSystem.FlagSystem.Structures;
+using SER.ScriptSystem.TokenSystem.Tokens;
 using SER.ScriptSystem.TokenSystem.Tokens.LiteralVariables;
 using SER.VariableSystem;
 using SER.VariableSystem.Structures;
@@ -23,9 +26,9 @@ namespace SER.Plugin.Commands.HelpSystem;
 [CommandHandler(typeof(RemoteAdminCommandHandler))]
 public class HelpCommand : ICommand
 {
-    public string Command => "serhelp";
+    public string Command => MainPlugin.HelpCommandName;
     public string[] Aliases => [];
-    public string Description => string.Empty;
+    public string Description => "The help command of SER.";
     
     private static List<Method> AllMethods => MethodIndex.NameToMethodIndex.Values.ToList();
 
@@ -37,7 +40,8 @@ public class HelpCommand : ICommand
         [HelpOption.Events] = GetEventsHelpPage,
         [HelpOption.RefResMethods] = GetReferenceResolvingMethodsHelpPage,
         [HelpOption.PlayerProperty] = GetPlayerInfoAccessorsHelpPage,
-        [HelpOption.Flags] = GetFlagHelpPage
+        [HelpOption.Flags] = GetFlagHelpPage,
+        [HelpOption.Keywords] = GetKeywordHelpPage
     };
     
     public bool Execute(ArraySegment<string> arguments, ICommandSender _, out string response)
@@ -61,6 +65,20 @@ public class HelpCommand : ICommand
             }
             
             response = func();
+            return true;
+        }
+        
+        var keyword = KeywordToken.KeywordInfo.FirstOrDefault(kvp => kvp.Key == arg);
+        // ReSharper disable once UsageOfDefaultStructEquality
+        if (!keyword.Equals(default(KeyValuePair<string, (Type, string, string?)>)))
+        {
+            response = GetKeywordInfo(
+                keyword.Key,
+                keyword.Value.description,
+                keyword.Value.arguments,
+                typeof(StatementContext).IsAssignableFrom(keyword.Value.type),
+                keyword.Value.type
+            );
             return true;
         }
         
@@ -122,6 +140,77 @@ public class HelpCommand : ICommand
                         => $"{c.Command} (permission: {(c as IUsePermissions)?.Permission ?? "not required"})" + 
                            $"\n{(string.IsNullOrEmpty(c.Description) ? string.Empty : c.Description + "\n")}"))}
                 """;
+    }
+
+    private static string GetKeywordInfo(string name, string description, string? arguments, bool isStatement, Type type)
+    {
+        var usageInfo = Activator.CreateInstance(type) is IStatementExtender extender
+            ? $"""
+               --- Usage ---
+               This statement can ONLY be used after a statement supporting the "{extender.Extends}" signal!
+
+               # example usage (assuming "somekeyword" supports "{extender.Extends}" signal)
+               
+               somekeyword
+                   # some code
+               {name} {(arguments != null ? $"[{arguments}]" : string.Empty)}
+                   # some other code
+               end
+               """
+            : $"""
+               --- Usage ---
+               {name} {(arguments != null ? $"[{arguments}]" : string.Empty)}
+               {(isStatement ? "\t# some code\nend" : string.Empty)}
+               """;
+        
+        var extendableInfo = Activator.CreateInstance(type) is IExtendableStatement extendable
+            ? $"""
+               --- This statement is extendable! ---
+               Other statements can be added after this one, provided they support one of the following signal(s):
+               {extendable.AllowedSignals.GetFlags().Select(f => $"> {f}").JoinStrings("\n")}
+               """
+            : string.Empty;
+        
+        return 
+            $"""
+            ===== {name} keyword =====
+            > {description}
+            
+            {usageInfo}
+            
+            {extendableInfo}
+            """;
+    }
+
+    private static string GetKeywordHelpPage()
+    {
+        var keywords = KeywordToken.KeywordInfo.Keys.Select(k => $"\n> {k}").JoinStrings();
+
+        return
+            """
+            Keywords are special "commands" that alter how the script is executed.
+            They can range from simple things like stopping the script, to more complex things like handling advanced logic.
+
+            Keywords are written as all lowercase words, like 'stop' or 'if'.
+
+            Some keywords also have an ability to house methods inside their "body", making them statements.
+            These statements control how the methods inside their body are executed.
+
+            For example:
+            if ...
+                # here is some code
+                # which will only run if the "if" statement is true
+            end
+
+            Or another example:
+            repeat 10
+                # here is some code
+                # which will run 10 times
+            end
+
+            Here is a list of all keywords available in SER:
+            (each of them is of course searchable using 'serhelp keywordName')
+            """ + keywords;
     }
 
     private static string GetFlagHelpPage()

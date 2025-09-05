@@ -1,22 +1,26 @@
 ﻿using System;
 using System.Collections.Generic;
 using SER.Helpers.Exceptions;
-using SER.ScriptSystem.ContextSystem.Extensions;
-using SER.ScriptSystem.TokenSystem;
 using SER.Helpers.ResultStructure;
 using SER.ScriptSystem.ContextSystem.BaseContexts;
+using SER.ScriptSystem.ContextSystem.Extensions;
 using SER.ScriptSystem.ContextSystem.Structures;
+using SER.ScriptSystem.TokenSystem;
 using SER.ScriptSystem.TokenSystem.BaseTokens;
 using SER.VariableSystem;
 
-namespace SER.ScriptSystem.ContextSystem.Contexts.Loops;
+namespace SER.ScriptSystem.ContextSystem.Contexts.Control.Loops;
 
-public class RepeatLoopContext : TreeContext
+public class RepeatLoopContext : StatementContext, IKeywordContext
 {
     private readonly ResultStacker _rs = new("Cannot create `repeat` loop.");
     private Func<string>? _getStringVal = null;
     private int? _repeatCount = null;
-    private bool _skipChild = false;
+    private bool _breakChild = false;
+    
+    public string Keyword => "repeat";
+    public string Description => "Repeats everything inside its body a given amount of times.";
+    public string Arguments => "number indicating repeat amount";
 
     public override TryAddTokenRes TryAddToken(BaseToken token)
     {
@@ -62,9 +66,9 @@ public class RepeatLoopContext : TreeContext
                     yield return coro.Current;
                 }
 
-                if (!_skipChild) continue;
+                if (!_breakChild) continue;
 
-                _skipChild = false;
+                _breakChild = false;
                 break;
             }
         }
@@ -74,7 +78,7 @@ public class RepeatLoopContext : TreeContext
     {
         if (msg == ParentContextControlMessage.LoopContinue)
         {
-            _skipChild = true;
+            _breakChild = true;
             return;
         }
 

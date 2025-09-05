@@ -10,11 +10,17 @@ using SER.ScriptSystem.TokenSystem.BaseTokens;
 
 namespace SER.ScriptSystem.ContextSystem.Contexts.Control;
 
-public class ElifStatementContext : TreeContext, ITreeExtender, IExtendableTree
+public class ElifStatementContext : StatementContext, IStatementExtender, IExtendableStatement, IKeywordContext
 {
-    public IExtendableTree.ControlMessage Extends => IExtendableTree.ControlMessage.DidntExecute;
-    public IExtendableTree.ControlMessage AllowedControlMessages => IExtendableTree.ControlMessage.DidntExecute;
-    public Dictionary<IExtendableTree.ControlMessage, Func<IEnumerator<float>>> ControlMessages { get; } = new();
+    public string Keyword => "elif";
+    public string Description =>
+        "If the statement above it didn't execute, 'elif' statement will try to execute if the provided condition is met.";
+    public string Arguments => "condition";
+
+    public IExtendableStatement.Signal Extends => IExtendableStatement.Signal.DidntExecute;
+    
+    public IExtendableStatement.Signal AllowedSignals => IExtendableStatement.Signal.DidntExecute;
+    public Dictionary<IExtendableStatement.Signal, Func<IEnumerator<float>>> RegisteredSignals { get; } = new();
 
     private readonly List<BaseToken> _condition = [];
     
@@ -41,7 +47,7 @@ public class ElifStatementContext : TreeContext, ITreeExtender, IExtendableTree
         
         if (result == false)
         {
-            if (!ControlMessages.TryGetValue(IExtendableTree.ControlMessage.DidntExecute, out var enumerator))
+            if (!RegisteredSignals.TryGetValue(IExtendableStatement.Signal.DidntExecute, out var enumerator))
             {
                 yield break;
             }

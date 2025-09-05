@@ -1,11 +1,10 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using SER.Helpers;
-using SER.Helpers.Extensions;
 using SER.Helpers.ResultStructure;
 using SER.ScriptSystem.ContextSystem.BaseContexts;
 using SER.ScriptSystem.ContextSystem.Contexts.Control;
-using SER.ScriptSystem.ContextSystem.Extensions;
+using SER.ScriptSystem.ContextSystem.Structures;
 using SER.ScriptSystem.TokenSystem.BaseTokens;
 using SER.ScriptSystem.TokenSystem.Structures;
 
@@ -17,7 +16,7 @@ namespace SER.ScriptSystem.ContextSystem;
 public class Contexter(Script script)
 {
     private readonly List<Context> _contexts = [];
-    private readonly List<TreeContext> _processingTreeContexts = [];
+    private readonly List<StatementContext> _statementStack = [];
 
     public TryGet<List<Context>> LinkAllTokens(List<ScriptLine> lines)
     {
@@ -46,38 +45,47 @@ public class Contexter(Script script)
     {
         var rs = new ResultStacker($"Invalid context {context} in line {lineNum}.");
 
-        if (context is EndTreeContext)
+        if (context is EndStatementContext)
         {
-            if (_processingTreeContexts.Count == 0) 
-                return rs.Add("There is no statement to close with the `end` keyword!");
+            if (_statementStack.Count == 0) 
+                return rs.Add("There is no statement to close with the 'end' keyword!");
 
-            _processingTreeContexts.RemoveAt(_processingTreeContexts.Count - 1);
+            _statementStack.RemoveAt(_statementStack.Count - 1);
             return true;
         }
 
-        var currentTree = _processingTreeContexts.LastOrDefault();
-        if (context is TreeContext treeExtenderContext and ITreeExtender treeExtenderInfo)
+        var currentStatement = _statementStack.LastOrDefault();
+        if (context is StatementContext treeExtenderContext and IStatementExtender treeExtenderInfo)
         {
-            if (currentTree is not IExtendableTree extendable 
-                || !extendable.AllowedControlMessages.HasFlag(treeExtenderInfo.Extends))
+            if (currentStatement is null)
             {
-                return rs.Add("This statement is not compatible with the one above it.");
+                return rs.Add("There is no statement to extend.");
             }
 
-            extendable.ControlMessages[treeExtenderInfo.Extends] = treeExtenderContext.Execute;
-            _processingTreeContexts.RemoveAt(_processingTreeContexts.Count - 1);
-            _processingTreeContexts.Add(treeExtenderContext);
+            if (currentStatement is not IExtendableStatement extendable)
+            {
+                return rs.Add("The statement to extend is not extendable.");
+            }
+            
+            if (!extendable.AllowedSignals.HasFlag(treeExtenderInfo.Extends))
+            {
+                return rs.Add("The statement to extend does not support this type of extension.");
+            }
+
+            extendable.RegisteredSignals[treeExtenderInfo.Extends] = treeExtenderContext.Run;
+            _statementStack.RemoveAt(_statementStack.Count - 1);
+            _statementStack.Add(treeExtenderContext);
             return true;
         }
 
         if (context.VerifyCurrentState().HasErrored(out var error)) 
             return rs.Add(error);
 
-        if (currentTree is not null)
+        if (currentStatement is not null)
         {
-            Log.Debug($"Adding finished context {context} to tree context {currentTree}");
-            currentTree.Children.Add(context);
-            context.ParentContext = currentTree;
+            Log.Debug($"Adding finished context {context} to tree context {currentStatement}");
+            currentStatement.Children.Add(context);
+            context.ParentContext = currentStatement;
         }
         else
         {
@@ -85,7 +93,7 @@ public class Contexter(Script script)
             _contexts.Add(context);
         }
 
-        if (context is TreeContext treeContext) _processingTreeContexts.Add(treeContext);
+        if (context is StatementContext treeContext) _statementStack.Add(treeContext);
 
         Log.Debug($"Line {lineNum} has been contexted to {context}");
         return true;

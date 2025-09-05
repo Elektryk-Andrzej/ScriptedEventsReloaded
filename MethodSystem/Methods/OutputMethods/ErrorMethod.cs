@@ -2,7 +2,7 @@
 using SER.MethodSystem.ArgumentSystem.BaseArguments;
 using SER.MethodSystem.BaseMethods;
 
-namespace SER.MethodSystem.Methods.ServerMethods;
+namespace SER.MethodSystem.Methods.OutputMethods;
 
 public class ErrorMethod : SynchronousMethod
 {

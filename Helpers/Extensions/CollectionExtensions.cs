@@ -33,7 +33,7 @@ public static class CollectionExtensions
         return source.SelectMany(x => x);
     }
 
-    public static string JoinStrings(this IEnumerable<string> source, string separator)
+    public static string JoinStrings(this IEnumerable<string> source, string separator = "")
     {
         return string.Join(separator, source);
     }

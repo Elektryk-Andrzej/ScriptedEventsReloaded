@@ -5,8 +5,12 @@ using SER.ScriptSystem.TokenSystem.BaseTokens;
 
 namespace SER.ScriptSystem.ContextSystem.Contexts.Control;
 
-public class EndTreeContext : StandardContext
+public class EndStatementContext : StandardContext, IKeywordContext
 {
+    public string Keyword => "end";
+    public string Description => "Ends the current statement's body.";
+    public string? Arguments => null;
+    
     public override TryAddTokenRes TryAddToken(BaseToken token)
     {
         return TryAddTokenRes.Error("There can't be anything else on the same line as the 'end' keyword.");

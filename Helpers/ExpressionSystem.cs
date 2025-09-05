@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
-using LabApi.Features.Console;
 using NCalc;
 using SER.Helpers.Extensions;
 using SER.Helpers.ResultStructure;

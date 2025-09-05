@@ -4,6 +4,7 @@ using SER.ScriptSystem.ContextSystem.BaseContexts;
 using SER.ScriptSystem.ContextSystem.Contexts.VariableDefinition;
 using SER.ScriptSystem.TokenSystem.BaseTokens;
 using SER.ScriptSystem.TokenSystem.Structures;
+using SER.VariableSystem;
 
 namespace SER.ScriptSystem.TokenSystem.Tokens.LiteralVariables;
 
@@ -49,8 +50,6 @@ public class LiteralVariableToken : ContextableToken, IUseBrackets, ILiteralValu
 
     public TryGet<string> TryGetValue(Script scr)
     {
-        return scr.TryGetLiteralVariable(ValueWithoutBrackets).HasErrored(out var error, out var variable) 
-            ? TryGet<string>.Error(error) 
-            : TryGet<string>.Success(variable.Value());
+        return VariableParser.ParseValueSyntax(RawRepresentation, Script);
     }
 }

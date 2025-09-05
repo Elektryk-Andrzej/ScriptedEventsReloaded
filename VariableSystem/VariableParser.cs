@@ -80,47 +80,66 @@ public static class VariableParser
                 break;
             }
 
-            var inner = input.Substring(start + 1, i - start - 2);
-            if (string.IsNullOrEmpty(inner))
+            if (ParseValueSyntax(input, scr).WasSuccessful(out var value))
+            {
+                result.Append(value);
+            }
+            else
             {
                 AddUnparsed();
-                continue;
             }
-
-            var tokenizedLine = new Tokenizer(scr).GetTokensFromLine(inner.ToCharArray(), 0);
             
-            // method parsing
-            if (char.IsUpper(inner[0]))
+            continue;
+
+            void AddUnparsed()
+            {
+                result.Append(input);
+            }
+        }
+
+        return result.ToString();
+    }
+
+    public static TryGet<string> ParseValueSyntax(string value, Script scr)
+    {
+        if (value.StartsWith("{") && value.EndsWith("}"))
+        {
+            value = value.Substring(1, value.Length - 2);
+            var tokenizedLine = new Tokenizer(scr).GetTokensFromLine(value, 0);
+        
+            if (char.IsUpper(value[0]))
             {
                 if (!new Contexter(scr).LinkAllTokens([tokenizedLine]).WasSuccessful(out var contexts)
                     || contexts.Count != 1
                     || contexts.First() is not MethodContext { Method: TextReturningMethod textMethod })
                 {
-                    AddUnparsed();
-                    continue;
+                    return TryGet<string>.Error("Variable suggests method usage, but method couldn't be parsed.");
                 }
 
                 textMethod.Execute();
-                result.Append(textMethod.TextReturn);
-                continue;
-            }
+                if (string.IsNullOrEmpty(textMethod.TextReturn))
+                {
+                    return TryGet<string>.Error($"Method {textMethod.Name} returned an empty string.");
+                }
             
-            if (scr.TryGetLiteralVariable(inner).WasSuccessful(out var variable))
-            {
-                result.Append(variable.Value());
-                continue;
+                return TryGet<string>.Success(textMethod.TextReturn!);
             }
-            
-            AddUnparsed();
-            continue;
 
-            void AddUnparsed()
+            if (scr.TryGetLiteralVariable(value).WasSuccessful(out var variable))
             {
-                result.Append($"{{{inner}}}");
+                return TryGet<string>.Success(variable.Value());
             }
         }
+        else
+        {
+            if (TryGetPlayerPropertyInfo(value, scr).WasSuccessful(out var property))
+            {
+                return TryGet<string>.Success(property);
+            }
 
-        return result.ToString();
+        }
+        
+        return TryGet<string>.Error($"Value syntax {value} failed to be parsed.");
     }
     
     public static TryGet<List<ValueCoordinate>> GetVariableCoordinatesInContaminatedString(

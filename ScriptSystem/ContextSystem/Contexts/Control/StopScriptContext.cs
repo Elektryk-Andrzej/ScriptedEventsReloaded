@@ -5,8 +5,15 @@ using SER.ScriptSystem.TokenSystem.BaseTokens;
 
 namespace SER.ScriptSystem.ContextSystem.Contexts.Control;
 
-public class StopScriptContext: StandardContext
+public class StopScriptContext: StandardContext, IKeywordContext
 {
+    public string Keyword => "stop";
+
+    public string Description =>
+        "Stops the script from executing.";
+
+    public string? Arguments => null;
+    
     public override TryAddTokenRes TryAddToken(BaseToken token)
     {
         return TryAddTokenRes.Error(

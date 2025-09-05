@@ -4,7 +4,7 @@ using SER.ScriptSystem.ContextSystem.Structures;
 
 namespace SER.ScriptSystem.ContextSystem.BaseContexts;
 
-public abstract class TreeContext : YieldingContext
+public abstract class StatementContext : YieldingContext
 {
     public readonly List<Context> Children = [];
     

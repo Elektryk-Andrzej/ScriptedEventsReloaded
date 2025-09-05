@@ -18,10 +18,8 @@ public class RandomNumMethod : TextReturningMethod, IAdditionalDescription, IPur
     [
         new FloatArgument("startingNum"),
         new FloatArgument("endingNum"),
-        new OptionsArgument("numberType", "integer", "real")
+        new OptionsArgument("numberType", "int", "real")
         {
-            Description = 
-                "'integer' -> numbers like -2, 7, 21 | 'real' -> numbers like -0.5, 420.69, 3.14",
             DefaultValue = "real"
         }
     ];
@@ -33,7 +31,7 @@ public class RandomNumMethod : TextReturningMethod, IAdditionalDescription, IPur
         var type = Args.GetOption("numberType");
         
         var val = Random.Range(startingNum, endingNum);
-        if (type == "integer")
+        if (type == "int")
         {
             val = Mathf.RoundToInt(val);
         }

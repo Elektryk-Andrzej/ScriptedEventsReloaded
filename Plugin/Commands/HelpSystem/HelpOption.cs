@@ -8,5 +8,6 @@ public enum HelpOption
     Events,
     RefResMethods,
     PlayerProperty,
-    Flags
+    Flags,
+    Keywords
 }

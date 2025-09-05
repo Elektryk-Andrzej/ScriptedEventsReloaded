@@ -1,17 +1,21 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
-using SER.ScriptSystem.ContextSystem.Extensions;
 using SER.Helpers.ResultStructure;
 using SER.ScriptSystem.ContextSystem.BaseContexts;
+using SER.ScriptSystem.ContextSystem.Extensions;
 using SER.ScriptSystem.ContextSystem.Structures;
 using SER.ScriptSystem.TokenSystem.BaseTokens;
 
-namespace SER.ScriptSystem.ContextSystem.Contexts.Loops;
+namespace SER.ScriptSystem.ContextSystem.Contexts.Control.Loops;
 
-public class ForeverLoopContext : TreeContext
+public class ForeverLoopContext : StatementContext, IKeywordContext
 {
     private readonly ResultStacker _rs = new("Cannot create 'forever' loop.");
     private bool _skipChild = false;
+    
+    public string Keyword => "forever";
+    public string Description => "Makes the code inside the statement run indefinitely.";
+    public string? Arguments => null;
 
     public override TryAddTokenRes TryAddToken(BaseToken token)
     {

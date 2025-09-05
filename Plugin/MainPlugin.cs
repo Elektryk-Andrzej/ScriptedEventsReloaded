@@ -6,6 +6,7 @@ using SER.MethodSystem;
 using SER.MethodSystem.Methods.LiteralVariableMethods;
 using SER.ScriptSystem;
 using SER.ScriptSystem.FlagSystem.Structures;
+using SER.ScriptSystem.TokenSystem.Tokens;
 using SER.VariableSystem;
 using EventHandler = SER.ScriptSystem.EventSystem.EventHandler;
 using Events = LabApi.Events.Handlers;
@@ -19,10 +20,11 @@ public class MainPlugin : LabApi.Loader.Features.Plugins.Plugin
     public override string Description => "The scripting language for SCP:SL.";
     public override string Author => "Elektryk_Andrzej";
     public override Version RequiredApiVersion => LabApiProperties.CurrentVersion;
-    public override Version Version => new(0, 1, 0);
+    public override Version Version => new(0, 2, 0);
     
     public static string GitHubLink => "https://github.com/Elektryk-Andrzej/ScriptedEventsReloaded";
     public static string WikiLink => GitHubLink + "/wiki";
+    public static string HelpCommandName => "serhelp";
     public static MainPlugin Instance { get; private set; } = null!;
     
     public override void Enable()
@@ -35,6 +37,7 @@ public class MainPlugin : LabApi.Loader.Features.Plugins.Plugin
         PlayerVariableIndex.Initialize();
         Flag.RegisterFlags();
         FileSystem.Initialize();
+        KeywordToken.RegisterKeywords();
         
         Events.ServerEvents.WaitingForPlayers += OnServerFullyInit;
         Events.ServerEvents.RoundRestarted += () =>
@@ -54,19 +57,11 @@ public class MainPlugin : LabApi.Loader.Features.Plugins.Plugin
         Logger.Raw(
             $"""
                     Thank you for using ### Scripted Events Reloaded ### by {Author}!
-
-                      █████████  ██████████ ███████████  
-                     ███░░░░░███░░███░░░░░█░░███░░░░░███ 
-                    ░███    ░░░  ░███  █ ░  ░███    ░███ 
-                    ░░█████████  ░██████    ░██████████  
-                     ░░░░░░░░███ ░███░░█    ░███░░░░░███ 
-                     ███    ░███ ░███ ░   █ ░███    ░███ 
-                    ░░█████████  ██████████ █████   █████
-                     ░░░░░░░░░  ░░░░░░░░░░ ░░░░░   ░░░░░ 
-                     
+                    
+                    Help command: {HelpCommandName}
                     GitHub repository: {GitHubLink}
                     Wiki page: {WikiLink}
                     """,
-            ConsoleColor.Yellow);
+            ConsoleColor.Magenta);
     }
 }

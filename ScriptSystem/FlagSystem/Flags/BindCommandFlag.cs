@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using CommandSystem;
 using JetBrains.Annotations;
-using LabApi.Features.Console;
 using LabApi.Features.Wrappers;
 using RemoteAdmin;
 using SER.Helpers.Exceptions;

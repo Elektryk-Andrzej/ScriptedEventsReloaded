@@ -9,10 +9,17 @@ using SER.ScriptSystem.TokenSystem.BaseTokens;
 
 namespace SER.ScriptSystem.ContextSystem.Contexts.Control;
 
-public class IfStatementContext : TreeContext, IExtendableTree
+public class IfStatementContext : StatementContext, IExtendableStatement, IKeywordContext
 {
-    public IExtendableTree.ControlMessage AllowedControlMessages => IExtendableTree.ControlMessage.DidntExecute;
-    public Dictionary<IExtendableTree.ControlMessage, Func<IEnumerator<float>>> ControlMessages { get; } = [];
+    public string Keyword => "if";
+
+    public string Description =>
+        "This statement will execute only if the provided condition is met.";
+
+    public string Arguments => "condition";
+    
+    public IExtendableStatement.Signal AllowedSignals => IExtendableStatement.Signal.DidntExecute;
+    public Dictionary<IExtendableStatement.Signal, Func<IEnumerator<float>>> RegisteredSignals { get; } = [];
 
     private readonly List<BaseToken> _condition = [];
 
@@ -39,7 +46,7 @@ public class IfStatementContext : TreeContext, IExtendableTree
         
         if (result == false)
         {
-            if (!ControlMessages.TryGetValue(IExtendableTree.ControlMessage.DidntExecute, out var enumerator))
+            if (!RegisteredSignals.TryGetValue(IExtendableStatement.Signal.DidntExecute, out var enumerator))
             {
                 yield break;
             }
