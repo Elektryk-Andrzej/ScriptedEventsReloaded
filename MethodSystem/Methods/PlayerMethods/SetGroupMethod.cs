@@ -14,7 +14,7 @@ public class SetGroupMethod : SynchronousMethod
         new PlayersArgument("players"),
         new TextArgument("group")
         {
-            Description = "Set to NONE if you want to remove the group!"
+            Description = "Set to NONE if you want to remove the group!",
         }
     ];
 
