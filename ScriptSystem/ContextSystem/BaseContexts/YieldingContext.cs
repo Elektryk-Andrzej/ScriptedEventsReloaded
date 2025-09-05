@@ -15,5 +15,5 @@ public abstract class YieldingContext : Context
         }
     }
     
-    protected abstract IEnumerator<float> Execute();
+    public abstract IEnumerator<float> Execute();
 }

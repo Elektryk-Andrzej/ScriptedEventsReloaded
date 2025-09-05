@@ -34,6 +34,7 @@ public class KeywordToken : ContextableToken
             "forever" => Context.Create<ForeverLoopContext>(info),
             "while" => Context.Create<WhileLoopContext>(info),
             "else" => Context.Create<ElseStatementContext>(info),
+            "elif" => Context.Create<ElifStatementContext>(info),
             _ => $"Value '{RawRepresentation}' is not a keyword."
         };
     }

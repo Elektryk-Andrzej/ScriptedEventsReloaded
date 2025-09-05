@@ -46,7 +46,6 @@ public class BindCommandFlag : Flag
 
     public override Result TryBind(string[] inlineArgs)
     {
-        Logger.Info("binding");
         switch (inlineArgs.Length)
         {
             case 0:

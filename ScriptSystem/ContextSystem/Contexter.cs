@@ -1,9 +1,11 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using SER.Helpers;
+using SER.Helpers.Extensions;
 using SER.Helpers.ResultStructure;
 using SER.ScriptSystem.ContextSystem.BaseContexts;
 using SER.ScriptSystem.ContextSystem.Contexts.Control;
+using SER.ScriptSystem.ContextSystem.Extensions;
 using SER.ScriptSystem.TokenSystem.BaseTokens;
 using SER.ScriptSystem.TokenSystem.Structures;
 
@@ -47,23 +49,24 @@ public class Contexter(Script script)
         if (context is EndTreeContext)
         {
             if (_processingTreeContexts.Count == 0) 
-                return rs.Add("There is no statement to end with the `end` keyword!");
+                return rs.Add("There is no statement to close with the `end` keyword!");
 
             _processingTreeContexts.RemoveAt(_processingTreeContexts.Count - 1);
             return true;
         }
 
         var currentTree = _processingTreeContexts.LastOrDefault();
-        if (context is ElseStatementContext elseStatement)
+        if (context is TreeContext treeExtenderContext and ITreeExtender treeExtenderInfo)
         {
-            if (currentTree is not IfStatementContext ifStatement)
+            if (currentTree is not IExtendableTree extendable 
+                || !extendable.AllowedControlMessages.HasFlag(treeExtenderInfo.Extends))
             {
-                return rs.Add("The 'else' is not right after the 'if' statement.");
+                return rs.Add("This statement is not compatible with the one above it.");
             }
-            
+
+            extendable.ControlMessages[treeExtenderInfo.Extends] = treeExtenderContext.Execute;
             _processingTreeContexts.RemoveAt(_processingTreeContexts.Count - 1);
-            _processingTreeContexts.Add(elseStatement);
-            ifStatement.ElseStatement = elseStatement;
+            _processingTreeContexts.Add(treeExtenderContext);
             return true;
         }
 

@@ -13,25 +13,25 @@ namespace SER.ScriptSystem.ContextSystem.Contexts.Loops;
 public class WhileLoopContext : TreeContext
 {
     private readonly ResultStacker _rs = new("Cannot create `while` loop.");
-    private string? _condition = null;
+    private readonly List<BaseToken> _condition = []; 
     private bool _skipChild = false;
 
     public override TryAddTokenRes TryAddToken(BaseToken token)
     {
-        _condition = token.GetValue();
-        return TryAddTokenRes.End();
+        _condition.Add(token);
+        return TryAddTokenRes.Continue();
     }
 
     public override Result VerifyCurrentState()
     {
         return Result.Assert(
-            _condition is not null,
+            _condition.Count > 0,
             _rs.Add("The condition was not provided."));
     }
 
-    protected override IEnumerator<float> Execute()
+    public override IEnumerator<float> Execute()
     {
-        if (ExpressionSystem.EvalCondition(_condition!, Script).HasErrored(out var error, out var condition))
+        if (ExpressionSystem.EvalCondition(_condition.ToArray(), Script).HasErrored(out var error, out var condition))
         {
             throw new MalformedConditionException(error);
         }
@@ -53,7 +53,7 @@ public class WhileLoopContext : TreeContext
                 break;
             }
             
-            if (ExpressionSystem.EvalCondition(_condition!, Script).HasErrored(out var error2, out condition))
+            if (ExpressionSystem.EvalCondition(_condition.ToArray(), Script).HasErrored(out var error2, out condition))
             {
                 throw new MalformedConditionException(error2);
             }

@@ -7,8 +7,10 @@ using SER.ScriptSystem.TokenSystem.BaseTokens;
 
 namespace SER.ScriptSystem.ContextSystem.Contexts.Control;
 
-public class ElseStatementContext : TreeContext
+public class ElseStatementContext : TreeContext, ITreeExtender
 {
+    public IExtendableTree.ControlMessage Extends => IExtendableTree.ControlMessage.DidntExecute;
+
     public override TryAddTokenRes TryAddToken(BaseToken token)
     {
         return TryAddTokenRes.Error("There should be no arguments after `else` keyword");
@@ -19,7 +21,7 @@ public class ElseStatementContext : TreeContext
         return true;
     }
 
-    protected override IEnumerator<float> Execute()
+    public override IEnumerator<float> Execute()
     {
         foreach (var child in Children)
         {
@@ -42,10 +44,5 @@ public class ElseStatementContext : TreeContext
                     throw new AndrzejFuckedUpException();
             }
         }
-    }
-
-    protected override void OnReceivedControlMessageFromChild(ParentContextControlMessage msg)
-    {
-        ParentContext?.SendControlMessage(msg);
     }
 }

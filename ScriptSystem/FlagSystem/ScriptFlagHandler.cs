@@ -29,7 +29,7 @@ public static class ScriptFlagHandler
     
     internal static void RegisterScript(List<ScriptLine> scriptLinesWithFlags, string scriptName)
     {
-        Logger.Info($"handling flag lines in script {scriptName}");
+        //Logger.Info($"handling flag lines in script {scriptName}");
         foreach (var tokens in scriptLinesWithFlags.Select(scrLine => scrLine.Tokens))
         {
             var name = tokens.Skip(1).FirstOrDefault()?.GetValue();
@@ -82,8 +82,7 @@ public static class ScriptFlagHandler
     {
         _currentFlag?.Confirm();
         var rs = new ResultStacker($"Flag '{name}' failed when parsing.");
-
-        Logger.Info($"handling flag {name} with args [{arguments.JoinStrings(" ")}] in script {scriptName}");
+        
         if (Flag.TryGet(name, scriptName).HasErrored(out var getErr, out var flag))
         {
             Log.Error(scriptName, rs.Add(getErr));

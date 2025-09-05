@@ -14,5 +14,8 @@ public abstract class TreeContext : YieldingContext
         OnReceivedControlMessageFromChild(msg);
     }
 
-    protected abstract void OnReceivedControlMessageFromChild(ParentContextControlMessage msg);
+    protected virtual void OnReceivedControlMessageFromChild(ParentContextControlMessage msg)
+    {
+        ParentContext?.SendControlMessage(msg);
+    }
 }

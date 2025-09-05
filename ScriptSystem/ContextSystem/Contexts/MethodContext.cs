@@ -37,7 +37,7 @@ public class MethodContext(MethodToken methodToken) : YieldingContext
             $"{", ".Join(Method.ExpectedArguments.Skip(_providedArguments).Select(arg => arg.Name))}");
     }
 
-    protected override IEnumerator<float> Execute()
+    public override IEnumerator<float> Execute()
     {
         Log.Debug($"'{Method.Name}' method is now running..");
 

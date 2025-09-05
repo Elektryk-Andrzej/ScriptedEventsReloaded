@@ -40,7 +40,7 @@ public class RepeatLoopContext : TreeContext
             _rs.Add("The amount of times to repeat was not provided."));
     }
 
-    protected override IEnumerator<float> Execute()
+    public override IEnumerator<float> Execute()
     {
         if (!_repeatCount.HasValue)
         {

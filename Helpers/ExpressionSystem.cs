@@ -174,8 +174,6 @@ public static class ExpressionSystem
             AddToFinalString(token.RawRepresentation);
         }
         
-        Logger.Info($"!!!!! transformed [{initial}] -> [{evalString}]");
-        
         return Evaluate(evalString, variables, 0);
     }
 

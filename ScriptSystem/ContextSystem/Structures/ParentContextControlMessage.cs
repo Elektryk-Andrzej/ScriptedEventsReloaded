@@ -3,5 +3,4 @@
 public enum ParentContextControlMessage
 {
     LoopContinue,
-    EventNotAllowed
 }

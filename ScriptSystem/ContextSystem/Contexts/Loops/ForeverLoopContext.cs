@@ -10,12 +10,12 @@ namespace SER.ScriptSystem.ContextSystem.Contexts.Loops;
 
 public class ForeverLoopContext : TreeContext
 {
-    private readonly ResultStacker _rs = new("Cannot create `forever` loop.");
+    private readonly ResultStacker _rs = new("Cannot create 'forever' loop.");
     private bool _skipChild = false;
 
     public override TryAddTokenRes TryAddToken(BaseToken token)
     {
-        return TryAddTokenRes.Error(_rs.Add("Loop doesn't expect any arguments."));
+        return TryAddTokenRes.Error(_rs.Add("'forever' loop doesn't expect any arguments."));
     }
 
     public override Result VerifyCurrentState()
@@ -23,7 +23,7 @@ public class ForeverLoopContext : TreeContext
         return true;
     }
 
-    protected override IEnumerator<float> Execute()
+    public override IEnumerator<float> Execute()
     {
         while (true)
         {

@@ -18,7 +18,6 @@ public class ReplyMethod : SynchronousMethod
     
     public override void Execute()
     {
-        Logger.Info(Script.Executor.GetType().GetAccurateName());
         Script.Executor.Reply(Args.GetText("message"), Script);
     }
 }

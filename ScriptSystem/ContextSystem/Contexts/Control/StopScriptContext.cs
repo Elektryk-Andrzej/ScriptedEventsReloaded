@@ -10,7 +10,7 @@ public class StopScriptContext: StandardContext
     public override TryAddTokenRes TryAddToken(BaseToken token)
     {
         return TryAddTokenRes.Error(
-            "`stop` keyword is not expecting any arguments after it.");
+            "'stop' keyword is not expecting any arguments after it.");
     }
 
     public override Result VerifyCurrentState()
