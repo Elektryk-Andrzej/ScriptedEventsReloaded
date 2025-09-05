@@ -3,3 +3,7 @@
 /bin
 /obj
 /packages
+/MethodSystem/Methods/ServerMethods/CommandMethod.cs
+/SER.csproj
+/packages.config
+/MethodSystem/Methods/LightMethods/TransitionLightColorMethod.cs
