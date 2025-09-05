@@ -20,7 +20,7 @@ public class RepeatLoopContext : StatementContext, IKeywordContext
     
     public string Keyword => "repeat";
     public string Description => "Repeats everything inside its body a given amount of times.";
-    public string Arguments => "number indicating repeat amount";
+    public string[] Arguments => ["[number]"];
 
     public override TryAddTokenRes TryAddToken(BaseToken token)
     {

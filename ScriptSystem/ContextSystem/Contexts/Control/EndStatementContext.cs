@@ -9,7 +9,7 @@ public class EndStatementContext : StandardContext, IKeywordContext
 {
     public string Keyword => "end";
     public string Description => "Ends the current statement's body.";
-    public string? Arguments => null;
+    public string[] Arguments => [];
     
     public override TryAddTokenRes TryAddToken(BaseToken token)
     {

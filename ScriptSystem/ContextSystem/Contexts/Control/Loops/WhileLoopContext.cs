@@ -16,11 +16,9 @@ public class WhileLoopContext : StatementContext, IKeywordContext
     private bool _skipChild = false;
     
     public string Keyword => "while";
-
     public string Description =>
         "A statement which will execute its body as long as the provided condition is evaluated to true.";
-
-    public string Arguments => "condition";
+    public string[] Arguments => ["[condition...]"];
 
     public override TryAddTokenRes TryAddToken(BaseToken token)
     {

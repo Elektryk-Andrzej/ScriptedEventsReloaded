@@ -15,7 +15,7 @@ public class ElifStatementContext : StatementContext, IStatementExtender, IExten
     public string Keyword => "elif";
     public string Description =>
         "If the statement above it didn't execute, 'elif' statement will try to execute if the provided condition is met.";
-    public string Arguments => "condition";
+    public string[] Arguments => ["[condition]"];
 
     public IExtendableStatement.Signal Extends => IExtendableStatement.Signal.DidntExecute;
     

@@ -12,11 +12,8 @@ namespace SER.ScriptSystem.ContextSystem.Contexts.Control;
 public class IfStatementContext : StatementContext, IExtendableStatement, IKeywordContext
 {
     public string Keyword => "if";
-
-    public string Description =>
-        "This statement will execute only if the provided condition is met.";
-
-    public string Arguments => "condition";
+    public string Description => "This statement will execute only if the provided condition is met.";
+    public string[] Arguments => ["[condition]"];
     
     public IExtendableStatement.Signal AllowedSignals => IExtendableStatement.Signal.DidntExecute;
     public Dictionary<IExtendableStatement.Signal, Func<IEnumerator<float>>> RegisteredSignals { get; } = [];
