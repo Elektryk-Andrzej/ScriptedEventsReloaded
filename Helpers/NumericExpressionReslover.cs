@@ -14,7 +14,7 @@ using SER.VariableSystem.Variables;
 
 namespace SER.Helpers;
 
-public static class ExpressionReslover
+public static class NumericExpressionReslover
 {
     public static TryGet<object> EvalString(string expression, Script scr)
     {

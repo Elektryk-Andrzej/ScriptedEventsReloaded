@@ -22,7 +22,7 @@ public class EvalMethod : ReturningMethod
     public override void Execute()
     {
         var value = Args.GetText("value");
-        if (ExpressionReslover.EvalString(value, Script).HasErrored(out var error, out var result))
+        if (NumericExpressionReslover.EvalString(value, Script).HasErrored(out var error, out var result))
         {
             throw new ScriptErrorException(error);
         }

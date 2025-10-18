@@ -1,4 +1,5 @@
 ﻿using System;
+using SER.Helpers.Extensions;
 
 namespace SER.ValueSystem;
 
@@ -37,6 +38,11 @@ public abstract class LiteralValue(object value)
         }
         
         return Value.ToString();
+    }
+    
+    public static string GetFriendlyName(Type type)
+    {
+        return type.Name.Replace("Value", "").LowerFirst();
     }
 }
 

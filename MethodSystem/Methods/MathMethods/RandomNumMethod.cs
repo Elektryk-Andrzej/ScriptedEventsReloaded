@@ -23,7 +23,11 @@ public class RandomNumMethod : ReturningMethod, IAdditionalDescription
     [
         new FloatArgument("startingNum"),
         new FloatArgument("endingNum"),
-        new OptionsArgument("numberType", "int", "real")
+        new OptionsArgument(
+            "numberType", 
+            new("int", "Returns an integer number"), 
+            new("real", "Returns a real number")
+        )
         {
             DefaultValue = "real"
         }

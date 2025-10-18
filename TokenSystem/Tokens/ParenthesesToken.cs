@@ -51,6 +51,6 @@ public class ParenthesesToken : BaseToken
             return error;
         }
         
-        return ExpressionReslover.ParseExpression(tokens, Script);
+        return NumericExpressionReslover.ParseExpression(tokens, Script);
     }
 }

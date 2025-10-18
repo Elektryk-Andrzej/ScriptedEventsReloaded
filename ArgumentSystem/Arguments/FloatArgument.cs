@@ -32,22 +32,22 @@ public class FloatArgument : Argument
         {
             if (_minValue.HasValue && _maxValue.HasValue)
             {
-                return $"Value must be at least {_minValue} and most {_maxValue} e.g. " +
+                return $"A number which is at least {_minValue} and most {_maxValue} e.g. " +
                        $"{Math.Round(Random.Range(_minValue.Value, _maxValue.Value), 2)}";
             }
 
             if (_minValue.HasValue)
             {
-                return $"Value must be at least {_minValue} e.g. {_minValue + 2f}";
+                return $"A number which is at least {_minValue} e.g. {_minValue + 2f}";
             }
 
             // ReSharper disable once ConvertIfStatementToReturnStatement
             if (_maxValue.HasValue)
             {
-                return $"Value must be at most {_maxValue} e.g. {_maxValue - 2f}";
+                return $"A number which is at most {_maxValue} e.g. {_maxValue - 2f}";
             }
 
-            throw new AndrzejFuckedUpException();
+            return "Any number e.g. 2.5";
         }
     }
 

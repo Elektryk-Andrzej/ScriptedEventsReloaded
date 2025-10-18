@@ -14,6 +14,7 @@ using SER.MethodSystem.BaseMethods;
 using SER.MethodSystem.MethodDescriptors;
 using SER.Plugin.Commands.Interfaces;
 using SER.TokenSystem.Tokens;
+using SER.ValueSystem;
 using SER.VariableSystem;
 using SER.VariableSystem.Variables;
 using EventHandler = SER.EventSystem.EventHandler;
@@ -483,8 +484,13 @@ public class HelpCommand : ICommand
         
         switch (method)
         {
-            case ReturningMethod:
-                sb.AppendLine("This method returns a text value, which can be saved or used directly.");
+            case ReturningMethod ret:
+                if (ret.ReturnTypes is not { } types)
+                {
+                    throw new AndrzejFuckedUpException();
+                }
+                
+                sb.AppendLine($"This method returns {types.Select(LiteralValue.GetFriendlyName).Select(name => $"a {name} value").JoinStrings(" or ")}, which can be saved or used directly.");
                 break;
             case PlayerReturningMethod:
                 sb.AppendLine("This method returns a player value, which can be saved or used directly.");

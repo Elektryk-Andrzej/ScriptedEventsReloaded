@@ -143,7 +143,6 @@ public class LiteralVariableDefinitionContext(LiteralVariableToken varToken) : S
             if (_variableFunc().HasErrored(out var error, out var variableToCopy))
             {
                 throw new ScriptErrorException(error);
-                return;
             }
 
             variable = variableToCopy;

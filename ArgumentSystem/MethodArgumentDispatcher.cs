@@ -25,9 +25,9 @@ public class MethodArgumentDispatcher(Method method)
             {
                 return (DynamicTryGet)Method.Invoke(arg, [token]);
             }
-            catch (TargetInvocationException)
+            catch (TargetInvocationException ex)
             {
-                return DynamicTryGet.Error($"Evaluation system of {arg.Name} has failed. Report this to the plugin developer.");
+                return DynamicTryGet.Error($"This error is not an expected one, report it to the developers. {ex.InnerException?.Message} {ex.InnerException?.StackTrace}");
             }
         }
     }

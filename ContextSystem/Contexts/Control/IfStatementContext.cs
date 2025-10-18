@@ -36,7 +36,7 @@ public class IfStatementContext : StatementContext, IExtendableStatement, IKeywo
 
     protected override IEnumerator<float> Execute()
     {
-        if (ExpressionReslover.EvalCondition(_condition.ToArray(), Script).HasErrored(out var error, out var result))
+        if (NumericExpressionReslover.EvalCondition(_condition.ToArray(), Script).HasErrored(out var error, out var result))
         {
             throw new ScriptErrorException($"'if' statement condition error: {error}");
         }

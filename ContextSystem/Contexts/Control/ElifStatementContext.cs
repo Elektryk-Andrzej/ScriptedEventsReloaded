@@ -40,10 +40,9 @@ public class ElifStatementContext : StatementContext, IStatementExtender, IExten
 
     protected override IEnumerator<float> Execute()
     {
-        if (ExpressionReslover.EvalCondition(_condition.ToArray(), Script).HasErrored(out var error, out var result))
+        if (NumericExpressionReslover.EvalCondition(_condition.ToArray(), Script).HasErrored(out var error, out var result))
         {
             throw new ScriptErrorException($"'elif' statement condition error: {error}");
-            yield break;
         }
         
         if (!result)

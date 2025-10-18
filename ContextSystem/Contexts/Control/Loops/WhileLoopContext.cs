@@ -42,7 +42,7 @@ public class WhileLoopContext : StatementContext, IKeywordContext, IExtendableSt
 
     protected override IEnumerator<float> Execute()
     {
-        if (ExpressionReslover.EvalCondition(_condition.ToArray(), Script).HasErrored(out var error, out var condition))
+        if (NumericExpressionReslover.EvalCondition(_condition.ToArray(), Script).HasErrored(out var error, out var condition))
         {
             throw new ScriptErrorException(error);
         }
@@ -64,7 +64,7 @@ public class WhileLoopContext : StatementContext, IKeywordContext, IExtendableSt
                 break;
             }
             
-            if (ExpressionReslover.EvalCondition(_condition.ToArray(), Script).HasErrored(out var error2, out condition))
+            if (NumericExpressionReslover.EvalCondition(_condition.ToArray(), Script).HasErrored(out var error2, out condition))
             {
                 throw new ScriptErrorException(error2);
             }

@@ -148,7 +148,7 @@
         <Compile Include="Helpers\Compiler\IsExternalInit.cs.cs" />
         <Compile Include="Helpers\Exceptions\AndrzejFuckedUpException.cs" />
         <Compile Include="Helpers\Exceptions\ScriptErrorException.cs" />
-        <Compile Include="Helpers\ExpressionReslover.cs" />
+        <Compile Include="Helpers\NumericExpressionReslover.cs" />
         <Compile Include="Helpers\Extensions\CollectionExtensions.cs" />
         <Compile Include="Helpers\Extensions\DictionaryExtensions.cs" />
         <Compile Include="Helpers\Extensions\DoubleExtensions.cs" />
