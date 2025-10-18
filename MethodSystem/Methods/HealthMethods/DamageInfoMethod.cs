@@ -1,21 +1,22 @@
 ﻿using System;
 using LabApi.Features.Wrappers;
 using PlayerStatsSystem;
+using SER.ArgumentSystem.Arguments;
+using SER.ArgumentSystem.BaseArguments;
+using SER.ArgumentSystem.Structures;
 using SER.Helpers.Exceptions;
-using SER.MethodSystem.ArgumentSystem.Arguments;
-using SER.MethodSystem.ArgumentSystem.BaseArguments;
-using SER.MethodSystem.ArgumentSystem.Structures;
 using SER.MethodSystem.BaseMethods;
 using SER.MethodSystem.MethodDescriptors;
-using SER.VariableSystem;
+using SER.ValueSystem;
 
 namespace SER.MethodSystem.Methods.HealthMethods;
 
 public class DamageInfoMethod : ReferenceResolvingMethod, IAdditionalDescription
 {
     public override Type ReferenceType => typeof(DamageHandlerBase);
+    public override Type[]? ReturnTypes => [typeof(TextValue), typeof(ReferenceValue)];
 
-    public override GenericMethodArgument[] ExpectedArguments { get; } =
+    public override Argument[] ExpectedArguments { get; } =
     [
         new ReferenceArgument<DamageHandlerBase>("handler"),
         new OptionsArgument("property",
@@ -32,16 +33,16 @@ public class DamageInfoMethod : ReferenceResolvingMethod, IAdditionalDescription
         var firearm = handler as FirearmDamageHandler;
         var attacker = handler as AttackerDamageHandler;
         
-        TextReturn = Args.GetOption("property") switch
+        Value = Args.GetOption("property") switch
         {
-            "damage" => standard?.Damage.ToString() ?? "none",
-            "hitbox" => standard?.Hitbox.ToString() ?? "none",
+            "damage" => new TextValue(standard?.Damage.ToString() ?? "none"),
+            "hitbox" => new TextValue(standard?.Hitbox.ToString() ?? "none"),
             "firearmused" => firearm?.Firearm is not null
-                ? ObjectReferenceSystem.RegisterObject(firearm.Firearm)
-                : "none",
+                ? new ReferenceValue(firearm.Firearm)
+                : new TextValue("none"),
             "attacker" => attacker?.Attacker is not null
-                ? ObjectReferenceSystem.RegisterObject(attacker.Attacker)
-                : "none",
+                ? new ReferenceValue(attacker.Attacker)
+                : new TextValue("none"),
             _ => throw new AndrzejFuckedUpException("out of range")
         };
     }

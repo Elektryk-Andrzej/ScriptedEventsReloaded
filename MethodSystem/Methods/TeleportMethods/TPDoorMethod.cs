@@ -1,5 +1,5 @@
-﻿using SER.MethodSystem.ArgumentSystem.Arguments;
-using SER.MethodSystem.ArgumentSystem.BaseArguments;
+﻿using SER.ArgumentSystem.Arguments;
+using SER.ArgumentSystem.BaseArguments;
 using SER.MethodSystem.BaseMethods;
 
 namespace SER.MethodSystem.Methods.TeleportMethods;
@@ -9,7 +9,7 @@ public class TPDoorMethod : SynchronousMethod
 {
     public override string Description => "Teleports players to a door.";
 
-    public override GenericMethodArgument[] ExpectedArguments { get; } =
+    public override Argument[] ExpectedArguments { get; } =
     [
         new PlayersArgument("players to teleport"),
         new DoorArgument("door to teleport to")

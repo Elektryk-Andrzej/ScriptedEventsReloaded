@@ -1,6 +1,6 @@
 ﻿using PlayerRoles.FirstPersonControl;
-using SER.MethodSystem.ArgumentSystem.Arguments;
-using SER.MethodSystem.ArgumentSystem.BaseArguments;
+using SER.ArgumentSystem.Arguments;
+using SER.ArgumentSystem.BaseArguments;
 using SER.MethodSystem.BaseMethods;
 
 namespace SER.MethodSystem.Methods.PlayerMethods;
@@ -9,7 +9,7 @@ public class NoclipMethod : SynchronousMethod
 {
     public override string Description => "Enables or disables access to noclip for specified players.";
 
-    public override GenericMethodArgument[] ExpectedArguments { get; } =
+    public override Argument[] ExpectedArguments { get; } =
     [
         new PlayersArgument("players"),
         new BoolArgument("isAllowed")

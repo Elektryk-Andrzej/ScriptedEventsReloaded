@@ -2,9 +2,9 @@
 using System.Linq;
 using Interactables.Interobjects.DoorUtils;
 using MEC;
+using SER.ArgumentSystem.Arguments;
+using SER.ArgumentSystem.BaseArguments;
 using SER.Helpers.Extensions;
-using SER.MethodSystem.ArgumentSystem.Arguments;
-using SER.MethodSystem.ArgumentSystem.BaseArguments;
 using SER.MethodSystem.BaseMethods;
 
 namespace SER.MethodSystem.Methods.RoomMethods;
@@ -13,7 +13,7 @@ public class BlackoutMethod : SynchronousMethod
 {
     public override string Description => "Blackouts rooms.";
 
-    public override GenericMethodArgument[] ExpectedArguments { get; } =
+    public override Argument[] ExpectedArguments { get; } =
     [
         new RoomsArgument("rooms"),
         new DurationArgument("duration")

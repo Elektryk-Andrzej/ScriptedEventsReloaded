@@ -2,10 +2,10 @@
 using System.Linq;
 using LabApi.Features.Wrappers;
 using MEC;
+using SER.ArgumentSystem.Arguments;
+using SER.ArgumentSystem.BaseArguments;
 using SER.Helpers;
 using SER.Helpers.Extensions;
-using SER.MethodSystem.ArgumentSystem.Arguments;
-using SER.MethodSystem.ArgumentSystem.BaseArguments;
 using SER.MethodSystem.BaseMethods;
 using UnityEngine;
 
@@ -15,7 +15,7 @@ public class TransitionLightColorMethod : SynchronousMethod
 {
     public override string Description => "Transitions smoothly the light color for rooms.";
 
-    public override GenericMethodArgument[] ExpectedArguments { get; } =
+    public override Argument[] ExpectedArguments { get; } =
     [
         new RoomsArgument("rooms"),
         new ColorArgument("color"),

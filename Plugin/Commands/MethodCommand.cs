@@ -35,7 +35,7 @@ public class MethodCommand : ICommand, IUsePermissions
                 script.AddLocalPlayerVariable(new("sender", [Player.Get(playerConsole.Sender)]));
                 break;
             case RemoteAdminExecutor remoteAdminExecutor:
-                script.AddLocalPlayerVariable(new("sender", [Player.Get(remoteAdminExecutor.Sender)]));
+                script.AddLocalPlayerVariable(new("sender", [Player.Get(remoteAdminExecutor.Sender)!]));
                 break;
         }
         

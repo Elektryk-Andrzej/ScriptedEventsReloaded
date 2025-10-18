@@ -14,6 +14,6 @@ namespace System.Runtime.CompilerServices
         public const string RequiredMembers = "RequiredMembers";
     }
 
-    [AttributeUsage(AttributeTargets.Constructor, Inherited = false)]
+    [AttributeUsage(AttributeTargets.Constructor)]
     public sealed class SetsRequiredMembersAttribute : Attribute { }
 }

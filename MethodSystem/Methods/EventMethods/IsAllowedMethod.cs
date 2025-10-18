@@ -1,8 +1,8 @@
-﻿using SER.MethodSystem.ArgumentSystem.Arguments;
-using SER.MethodSystem.ArgumentSystem.BaseArguments;
+﻿using SER.ArgumentSystem.Arguments;
+using SER.ArgumentSystem.BaseArguments;
 using SER.MethodSystem.BaseMethods;
 using SER.MethodSystem.MethodDescriptors;
-using SER.ScriptSystem.TokenSystem.Structures;
+using SER.TokenSystem.Structures;
 
 namespace SER.MethodSystem.Methods.EventMethods;
 
@@ -14,14 +14,14 @@ public class IsAllowedMethod : SynchronousMethod, IAdditionalDescription
         "In order for it to have any impact, the script in which the method is used must be trigger by an event, and " +
         "that event must be cancellable.";
 
-    public override GenericMethodArgument[] ExpectedArguments { get; } =
+    public override Argument[] ExpectedArguments { get; } =
     [
         new BoolArgument("isAllowed")
     ];
 
     public override void Execute()
     {
-        if (Args.GetBool("isAllowed") == false)
+        if (!Args.GetBool("isAllowed"))
         {
             Script.SendControlMessage(ScriptControlMessage.EventNotAllowed);
         }

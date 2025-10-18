@@ -1,5 +1,5 @@
-﻿using SER.MethodSystem.ArgumentSystem.Arguments;
-using SER.MethodSystem.ArgumentSystem.BaseArguments;
+﻿using SER.ArgumentSystem.Arguments;
+using SER.ArgumentSystem.BaseArguments;
 using SER.MethodSystem.BaseMethods;
 using UnityEngine;
 
@@ -10,7 +10,7 @@ public class TPPositionMethod : SynchronousMethod
 {
     public override string Description => "Teleports players to an XYZ position.";
 
-    public override GenericMethodArgument[] ExpectedArguments { get; } =
+    public override Argument[] ExpectedArguments { get; } =
     [
         new PlayersArgument("players to TP"),
         new FloatArgument("X coordinate"),

@@ -1,4 +1,5 @@
 ﻿using System;
+using SER.ValueSystem;
 
 namespace SER.MethodSystem.BaseMethods;
 
@@ -8,5 +9,5 @@ namespace SER.MethodSystem.BaseMethods;
 public abstract class ReferenceReturningMethod : SynchronousMethod
 {
     public abstract Type ReturnType { get; }
-    public object? ValueReturn { get; protected set; }
+    public ReferenceValue? Reference { get; protected set; }
 }

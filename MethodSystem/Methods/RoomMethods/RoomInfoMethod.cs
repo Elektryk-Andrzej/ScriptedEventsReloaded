@@ -1,25 +1,28 @@
 ﻿using System;
 using LabApi.Features.Wrappers;
+using MapGeneration;
+using SER.ArgumentSystem.Arguments;
+using SER.ArgumentSystem.BaseArguments;
+using SER.ArgumentSystem.Structures;
 using SER.Helpers.Exceptions;
-using SER.MethodSystem.ArgumentSystem.Arguments;
-using SER.MethodSystem.ArgumentSystem.BaseArguments;
 using SER.MethodSystem.BaseMethods;
+using SER.ValueSystem;
 
 namespace SER.MethodSystem.Methods.RoomMethods;
 
 public class RoomInfoMethod : ReferenceResolvingMethod
 {
     public override Type ReferenceType => typeof(Room);
-    public override string Description => $"Returns information about a given room from a {nameof(Room)} reference.";
+    
+    public override Type[] ReturnTypes => [typeof(TextValue), typeof(NumberValue)];
 
-    public override GenericMethodArgument[] ExpectedArguments { get; } =
+    public override Argument[] ExpectedArguments { get; } =
     [
         new ReferenceArgument<Room>("room"),
         new OptionsArgument("property",
-            "shape",
-            "name",
-            "zone",
-            "pos",
+            Option.Enum<RoomShape>(),
+            Option.Enum<RoomName>(), 
+            Option.Enum<FacilityZone>(),
             "xPos",
             "yPos",
             "zPos")
@@ -28,15 +31,14 @@ public class RoomInfoMethod : ReferenceResolvingMethod
     public override void Execute()
     {
         var room = Args.GetReference<Room>("room");
-        TextReturn = Args.GetOption("property") switch
+        Value = Args.GetOption("property") switch
         {
-            "shape" => room.Shape.ToString(),
-            "name" => room.Name.ToString(),
-            "zone" => room.Zone.ToString(),
-            "pos" => room.Position.ToString(),
-            "xpos" => room.Position.x.ToString(),
-            "ypos" => room.Position.y.ToString(),
-            "zpos" => room.Position.z.ToString(),
+            "roomshape" => new TextValue(room.Shape.ToString()),
+            "roomname" => new TextValue(room.Name.ToString()),
+            "facilityzone" => new TextValue(room.Zone.ToString()),
+            "xpos" => new NumberValue((decimal)room.Position.x),
+            "ypos" => new NumberValue((decimal)room.Position.y),
+            "zpos" => new NumberValue((decimal)room.Position.z),
             _ => throw new AndrzejFuckedUpException("room info property out of range")
         };
     }

@@ -1,5 +1,5 @@
 ﻿using System.Collections.Generic;
-using SER.VariableSystem.Structures;
+using SER.VariableSystem.Variables;
 
 namespace SER.VariableSystem;
 

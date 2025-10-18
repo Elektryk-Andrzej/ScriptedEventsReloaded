@@ -1,8 +1,7 @@
 ﻿using PlayerRoles;
 using PlayerRoles.FirstPersonControl.Spawnpoints;
-using SER.Helpers;
-using SER.MethodSystem.ArgumentSystem.Arguments;
-using SER.MethodSystem.ArgumentSystem.BaseArguments;
+using SER.ArgumentSystem.Arguments;
+using SER.ArgumentSystem.BaseArguments;
 using SER.MethodSystem.BaseMethods;
 
 namespace SER.MethodSystem.Methods.TeleportMethods;
@@ -12,7 +11,7 @@ public class TPSpawnMethod : SynchronousMethod
 {
     public override string Description => "Teleports players to where a specified role would spawn.";
 
-    public override GenericMethodArgument[] ExpectedArguments { get; } =
+    public override Argument[] ExpectedArguments { get; } =
     [
         new PlayersArgument("players to teleport"),
         new EnumArgument<RoleTypeId>("spawnpoint of role")
@@ -26,7 +25,7 @@ public class TPSpawnMethod : SynchronousMethod
         if (!RoleSpawnpointManager.TryGetSpawnpointForRole(role, out var spawnpoint) 
             || !spawnpoint.TryGetSpawnpoint(out var position, out _))
         {
-            Log.Error(Script, $"Role {role} doesn't have a defined spawnpoint.");
+            Script.Warn($"Role {role} doesn't have a defined spawnpoint.");
             return;
         }
         

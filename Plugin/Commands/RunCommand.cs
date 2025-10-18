@@ -38,7 +38,7 @@ public class RunCommand : ICommand, IUsePermissions
         }
         
         script.Run();
-        response = "Script is now running!";
+        response = $"Script '{script.Name}' was requested to run";
         return true;
     }
 

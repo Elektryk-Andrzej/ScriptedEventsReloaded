@@ -5,33 +5,32 @@ using System.Linq;
 using LabApi.Features.Console;
 using LabApi.Features.Wrappers;
 using MEC;
-using SER.ScriptSystem.ContextSystem.Extensions;
+using SER.ContextSystem;
+using SER.ContextSystem.BaseContexts;
+using SER.ContextSystem.Extensions;
 using SER.Helpers;
 using SER.Helpers.Exceptions;
 using SER.Helpers.Extensions;
-using SER.Helpers.ResultStructure;
+using SER.Helpers.ResultSystem;
 using SER.Plugin;
-using SER.ScriptSystem.ContextSystem;
-using SER.ScriptSystem.ContextSystem.BaseContexts;
 using SER.ScriptSystem.Structures;
-using SER.ScriptSystem.TokenSystem;
-using SER.ScriptSystem.TokenSystem.Structures;
-using SER.ScriptSystem.TokenSystem.Tokens;
-using SER.ScriptSystem.TokenSystem.Tokens.LiteralVariables;
+using SER.TokenSystem;
+using SER.TokenSystem.Structures;
+using SER.TokenSystem.Tokens;
 using SER.VariableSystem;
-using SER.VariableSystem.Structures;
+using SER.VariableSystem.Variables;
 
 namespace SER.ScriptSystem;
 
 public class Script
 {
     public required string Name { get; init; }
+    
     public required string Content { get; init; }
-
-    private readonly ScriptExecutor? _executor;
+    
     public required ScriptExecutor Executor
     {
-        get => _executor!;
+        get;
         init
         {
             if (value is RemoteAdminExecutor { Sender: { } sender } && Player.TryGet(sender, out var player))
@@ -39,13 +38,15 @@ public class Script
                 AddLocalPlayerVariable(new("sender", [player]));
             }
 
-            _executor = value;
+            field = value;
         }
     }
     
-    public List<ScriptLine> Tokens = [];
-    public List<Context> Contexts = [];
-    public int CurrentLine { get; set; } = 0;
+    public Line[] Lines = [];
+    public Context[] Contexts = [];
+    
+    public uint CurrentLine { get; set; } = 0;
+    
     public bool IsRunning => RunningScripts.Contains(this);
 
     private static readonly List<Script> RunningScripts = [];
@@ -53,6 +54,22 @@ public class Script
     private readonly HashSet<PlayerVariable> _localPlayerVariables = [];
     private CoroutineHandle _scriptCoroutine;
     private bool? _isEventAllowed;
+
+    public void Reply(string message)
+    {
+        Executor.Reply(message, this);
+    }
+    
+    public void Warn(string message)
+    {
+        Executor.Warn(message, this);
+    }
+    
+    public void Error(string message)
+    {
+        Executor.Error(message, this);
+        Stop();
+    }
 
     public static TryGet<Script> CreateByScriptName(string dirtyName, ScriptExecutor executor)
     {
@@ -119,15 +136,16 @@ public class Script
         return matches.Length;
     }
 
-    public List<ScriptLine> GetFlagLines()
+    public List<Line> GetFlagLines()
     {
-        CacheTokens();
+        DefineLines();
 
-        return Tokens.Where(l => l.Tokens.FirstOrDefault() is FlagToken or FlagArgumentToken).ToList();
+        return Lines.Where(l => l.Tokens.FirstOrDefault() is FlagToken or FlagArgumentToken).ToList();
     }
 
     public void AddLocalLiteralVariable(LiteralVariable variable)
     {
+        Log.Debug($"Added variable {variable.Name} to script {Name}");
         RemoveLocalLiteralVariable(variable.Name);
         _localLiteralVariables.Add(variable);
     }
@@ -139,6 +157,7 @@ public class Script
 
     public void AddLocalPlayerVariable(PlayerVariable variable)
     {
+        Log.Debug($"Added player variable {variable.Name} to script {Name}");
         RemoveLocalPlayerVariable(variable.Name);
         _localPlayerVariables.Add(variable);
     }
@@ -205,50 +224,63 @@ public class Script
         }
     }
 
-    private Result CacheTokens()
+    public Result DefineLines()
     {
-        try
+        if (Tokenizer.GetInfoFromMultipleLines(Content).HasErrored(out var err, out var info))
         {
-            new Tokenizer(this).GetAllFileTokens();
-            return true;
+            return "Defining script lines failed." + err;
         }
-        catch (Exception e)
-        {
-            return e.ToString();
-        }
+        
+        Log.Debug($"Script {Name} defines {info.Length} lines");
+        Lines = info;
+        return true;
     }
     
-    private Result CacheContexts()
+    public Result SliceLines()
     {
-        try
+        foreach (var line in Lines)
         {
-            if (new Contexter(this).LinkAllTokens(Tokens)
-                .HasErrored(out var err, out var val))
+            if (Tokenizer.SliceLine(line).HasErrored(out var error))
             {
-                return err;
+                Result mainErr = $"Processing line {line.LineNumber} has failed.";
+                return error;
             }
+        }
+        
+        Log.Debug($"Script {Name} sliced {Lines.Length} lines into {Lines.Sum(l => l.Slices.Length)} slices");
+        return true;
+    }
 
-            Contexts = val;
-            return true;
-        }
-        catch (Exception e)
+    public Result TokenizeLines()
+    {
+        foreach (var line in Lines)
         {
-            return e.ToString();
+            Tokenizer.TokenizeLine(line, this);
         }
+
+        Log.Debug($"Script {Name} tokenized {Lines.Length} lines into {Lines.Sum(l => l.Tokens.Length)} tokens");
+        return true;
+    }
+    
+    private Result ContextLines()
+    {
+        if (Contexter.ContextLines(Lines, this).HasErrored(out var err, out var contexts))
+        {
+            return err;
+        }
+        
+        Contexts = contexts;
+        return true;
     }
 
     private IEnumerator<float> InternalExecute()
     {
-        if (CacheTokens().HasErrored(out var tokenError))
+        if (DefineLines().HasErrored(out var err) || 
+            SliceLines().HasErrored(out err) ||
+            TokenizeLines().HasErrored(out err) || 
+            ContextLines().HasErrored(out err))
         {
-            Log.Error(this, tokenError);
-            yield break;
-        }
-
-        if (CacheContexts().HasErrored(out var contextError))
-        {
-            Log.Error(this, contextError);
-            yield break;
+            throw new ScriptErrorException(err);
         }
         
         foreach (var context in Contexts)
@@ -292,10 +324,17 @@ public class Script
         
         return globalPlrVar;
     }
+    
+    public TryGet<PlayerVariable> TryGetPlayerVariable(PlayerVariableToken token)
+    {
+        return TryGetPlayerVariable(token.Name);
+    }
 
     public TryGet<LiteralVariable> TryGetLiteralVariable(string name)
     {
         var localPlrVar = _localLiteralVariables.FirstOrDefault(v => v.Name == name);
+        Log.Debug($"Fetching literal variable '{name}', there currently exist {_localLiteralVariables.Count} " +
+                  $"variables: {_localLiteralVariables.Select(v => v.Name).JoinStrings(", ")}");
         if (localPlrVar != null)
         {
             return localPlrVar;
@@ -308,24 +347,11 @@ public class Script
             return globalVar;
         }
 
-        return $"There is no literal variable named '{{{name}}}'.";
+        return $"There is no literal variable called {name}.";
     }
     
     public TryGet<LiteralVariable> TryGetLiteralVariable(LiteralVariableToken token)
     {
-        var localPlrVar = _localLiteralVariables.FirstOrDefault(v => v.Name == token.ValueWithoutBrackets);
-        if (localPlrVar != null)
-        {
-            return localPlrVar;
-        }
-        
-        var globalVar = LiteralVariableIndex.GlobalLiteralVariables
-            .FirstOrDefault(v => v.Name == token.ValueWithoutBrackets);
-        if (globalVar != null)
-        {
-            return globalVar;
-        }
-
-        return $"There is no literal variable named '{token.RawRepresentation}'.";
+        return TryGetLiteralVariable(token.Name);
     }
 }

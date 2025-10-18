@@ -1,9 +1,9 @@
 ﻿using System.Collections.Generic;
 using MEC;
-using SER.MethodSystem.ArgumentSystem.Arguments;
-using SER.MethodSystem.ArgumentSystem.BaseArguments;
+using SER.ArgumentSystem.Arguments;
+using SER.ArgumentSystem.BaseArguments;
 using SER.MethodSystem.BaseMethods;
-using SER.VariableSystem.Structures;
+using SER.VariableSystem.Variables;
 
 namespace SER.MethodSystem.Methods.ScriptMethods;
 
@@ -11,7 +11,7 @@ public class RunScriptAndWaitMethod : YieldingMethod
 {
     public override string Description => "Runs a script and waits until the ran script has finished.";
 
-    public override GenericMethodArgument[] ExpectedArguments { get; } =
+    public override Argument[] ExpectedArguments { get; } =
     [
         new ScriptArgument("script"),
         new VariableArgument("variablesToPass")
@@ -34,7 +34,7 @@ public class RunScriptAndWaitMethod : YieldingMethod
                 case PlayerVariable pvar:
                     script.AddLocalPlayerVariable(pvar);
                     continue;
-                case LiteralVariable lvar:
+                case TextVariable lvar:
                     script.AddLocalLiteralVariable(lvar);
                     continue;
             }

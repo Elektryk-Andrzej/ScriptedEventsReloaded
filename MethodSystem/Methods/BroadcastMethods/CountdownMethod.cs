@@ -2,9 +2,9 @@
 using System.Collections.Generic;
 using LabApi.Features.Wrappers;
 using MEC;
+using SER.ArgumentSystem.Arguments;
+using SER.ArgumentSystem.BaseArguments;
 using SER.Helpers;
-using SER.MethodSystem.ArgumentSystem.Arguments;
-using SER.MethodSystem.ArgumentSystem.BaseArguments;
 using SER.MethodSystem.BaseMethods;
 
 namespace SER.MethodSystem.Methods.BroadcastMethods;
@@ -15,7 +15,7 @@ public class CountdownMethod : SynchronousMethod
     
     public override string Description => "Creates a countdown using broadcasts.";
 
-    public override GenericMethodArgument[] ExpectedArguments { get; } =
+    public override Argument[] ExpectedArguments { get; } =
     [
         new PlayersArgument("players"),
         new DurationArgument("duration"),

@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using LabApi.Features.Wrappers;
-using SER.MethodSystem.ArgumentSystem.Arguments;
-using SER.MethodSystem.ArgumentSystem.BaseArguments;
+using SER.ArgumentSystem.Arguments;
+using SER.ArgumentSystem.BaseArguments;
 using SER.MethodSystem.BaseMethods;
 using SER.MethodSystem.MethodDescriptors;
 
@@ -20,7 +20,7 @@ public class SetPlayerDataMethod : SynchronousMethod, IAdditionalDescription
         "other players. For this, you would create a key e.g. 'surfaceTime', and under that key you can start saving " +
         "the value. It's basically a dictionary/hashmap attached to a player.";
 
-    public override GenericMethodArgument[] ExpectedArguments { get; } =
+    public override Argument[] ExpectedArguments { get; } =
     [
         new PlayerArgument("player"),
         new TextArgument("key"),
@@ -29,7 +29,7 @@ public class SetPlayerDataMethod : SynchronousMethod, IAdditionalDescription
 
     public override void Execute()
     {
-        var player = Args.GetSinglePlayer("player");
+        var player = Args.GetPlayer("player");
         var key = Args.GetText("key");
         var valueToSet = Args.GetText("valueToSet");
         

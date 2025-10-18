@@ -22,13 +22,13 @@ public abstract class ScriptExecutor
 
         if (commandArgs.Array!.First().First() == '.')
         {
-            return new PlayerConsoleExecutor()
+            return new PlayerConsoleExecutor
             {
                 Sender = playerSender.ReferenceHub
             };
         }
 
-        return new RemoteAdminExecutor()
+        return new RemoteAdminExecutor
         {
             Sender = playerSender
         };

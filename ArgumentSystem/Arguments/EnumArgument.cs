@@ -1,0 +1,58 @@
+﻿using System;
+using JetBrains.Annotations;
+using SER.ArgumentSystem.BaseArguments;
+using SER.Helpers.Extensions;
+using SER.Helpers.ResultSystem;
+using SER.Plugin.Commands.HelpSystem;
+using SER.ScriptSystem;
+using SER.TokenSystem.Tokens;
+
+namespace SER.ArgumentSystem.Arguments;
+
+public class EnumArgument<TEnum> : Argument where TEnum : struct, Enum
+{
+    public EnumArgument(string name) : base(name)
+    {
+        HelpInfoStorage.UsedEnums.Add(typeof(TEnum));
+    }
+    
+    public override string InputDescription => $"{typeof(TEnum).GetAccurateName()} enum value.";
+
+    [UsedImplicitly]
+    public DynamicTryGet<object> GetConvertSolution(BaseToken token)
+    {
+        if (InternalConvert(token).WasSuccessful(out var value))
+        {
+            return value;
+        }
+
+        return new(() => InternalConvert(token));
+    }
+
+    public static TryGet<T> Convert<T>(BaseToken token, Script script) where T : struct, Enum
+    {
+        if (Convert(token, script, typeof(T)).HasErrored(out var error, out var value))
+        {
+            return (T)value;
+        }
+        
+        return error;
+    }
+
+    public static TryGet<object> Convert(BaseToken token, Script script, Type enumType)
+    {
+        var stringRep = token.GetBestTextRepresentation(script);
+        if (!Enum.IsDefined(enumType, stringRep))
+        {
+            return Enum.Parse(enumType, stringRep);
+        }
+        
+        return $"Value '{token.RawRepresentation}' does not represent a valid {enumType.GetAccurateName()} " +
+               $"enum value.";
+    }
+    
+    private TryGet<TEnum> InternalConvert(BaseToken token)
+    {
+        return Convert<TEnum>(token, Script);
+    }
+}

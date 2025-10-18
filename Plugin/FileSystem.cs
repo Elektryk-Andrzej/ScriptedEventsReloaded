@@ -1,15 +1,16 @@
 ﻿using System.IO;
 using System.Linq;
 using LabApi.Features.Console;
+using LabApi.Loader.Features.Paths;
+using SER.FlagSystem;
 using SER.ScriptSystem;
-using SER.ScriptSystem.FlagSystem;
 using SER.ScriptSystem.Structures;
 
 namespace SER.Plugin;
 
 public static class FileSystem
 {
-    public static readonly string DirPath = Path.Combine(LabApi.Loader.Features.Paths.PathManager.Configs.FullName, "Scripted Events Reloaded");
+    public static readonly string DirPath = Path.Combine(PathManager.Configs.FullName, "Scripted Events Reloaded");
     public static string[] RegisteredScriptPaths = [];
 
     public static void UpdateScriptPathCollection()
@@ -22,7 +23,6 @@ public static class FileSystem
             .Where(g => g.Count() > 1)
             .Select(g => (g.Key, g.Count()))
             .ToList();
-
         
         if (!duplicates.Any()) return;
         Logger.Error(

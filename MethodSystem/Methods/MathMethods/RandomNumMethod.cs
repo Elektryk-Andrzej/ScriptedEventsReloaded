@@ -1,20 +1,25 @@
-﻿using SER.MethodSystem.ArgumentSystem.Arguments;
-using SER.MethodSystem.ArgumentSystem.BaseArguments;
+﻿using System;
+using SER.ArgumentSystem.Arguments;
+using SER.ArgumentSystem.BaseArguments;
 using SER.MethodSystem.BaseMethods;
 using SER.MethodSystem.MethodDescriptors;
+using SER.ValueSystem;
 using UnityEngine;
+using Random = UnityEngine.Random;
 
 namespace SER.MethodSystem.Methods.MathMethods;
 
-public class RandomNumMethod : TextReturningMethod, IAdditionalDescription, IPureMethod
+public class RandomNumMethod : ReturningMethod, IAdditionalDescription
 {
     public override string Description =>
         "Returns a randomly generated number.";
 
     public string AdditionalDescription =>
         "'startingNum' argument MUST be smaller than 'endingNum' argument.";
+    
+    public override Type[] ReturnTypes => [typeof(NumberValue)];
 
-    public override GenericMethodArgument[] ExpectedArguments { get; } =
+    public override Argument[] ExpectedArguments { get; } =
     [
         new FloatArgument("startingNum"),
         new FloatArgument("endingNum"),
@@ -36,6 +41,6 @@ public class RandomNumMethod : TextReturningMethod, IAdditionalDescription, IPur
             val = Mathf.RoundToInt(val);
         }
         
-        TextReturn = val.ToString();
+        Value = new NumberValue((decimal)val);
     }
 }

@@ -1,5 +1,5 @@
-﻿using SER.MethodSystem.ArgumentSystem.Arguments;
-using SER.MethodSystem.ArgumentSystem.BaseArguments;
+﻿using SER.ArgumentSystem.Arguments;
+using SER.ArgumentSystem.BaseArguments;
 using SER.MethodSystem.BaseMethods;
 
 namespace SER.MethodSystem.Methods.OutputMethods;
@@ -8,7 +8,7 @@ public class ErrorMethod : SynchronousMethod
 {
     public override string Description => "Sends an error message.";
 
-    public override GenericMethodArgument[] ExpectedArguments { get; } =
+    public override Argument[] ExpectedArguments { get; } =
     [
         new TextArgument("error")
     ];

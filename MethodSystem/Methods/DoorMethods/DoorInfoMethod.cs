@@ -1,16 +1,21 @@
 ﻿using System;
+using LabApi.Features.Enums;
 using LabApi.Features.Wrappers;
-using SER.MethodSystem.ArgumentSystem.Arguments;
-using SER.MethodSystem.ArgumentSystem.BaseArguments;
+using SER.ArgumentSystem.Arguments;
+using SER.ArgumentSystem.BaseArguments;
+using SER.ArgumentSystem.Structures;
+using SER.Helpers.Exceptions;
 using SER.MethodSystem.BaseMethods;
+using SER.ValueSystem;
 
 namespace SER.MethodSystem.Methods.DoorMethods;
 
 public class DoorInfoMethod : ReferenceResolvingMethod
 {
     public override Type ReferenceType => typeof(Door);
+    public override Type[]? ReturnTypes => [typeof(TextValue), typeof(BoolValue)];
 
-    public override GenericMethodArgument[] ExpectedArguments { get; } =
+    public override Argument[] ExpectedArguments { get; } =
     [
         new ReferenceArgument<Door>("door"),
         new OptionsArgument("info",
@@ -18,7 +23,7 @@ public class DoorInfoMethod : ReferenceResolvingMethod
             "isClosed",
             "isLocked",
             "isUnlocked",
-            "name",
+            Option.Enum<DoorName>(),
             "unityName")
     ];
 
@@ -27,15 +32,15 @@ public class DoorInfoMethod : ReferenceResolvingMethod
         var door = Args.GetReference<Door>("door");
         var info = Args.GetOption("info");
         
-        TextReturn = info switch
+        Value = info switch
         {
-            "name" => door.DoorName.ToString(),
-            "unityname" => door.Base.name,
-            "isopen" => door.IsOpened.ToString(),
-            "isclosed" => (!door.IsOpened).ToString(),
-            "islocked" => door.IsLocked.ToString(),
-            "isunlocked" => (!door.IsLocked).ToString(),
-            _ => throw new ArgumentOutOfRangeException()
+            "doorname" => new TextValue(door.DoorName.ToString()),
+            "unityname" => new TextValue(door.Base.name),
+            "isopen" => new BoolValue(door.IsOpened),
+            "isclosed" => new BoolValue(!door.IsOpened),
+            "islocked" => new BoolValue(door.IsLocked),
+            "isunlocked" => new BoolValue(!door.IsLocked),
+            _ => throw new AndrzejFuckedUpException()
         };
     }
 }

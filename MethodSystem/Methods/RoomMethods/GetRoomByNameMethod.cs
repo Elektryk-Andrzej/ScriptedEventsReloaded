@@ -2,9 +2,10 @@
 using System.Linq;
 using LabApi.Features.Wrappers;
 using MapGeneration;
+using SER.ArgumentSystem.Arguments;
+using SER.ArgumentSystem.BaseArguments;
+using SER.Helpers.Exceptions;
 using SER.Helpers.Extensions;
-using SER.MethodSystem.ArgumentSystem.Arguments;
-using SER.MethodSystem.ArgumentSystem.BaseArguments;
 using SER.MethodSystem.BaseMethods;
 using SER.MethodSystem.MethodDescriptors;
 
@@ -19,7 +20,7 @@ public class GetRoomByNameMethod : ReferenceReturningMethod, IAdditionalDescript
     public string AdditionalDescription =>
         "If more than one room matches the provided name, a random room will be returned.";
 
-    public override GenericMethodArgument[] ExpectedArguments { get; } =
+    public override Argument[] ExpectedArguments { get; } =
     [
         new EnumArgument<RoomName>("room name")
     ];
@@ -27,6 +28,12 @@ public class GetRoomByNameMethod : ReferenceReturningMethod, IAdditionalDescript
     public override void Execute()
     {
         var roomName = Args.GetEnum<RoomName>("room name");
-        ValueReturn = Room.List.Where(r => r.Name == roomName).GetRandomValue();
+        var room = Room.List.Where(r => r.Name == roomName).GetRandomValue();
+        if (room is null)
+        {
+            throw new ScriptErrorException($"No room found with the provided name '{roomName}'.");
+        }
+        
+        Reference = new(room);
     }
 }

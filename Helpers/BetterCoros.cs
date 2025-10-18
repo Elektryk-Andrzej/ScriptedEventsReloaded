@@ -26,32 +26,19 @@ public static class BetterCoros
             {
                 if (!routine.MoveNext()) break;
             }
-            catch (ArgumentFetchException ex)
+            catch (ScriptErrorException scrErr)
             {
-                Log.Error(scr, ex.Message);
+                scr.Error(scrErr.Message);
                 yield break;
             }
             catch (Exception ex)
             {
-                Log.Error(scr, $"Coroutine failed with {ex.GetType().Name}: {ex.Message}\n{ex.StackTrace}");
                 onException?.Invoke(ex);
+                scr.Error($"Coroutine failed with {ex.GetType().Name}: {ex.Message}\n{ex.StackTrace}");
                 yield break;
             }
 
             yield return routine.Current;
-        }
-    }
-    
-    public static IEnumerator<float> SlowWaitUntilTrue(Func<bool> condition)
-    {
-        while (true)
-        {
-            if (condition())
-                break;
-
-            yield return Timing.WaitForOneFrame;
-            yield return Timing.WaitForOneFrame;
-            yield return Timing.WaitForOneFrame;
         }
     }
 }

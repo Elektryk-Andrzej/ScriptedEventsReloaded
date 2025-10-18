@@ -24,6 +24,6 @@ public class ServerConsoleExecutor : ScriptExecutor
 
     public override void Error(string content, Script scr)
     {
-        Log.Error(scr, content);
+        Log.Error(scr.Name, content);
     }
 }

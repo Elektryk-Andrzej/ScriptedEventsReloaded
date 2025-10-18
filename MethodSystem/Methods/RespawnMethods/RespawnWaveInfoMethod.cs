@@ -1,9 +1,12 @@
 ﻿using System;
 using LabApi.Features.Wrappers;
+using PlayerRoles;
+using SER.ArgumentSystem.Arguments;
+using SER.ArgumentSystem.BaseArguments;
+using SER.ArgumentSystem.Structures;
 using SER.Helpers.Exceptions;
-using SER.MethodSystem.ArgumentSystem.Arguments;
-using SER.MethodSystem.ArgumentSystem.BaseArguments;
 using SER.MethodSystem.BaseMethods;
+using SER.ValueSystem;
 
 namespace SER.MethodSystem.Methods.RespawnMethods;
 
@@ -11,11 +14,13 @@ public class RespawnWaveInfoMethod : ReferenceResolvingMethod
 {
     public override Type ReferenceType => typeof(RespawnWave);
 
-    public override GenericMethodArgument[] ExpectedArguments { get; } =
+    public override Type[] ReturnTypes => [typeof(NumberValue), typeof(TextValue)];
+    
+    public override Argument[] ExpectedArguments { get; } =
     [
         new ReferenceArgument<RespawnWave>("respawnWave"),
-        new OptionsArgument("property",
-            "faction",
+        new OptionsArgument("property", 
+            Option.Enum<Faction>(),
             "maxWaveSize",
             "respawnTokens",
             "influence",
@@ -25,13 +30,13 @@ public class RespawnWaveInfoMethod : ReferenceResolvingMethod
     public override void Execute()
     {
         var wave = Args.GetReference<RespawnWave>("respawnWave");
-        TextReturn = Args.GetOption("property") switch
+        Value = Args.GetOption("property") switch
         {
-            "faction" => wave.Faction.ToString(),
-            "maxwavesize" => wave.MaxWaveSize.ToString(),
-            "respawntokens" => wave.RespawnTokens.ToString(),
-            "influence" => wave.Influence.ToString(),
-            "secondsleft" => wave.TimeLeft.ToString(),
+            "faction" => new TextValue(wave.Faction.ToString()),
+            "maxwavesize" => new NumberValue(wave.MaxWaveSize),
+            "respawntokens" => new NumberValue(wave.RespawnTokens),
+            "influence" => new NumberValue((decimal)wave.Influence),
+            "secondsleft" => new NumberValue((decimal)wave.TimeLeft),
             _ => throw new AndrzejFuckedUpException()
         };
     }

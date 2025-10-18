@@ -1,7 +1,7 @@
-﻿using SER.MethodSystem.ArgumentSystem.Arguments;
-using SER.MethodSystem.ArgumentSystem.BaseArguments;
+﻿using SER.ArgumentSystem.Arguments;
+using SER.ArgumentSystem.BaseArguments;
 using SER.MethodSystem.BaseMethods;
-using SER.VariableSystem.Structures;
+using SER.VariableSystem.Variables;
 
 namespace SER.MethodSystem.Methods.ScriptMethods;
 
@@ -9,7 +9,7 @@ public class TransferVariablesMethod : SynchronousMethod
 {
     public override string Description => "Makes a copy of the given local variable(s) in a different script.";
 
-    public override GenericMethodArgument[] ExpectedArguments =>
+    public override Argument[] ExpectedArguments { get; } =
     [
         new ScriptArgument("target script"),
         new VariableArgument("variables")

@@ -1,6 +1,6 @@
 ﻿using LabApi.Features.Wrappers;
-using SER.MethodSystem.ArgumentSystem.Arguments;
-using SER.MethodSystem.ArgumentSystem.BaseArguments;
+using SER.ArgumentSystem.Arguments;
+using SER.ArgumentSystem.BaseArguments;
 using SER.MethodSystem.BaseMethods;
 using SER.MethodSystem.MethodDescriptors;
 
@@ -12,7 +12,7 @@ public class AddPickupToInventoryMethod : SynchronousMethod, IAdditionalDescript
 
     public string AdditionalDescription => "Pickup will not be added if the player's inventory is full.";
 
-    public override GenericMethodArgument[] ExpectedArguments { get; } =
+    public override Argument[] ExpectedArguments { get; } =
     [
         new PlayerArgument("player"),
         new ReferenceArgument<Pickup>("pickup")
@@ -20,7 +20,7 @@ public class AddPickupToInventoryMethod : SynchronousMethod, IAdditionalDescript
 
     public override void Execute()
     {
-        var player = Args.GetSinglePlayer("player");
+        var player = Args.GetPlayer("player");
         var pickup = Args.GetReference<Pickup>("pickup");
 
         if (!player.IsInventoryFull)

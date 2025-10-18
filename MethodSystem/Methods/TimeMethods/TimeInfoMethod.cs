@@ -1,17 +1,19 @@
 ﻿using System;
+using SER.ArgumentSystem.Arguments;
+using SER.ArgumentSystem.BaseArguments;
 using SER.Helpers.Exceptions;
-using SER.MethodSystem.ArgumentSystem.Arguments;
-using SER.MethodSystem.ArgumentSystem.BaseArguments;
 using SER.MethodSystem.BaseMethods;
-using SER.MethodSystem.MethodDescriptors;
+using SER.ValueSystem;
 
 namespace SER.MethodSystem.Methods.TimeMethods;
 
-public class TimeInfoMethod : TextReturningMethod, IPureMethod
+public class TimeInfoMethod : ReturningMethod
 {
     public override string Description => "Returns information about current time.";
 
-    public override GenericMethodArgument[] ExpectedArguments { get; } =
+    public override Type[] ReturnTypes => [typeof(NumberValue), typeof(TextValue)];
+    
+    public override Argument[] ExpectedArguments { get; } =
     [
         new OptionsArgument("options",
             "second",
@@ -26,18 +28,18 @@ public class TimeInfoMethod : TextReturningMethod, IPureMethod
     
     public override void Execute()
     {
-        TextReturn = Args.GetOption("options").ToLower() switch
+        Value = Args.GetOption("options").ToLower() switch
         {
-            "second" => DateTime.Now.Second.ToString(),
-            "minute" => DateTime.Now.Minute.ToString(),
-            "hour" => DateTime.Now.Hour.ToString(),
-            "year" => DateTime.Now.Year.ToString(),
-            "dayofweek" => DateTime.Now.DayOfWeek.ToString(),
-            "dayofweeknumber" => (int)DateTime.Now.DayOfWeek == 0
-                ? "7"
-                : ((int)DateTime.Now.DayOfWeek).ToString(),
-            "dayofmonth" => DateTime.Now.Day.ToString(),
-            "dayofyear" => DateTime.Now.DayOfYear.ToString(),
+            "second" => new NumberValue(DateTime.Now.Second),
+            "minute" => new NumberValue(DateTime.Now.Minute),
+            "hour" => new NumberValue(DateTime.Now.Hour),
+            "year" => new NumberValue(DateTime.Now.Year),
+            "dayofweek" => new TextValue(DateTime.Now.DayOfWeek.ToString()),
+            "dayofweeknumber" => (uint)DateTime.Now.DayOfWeek == 0
+                ? new NumberValue(7)
+                : new NumberValue((uint)DateTime.Now.DayOfWeek),
+            "dayofmonth" => new NumberValue(DateTime.Now.Day),
+            "dayofyear" => new NumberValue(DateTime.Now.DayOfYear),
             _ => throw new AndrzejFuckedUpException()
         };
     }

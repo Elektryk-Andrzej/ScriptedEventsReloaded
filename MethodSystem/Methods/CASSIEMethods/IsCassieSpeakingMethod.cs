@@ -1,18 +1,20 @@
-﻿using LabApi.Features.Wrappers;
-using SER.MethodSystem.ArgumentSystem.BaseArguments;
+﻿using System;
+using LabApi.Features.Wrappers;
+using SER.ArgumentSystem.BaseArguments;
 using SER.MethodSystem.BaseMethods;
-using SER.MethodSystem.MethodDescriptors;
+using SER.ValueSystem;
 
 namespace SER.MethodSystem.Methods.CASSIEMethods;
 
-public class IsCassieSpeakingMethod : TextReturningMethod, IPureMethod
+public class IsCassieSpeakingMethod : ReturningMethod
 {
-    public override string Description => "Returns True/False value indicating if CASSIE is speaking.";
-
-    public override GenericMethodArgument[] ExpectedArguments { get; } = [];
+    public override string Description => "Returns boolean value indicating if CASSIE is speaking.";
+    public override Type[]? ReturnTypes => [typeof(TextValue)];
+    
+    public override Argument[] ExpectedArguments { get; } = [];
     
     public override void Execute()
     {
-        TextReturn = Cassie.IsSpeaking.ToString();
+        Value = new TextValue(Cassie.IsSpeaking.ToString());
     }
 }

@@ -1,10 +1,10 @@
 ﻿using System;
 using System.Linq;
-using SER.MethodSystem.ArgumentSystem.Arguments;
-using SER.MethodSystem.ArgumentSystem.BaseArguments;
+using SER.ArgumentSystem.Arguments;
+using SER.ArgumentSystem.BaseArguments;
 using SER.MethodSystem.BaseMethods;
 using SER.VariableSystem;
-using SER.VariableSystem.Structures;
+using SER.VariableSystem.Variables;
 
 namespace SER.MethodSystem.Methods.PlayerVariableMethods;
 
@@ -12,7 +12,7 @@ public class GlobalPlayerVariableMethod : SynchronousMethod
 {
     public override string Description => "Creates or overrides a global player variable.";
 
-    public override GenericMethodArgument[] ExpectedArguments { get; } =
+    public override Argument[] ExpectedArguments { get; } =
     [
         new PlayerVariableNameArgument("variableName")
         {
@@ -28,14 +28,14 @@ public class GlobalPlayerVariableMethod : SynchronousMethod
         var players = Args.GetPlayers("players");
 
         if (PlayerVariableIndex.GlobalPlayerVariables.OfType<PredefinedPlayerVariable>()
-            .Any(var => var.Name == variableName.NameWithoutPrefix))
+            .Any(var => var.Name == variableName.Name))
         {
-            throw new Exception($"You cannot override the predefined variable @{variableName.NameWithoutPrefix}");
+            throw new Exception($"You cannot override the predefined variable @{variableName.Name}");
         }
         
         PlayerVariableIndex.GlobalPlayerVariables.RemoveWhere(var => 
-            var.Name == variableName.NameWithoutPrefix);
+            var.Name == variableName.Name);
 
-        PlayerVariableIndex.GlobalPlayerVariables.Add(new(variableName.NameWithoutPrefix, players));
+        PlayerVariableIndex.GlobalPlayerVariables.Add(new(variableName.Name, players));
     }
 }

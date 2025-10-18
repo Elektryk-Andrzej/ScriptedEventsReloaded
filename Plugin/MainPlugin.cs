@@ -2,13 +2,12 @@
 using JetBrains.Annotations;
 using LabApi.Features;
 using LabApi.Features.Console;
+using SER.FlagSystem.Structures;
 using SER.MethodSystem;
 using SER.MethodSystem.Methods.LiteralVariableMethods;
 using SER.ScriptSystem;
-using SER.ScriptSystem.FlagSystem.Structures;
-using SER.ScriptSystem.TokenSystem.Tokens;
 using SER.VariableSystem;
-using EventHandler = SER.ScriptSystem.EventSystem.EventHandler;
+using EventHandler = SER.EventSystem.EventHandler;
 using Events = LabApi.Events.Handlers;
 
 namespace SER.Plugin;
@@ -20,7 +19,7 @@ public class MainPlugin : LabApi.Loader.Features.Plugins.Plugin
     public override string Description => "The scripting language for SCP:SL.";
     public override string Author => "Elektryk_Andrzej";
     public override Version RequiredApiVersion => LabApiProperties.CurrentVersion;
-    public override Version Version => new(0, 2, 0);
+    public override Version Version => new(0, 3, 0);
     
     public static string GitHubLink => "https://github.com/Elektryk-Andrzej/ScriptedEventsReloaded";
     public static string WikiLink => GitHubLink + "/wiki";
@@ -37,7 +36,7 @@ public class MainPlugin : LabApi.Loader.Features.Plugins.Plugin
         PlayerVariableIndex.Initialize();
         Flag.RegisterFlags();
         FileSystem.Initialize();
-        KeywordToken.RegisterKeywords();
+        //KeywordToken.RegisterKeywords();
         
         Events.ServerEvents.WaitingForPlayers += OnServerFullyInit;
         Events.ServerEvents.RoundRestarted += () =>
@@ -62,6 +61,6 @@ public class MainPlugin : LabApi.Loader.Features.Plugins.Plugin
                     GitHub repository: {GitHubLink}
                     Wiki page: {WikiLink}
                     """,
-            ConsoleColor.Magenta);
+            ConsoleColor.White);
     }
 }

@@ -2,8 +2,8 @@
 using CommandSystem;
 using LabApi.Features.Permissions;
 using LabApi.Features.Wrappers;
+using SER.FlagSystem;
 using SER.Plugin.Commands.Interfaces;
-using SER.ScriptSystem.FlagSystem;
 
 namespace SER.Plugin.Commands;
 

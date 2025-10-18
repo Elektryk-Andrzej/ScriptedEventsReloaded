@@ -4,21 +4,19 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using CommandSystem;
+using SER.ContextSystem.BaseContexts;
+using SER.ContextSystem.Structures;
+using SER.FlagSystem.Structures;
 using SER.Helpers.Exceptions;
 using SER.Helpers.Extensions;
 using SER.MethodSystem;
-using SER.MethodSystem.ArgumentSystem.BaseArguments;
 using SER.MethodSystem.BaseMethods;
 using SER.MethodSystem.MethodDescriptors;
 using SER.Plugin.Commands.Interfaces;
-using SER.ScriptSystem.ContextSystem.BaseContexts;
-using SER.ScriptSystem.ContextSystem.Structures;
-using SER.ScriptSystem.FlagSystem.Structures;
-using SER.ScriptSystem.TokenSystem.Tokens;
-using SER.ScriptSystem.TokenSystem.Tokens.LiteralVariables;
+using SER.TokenSystem.Tokens;
 using SER.VariableSystem;
-using SER.VariableSystem.Structures;
-using EventHandler = SER.ScriptSystem.EventSystem.EventHandler;
+using SER.VariableSystem.Variables;
+using EventHandler = SER.EventSystem.EventHandler;
 
 namespace SER.Plugin.Commands.HelpSystem;
 
@@ -29,8 +27,6 @@ public class HelpCommand : ICommand
     public string Command => MainPlugin.HelpCommandName;
     public string[] Aliases => [];
     public string Description => "The help command of SER.";
-    
-    private static List<Method> AllMethods => MethodIndex.NameToMethodIndex.Values.ToList();
 
     public static readonly Dictionary<HelpOption, Func<string>> GeneralOptions = new()
     {
@@ -68,16 +64,18 @@ public class HelpCommand : ICommand
             return true;
         }
         
-        var keyword = KeywordToken.KeywordInfo.FirstOrDefault(kvp => kvp.Key == arg);
-        // ReSharper disable once UsageOfDefaultStructEquality
-        if (!keyword.Equals(default(KeyValuePair<string, (Type, string, string[])>)))
+        var keyword = KeywordToken.PrototypeKeywords
+            .Select(kType => kType.CreateInstance<IKeywordContext>())
+            .FirstOrDefault(keyword => keyword.KeywordName == arg);
+        
+        if (keyword is not null)
         {
             response = GetKeywordInfo(
-                keyword.Key,
-                keyword.Value.description,
-                keyword.Value.arguments,
-                typeof(StatementContext).IsAssignableFrom(keyword.Value.type),
-                keyword.Value.type
+                keyword.KeywordName,
+                keyword.Description,
+                keyword.Arguments,
+                keyword is StatementContext,
+                keyword.GetType()
             );
             return true;
         }
@@ -89,14 +87,15 @@ public class HelpCommand : ICommand
             return true;
         }
         
-        var ev = EventHandler.AvailableEvents.FirstOrDefault(e => e.Name.ToLower() == arg);
+        var ev = EventHandler.AvailableEvents
+            .FirstOrDefault(e => e.Name.ToLower() == arg);
         if (ev is not null)
         {
             response = GetEventInfo(ev);
             return true;
         }
         
-        var method = MethodIndex.NameToMethodIndex.Values
+        var method = MethodIndex.GetMethods()
             .FirstOrDefault(met => met.Name.ToLower() == arg);
         if (method is not null)
         {
@@ -104,7 +103,8 @@ public class HelpCommand : ICommand
             return true;
         }
 
-        var correctFlagName = Flag.FlagInfos.Keys.FirstOrDefault(k => k.ToLower() == arg);
+        var correctFlagName = Flag.FlagInfos.Keys
+            .FirstOrDefault(k => k.ToLower() == arg);
         if (correctFlagName is not null)
         {
             response = GetFlagInfo(correctFlagName);
@@ -121,7 +121,7 @@ public class HelpCommand : ICommand
                 === Welcome to the help command of SER! ===
 
                 To get specific information for your script creation adventure:
-                (1) find the desired option (like 'methods')
+                (1) find the desired option (like '{nameof(HelpOption.Methods).ToLower()}')
                 (2) use this command, attaching the option after it (like 'serhelp methods')
                 (3) enjoy!
 
@@ -184,7 +184,8 @@ public class HelpCommand : ICommand
 
     private static string GetKeywordHelpPage()
     {
-        var keywords = KeywordToken.KeywordInfo.Keys.Select(k => $"\n> {k}").JoinStrings();
+        throw new NotImplementedException();
+        /*var keywords = KeywordToken.KeywordInfo.Keys.Select(k => $"\n> {k}").JoinStrings();
 
         return
             """
@@ -210,7 +211,7 @@ public class HelpCommand : ICommand
 
             Here is a list of all keywords available in SER:
             (each of them is of course searchable using 'serhelp keywordName')
-            """ + keywords;
+            """ + keywords;*/
     }
 
     private static string GetFlagHelpPage()
@@ -270,9 +271,9 @@ public class HelpCommand : ICommand
                         msg += $"> @{variable.Name} (player variable)\n";
                         continue;
                     case ReferenceVariable refVar:
-                        msg += $"> {{{refVar.Name}}} (reference variable to {refVar.Type.GetAccurateName()})\n";
+                        msg += $"> {{{refVar.Name}}} (reference variable to {refVar.ExactValue.GetType().GetAccurateName()})\n";
                         continue;
-                    case LiteralVariable:
+                    case TextVariable:
                         msg += $"> {{{variable.Name}}} (literal variable)\n";
                         continue;
                     default:
@@ -295,7 +296,7 @@ public class HelpCommand : ICommand
     
     private static string GetReferenceResolvingMethodsHelpPage()
     {
-        var referenceResolvingMethods = AllMethods
+        var referenceResolvingMethods = MethodIndex.GetMethods()
             .Where(m => m is IReferenceResolvingMethod)
             .Select(m => (m.Name, ((IReferenceResolvingMethod)m).ReferenceType));
         
@@ -370,10 +371,11 @@ public class HelpCommand : ICommand
 
     private static string GetMethodList()
     {
-        var maxMethodLen = AllMethods.Max(m => m.Name.Length) + 7;
+        var methods = MethodIndex.GetMethods();
+        var maxMethodLen = methods.Max(m => m.Name.Length) + 7;
         
         Dictionary<string, List<Method>> methodsByCategory = new();
-        foreach (var method in AllMethods)
+        foreach (var method in methods)
         {
             if (methodsByCategory.ContainsKey(method.Subgroup))
             {
@@ -385,9 +387,9 @@ public class HelpCommand : ICommand
             }
         }
         
-        var sb = new StringBuilder($"Hi! There are {AllMethods.Count} methods available for your use!\n");
-        sb.AppendLine("If a method has [txt], [plr] or [... ref], it represents a method returning text, players or an object reference accordingly.");
-        sb.AppendLine("If a method has 'pure' (e.g. [pure text]) it represents a method having no side effects on the server, players, map etc. Used mostly for getting/manipulating variables.");
+        var sb = new StringBuilder($"Hi! There are {methods.Length} methods available for your use!\n");
+        sb.AppendLine("If a method has [rets], it means that this method returns a value.");
+        sb.AppendLine("If you want to get specific information about a given method, just do 'serhelp <MethodName>'!");
         
         foreach (var kvp in methodsByCategory.Reverse())
         {
@@ -395,29 +397,16 @@ public class HelpCommand : ICommand
             sb.AppendLine($"--- {kvp.Key} methods ---");
             foreach (var method in kvp.Value)
             {
-                var purePrefix = "";
-                if (method is IPureMethod)
-                {
-                    purePrefix = "pure ";
-                }
-                
                 var name = method.Name;
-                switch (method)
+                if (method is ReturningMethod or ReferenceReturningMethod or PlayerReturningMethod)
                 {
-                    case TextReturningMethod:
-                        name += $" [{purePrefix}txt]";
-                        break;
-                    case PlayerReturningMethod:
-                        name += $" [{purePrefix}plr]";
-                        break;
-                    case ReferenceReturningMethod refMethod:
-                        name += $" [{purePrefix}{refMethod.ReturnType.Name.ToLower()} ref]";
-                        break;
+                    name += " [rets]";
                 }
 
                 if (maxMethodLen - name.Length > 0)
                 {
-                    var descFormatted = method.Description.Insert(0, new string(' ', maxMethodLen - name.Length));
+                    var descFormatted = method.Description
+                        .Insert(0, new string(' ', maxMethodLen - name.Length));
                     sb.AppendLine($"> {name} {descFormatted}");
                 }
                 else
@@ -426,9 +415,6 @@ public class HelpCommand : ICommand
                 }
             }
         }
-
-        sb.AppendLine();
-        sb.AppendLine("If you want to get specific information about a given method, just do 'serhelp MethodName'!");
         
         return sb.ToString();
     }
@@ -469,7 +455,7 @@ public class HelpCommand : ICommand
         
         switch (method)
         {
-            case TextReturningMethod:
+            case ReturningMethod:
                 sb.AppendLine("This method returns a text value, which can be saved or used directly.");
                 break;
             case PlayerReturningMethod:
@@ -501,15 +487,8 @@ public class HelpCommand : ICommand
             {
                 sb.AppendLine($" - Description: {argument.Description}");
             }
-
-            if (argument is CustomMethodArgument customArgument)
-            {
-                sb.AppendLine($" - Expected value: {customArgument.InputDescription}");
-            }
-            else
-            {
-                sb.AppendLine($" - Expected value: {argument.GetExpectedValues()}");
-            }
+            
+            sb.AppendLine($" - Expected value: {argument.InputDescription}");
 
             if (argument.IsOptional)
             {
@@ -526,7 +505,7 @@ public class HelpCommand : ICommand
             sb.AppendLine();
         }
 
-        if (method.ExpectedArguments.All(arg => arg.AdditionalDescription is null))
+        /*if (method.ExpectedArguments.All(arg => arg.AdditionalDescription is null))
         {
             return sb.ToString();
         }
@@ -540,14 +519,34 @@ public class HelpCommand : ICommand
             sb.AppendLine($"({index + 1}) '{argument.Name}' argument");
             sb.AppendLine($" - {argument.AdditionalDescription}");
             sb.AppendLine();
-        }
+        }*/
         
         return sb.ToString();
     }
 
     public static string GetPlayerInfoAccessorsHelpPage()
     {
-        var accessors = PlayerPropertyAccessToken.AccessiblePlayerProperties.Select(kvp =>
+        StringBuilder sb = new();
+        var properties = PlayerPropertyExpression.PropertyInfoMap;
+        foreach (var (property, info) in properties.Select(kvp => (kvp.Key, kvp.Value)))
+        {
+            sb.Append($"{property.ToString().LowerFirst()} -> {info.ReturnType.Name}");
+            sb.Append(info.Description is not null ? $" | {info.Description}\n" : "\n");
+        }
+
+        return
+            $$"""
+            In order for you to get information about a player, you need to use a special syntax involving expressions.
+            
+            This syntax works as follows: {@plr property}
+            > @plr: is a player variable with exactly 1 player stored in it
+            > property: is a property of the player we want to get information about (its a {{nameof(PlayerPropertyExpression.PlayerPropertyType)}} enum)
+            
+            Here is a list of all available properties and what they return:
+            {{sb}}
+            """;
+
+        /*var accessors = PlayerPropertyAccessToken.AccessiblePlayerProperties.Select(kvp =>
         {
             if (kvp.Key.Item1 is { } name)
             {
@@ -561,8 +560,8 @@ public class HelpCommand : ICommand
 
             throw new AndrzejFuckedUpException();
         }).JoinStrings("\n\n");
-        
-        return 
+
+        return
             """
             Player property accessors are suffixes added to a player variable with a single player to extract information about said player.
 
@@ -571,12 +570,12 @@ public class HelpCommand : ICommand
             role:   @myPlayer.role
             health: @myPlayer.health
             etc.
-            
+
             This works like any other literal variable, so you can save it to a variable, use it in a method, etc.
 
             Here is a list of all player property accessors and their definitions:
-            
-            """ + accessors;
+
+            """ + accessors;*/
     }
 }
 

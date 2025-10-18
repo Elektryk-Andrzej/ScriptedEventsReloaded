@@ -1,5 +1,5 @@
-﻿using SER.MethodSystem.ArgumentSystem.Arguments;
-using SER.MethodSystem.ArgumentSystem.BaseArguments;
+﻿using SER.ArgumentSystem.Arguments;
+using SER.ArgumentSystem.BaseArguments;
 using SER.MethodSystem.BaseMethods;
 
 namespace SER.MethodSystem.Methods.HealthMethods;
@@ -7,7 +7,7 @@ namespace SER.MethodSystem.Methods.HealthMethods;
 public class SetHealthMethod : SynchronousMethod
 {
     public override string Description => "Sets health for players.";
-    public override GenericMethodArgument[] ExpectedArguments { get; } = 
+    public override Argument[] ExpectedArguments { get; } = 
     [
         new PlayersArgument("players"),
         new FloatArgument("health", 0)

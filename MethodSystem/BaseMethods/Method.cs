@@ -1,10 +1,10 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using MEC;
+using SER.ArgumentSystem;
+using SER.ArgumentSystem.BaseArguments;
 using SER.Helpers;
 using SER.Helpers.Exceptions;
-using SER.MethodSystem.ArgumentSystem;
-using SER.MethodSystem.ArgumentSystem.BaseArguments;
 using SER.ScriptSystem;
 
 namespace SER.MethodSystem.BaseMethods;
@@ -37,7 +37,7 @@ public abstract class Method
     
     public abstract string Description { get; }
     
-    public abstract GenericMethodArgument[] ExpectedArguments { get; }
+    public abstract Argument[] ExpectedArguments { get; }
     
     public ProvidedArguments Args { get; }
     

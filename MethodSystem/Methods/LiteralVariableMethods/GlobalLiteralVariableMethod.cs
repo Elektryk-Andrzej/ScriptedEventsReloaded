@@ -1,32 +1,33 @@
-﻿using SER.MethodSystem.ArgumentSystem.Arguments;
-using SER.MethodSystem.ArgumentSystem.BaseArguments;
+﻿using SER.ArgumentSystem.Arguments;
+using SER.ArgumentSystem.BaseArguments;
+using SER.Helpers.Exceptions;
 using SER.MethodSystem.BaseMethods;
 using SER.VariableSystem;
+using SER.VariableSystem.Variables;
 
 namespace SER.MethodSystem.Methods.LiteralVariableMethods;
 
 public class GlobalLiteralVariableMethod : SynchronousMethod
 {
-    public override string Description => "Creates or overrides a global literal variable.";
+    public override string Description => "Creates a global literal variable.";
 
-    public override GenericMethodArgument[] ExpectedArguments { get; } =
+    public override Argument[] ExpectedArguments { get; } =
     [
-        new LiteralVariableNameArgument("variableName"),
-        new TextArgument("value")
+        new LiteralVariableArgument("variable to make global")
     ];
     
     public override void Execute()
     {
-        var variableName = Args.GetLiteralVariableName("variableName").ValueWithoutBrackets;
-        var value = Args.GetText("value");
+        var variableToken = Args.GetLiteralVariable("variable to make global");
+        if (Script.TryGetLiteralVariable(variableToken).HasErrored(out var error, out var variable))
+        {
+            throw new ScriptErrorException(error);
+        }
 
         LiteralVariableIndex.GlobalLiteralVariables
-            .RemoveWhere(existingVar => existingVar.Name == variableName);
+            .RemoveWhere(existingVar => existingVar.Name == variable.Name);
         
-        LiteralVariableIndex.GlobalLiteralVariables.Add(new()
-        {
-            Name = variableName,
-            Value = () => value
-        });
+        LiteralVariableIndex.GlobalLiteralVariables
+            .Add(LiteralVariable.CopyVariable(variable));
     }
 }

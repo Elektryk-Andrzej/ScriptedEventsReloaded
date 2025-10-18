@@ -1,21 +1,24 @@
-﻿using SER.MethodSystem.ArgumentSystem.Arguments;
-using SER.MethodSystem.ArgumentSystem.BaseArguments;
+﻿using System;
+using SER.ArgumentSystem.Arguments;
+using SER.ArgumentSystem.BaseArguments;
 using SER.MethodSystem.BaseMethods;
-using SER.MethodSystem.MethodDescriptors;
+using SER.ValueSystem;
 
 namespace SER.MethodSystem.Methods.PlayerMethods;
 
-public class AmountOfMethod : TextReturningMethod, IPureMethod
+public class AmountOfMethod : ReturningMethod
 {
     public override string Description => "Returns the amount of players in a given player variable.";
 
-    public override GenericMethodArgument[] ExpectedArguments { get; } =
+    public override Type[] ReturnTypes => [typeof(NumberValue)];
+    
+    public override Argument[] ExpectedArguments { get; } =
     [
         new PlayersArgument("variable")
     ];
 
     public override void Execute()
     {
-        TextReturn = Args.GetPlayers("variable").Count.ToString();
+        Value = new NumberValue(Args.GetPlayers("variable").Count);
     }
 }

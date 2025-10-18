@@ -1,7 +1,8 @@
-﻿using RemoteAdmin;
+﻿using GameCore;
+using RemoteAdmin;
+using SER.ArgumentSystem.Arguments;
+using SER.ArgumentSystem.BaseArguments;
 using SER.Helpers.Extensions;
-using SER.MethodSystem.ArgumentSystem.Arguments;
-using SER.MethodSystem.ArgumentSystem.BaseArguments;
 using SER.MethodSystem.BaseMethods;
 using SER.MethodSystem.MethodDescriptors;
 
@@ -15,7 +16,7 @@ public class CommandMethod : SynchronousMethod, IAdditionalDescription
         => "This action executes commands as the server. Therefore, the command needs '/' before it if it's a RA " +
            "command, or '.' before it if it's a console command.";
 
-    public override GenericMethodArgument[] ExpectedArguments { get; } =
+    public override Argument[] ExpectedArguments { get; } =
     [
         new TextArgument("command"),
         new PlayerArgument("sender")
@@ -26,8 +27,8 @@ public class CommandMethod : SynchronousMethod, IAdditionalDescription
 
     public override void Execute()
     {
-        var sender = Args.GetSinglePlayer("sender").MaybeNull();
-        GameCore.Console.singleton.TypeCommand(
+        var sender = Args.GetPlayer("sender").MaybeNull();
+        Console.singleton.TypeCommand(
             Args.GetText("command"), 
             sender is not null 
                 ? new PlayerCommandSender(sender.ReferenceHub) 

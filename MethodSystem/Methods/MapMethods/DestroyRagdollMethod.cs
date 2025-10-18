@@ -2,9 +2,9 @@
 using System.Linq;
 using LabApi.Features.Wrappers;
 using PlayerRoles;
+using SER.ArgumentSystem.Arguments;
+using SER.ArgumentSystem.BaseArguments;
 using SER.Helpers.Extensions;
-using SER.MethodSystem.ArgumentSystem.Arguments;
-using SER.MethodSystem.ArgumentSystem.BaseArguments;
 using SER.MethodSystem.BaseMethods;
 
 namespace SER.MethodSystem.Methods.MapMethods;
@@ -13,7 +13,7 @@ public class DestroyRagdollsMethod : SynchronousMethod
 {
     public override string Description => "Destroys ragdolls.";
 
-    public override GenericMethodArgument[] ExpectedArguments =>
+    public override Argument[] ExpectedArguments =>
     [
         new EnumArgument<RoleTypeId>("roleToRemove")
         {

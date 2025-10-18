@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using Random = UnityEngine.Random;
 
 namespace SER.Helpers.Extensions;
 
@@ -19,7 +20,7 @@ public static class CollectionExtensions
     public static T? GetRandomValue<T>(this IEnumerable<T> enumerable)
     {
         var array = enumerable.ToArray<T>();
-        return array.Length != 0 ? array[UnityEngine.Random.Range(0, array.Length)] : default (T);
+        return array.Length != 0 ? array[Random.Range(0, array.Length)] : default (T);
     }
 
     public static IEnumerable<T> RemoveNulls<T>(this IEnumerable<T?> enumerable)
@@ -38,13 +39,13 @@ public static class CollectionExtensions
         return string.Join(separator, source);
     }
 
-    public static int Len<T>(this List<T> list)
+    extension<T>(List<T> list)
     {
-        return list.Count;
+        public uint Len => (uint) list.Count;
     }
     
-    public static int Len<T>(this T[] array)
+    extension<T>(T[] array)
     {
-        return array.Length;
+        public uint Len => (uint) array.Length;
     }
 }

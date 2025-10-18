@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Diagnostics.Contracts;
+using SER.Helpers.ResultSystem;
 
 namespace SER.Helpers.Extensions;
 
@@ -21,5 +22,11 @@ public static class StringExtensions
     public static string Join(this string separator, IEnumerable<string> values)
     {
         return string.Join(separator, values);
+    }
+
+    [Pure]
+    public static Result AsError(this string error)
+    {
+        return new Result(false, error);
     }
 }
