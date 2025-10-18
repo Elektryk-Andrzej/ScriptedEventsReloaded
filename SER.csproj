@@ -16,8 +16,10 @@
         <EnablePreviewFeatures>true</EnablePreviewFeatures>
     </PropertyGroup>
     <Target Name="PostBuild" AfterTargets="PostBuildEvent">
-      <Copy SourceFiles="bin\Debug\SER.dll" 
-        DestinationFolder="C:\Users\Olgie\AppData\Roaming\SCP Secret Laboratory\LabAPI\plugins\global" />
+        <Copy
+                SourceFiles="$(TargetDir)SER.dll"
+                DestinationFolder="C:\Users\Olgie\AppData\Roaming\SCP Secret Laboratory\LabAPI\plugins\global"
+        />
     </Target>
     <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
         <LangVersion>preview</LangVersion>
@@ -41,10 +43,6 @@
         <WarningLevel>4</WarningLevel>
         <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     </PropertyGroup>
-    <Target Name="PostBuild" AfterTargets="PostBuildEvent">
-        <Copy SourceFiles="bin\Release\SER.dll"
-              DestinationFolder="C:\Users\Olgie\AppData\Roaming\SCP Secret Laboratory\LabAPI\plugins\global" />
-    </Target>
     <ItemGroup>
       <Reference Include="0Harmony">
         <HintPath>$(SL_DEV_REFERENCES)\0Harmony.dll</HintPath>

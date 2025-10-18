@@ -14,6 +14,11 @@ public static class Log
         #endif
     }
 
+    public static void Signal(object o)
+    {
+        Logger.Raw(o.ToString(), ConsoleColor.Magenta);
+    }
+
     public static void Warn(Script scr, object obj)
     {
         var ident = scr.CurrentLine == 0 ? "Compile warning" : $"Warning in line {scr.CurrentLine}";

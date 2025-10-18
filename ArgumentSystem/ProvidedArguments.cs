@@ -160,7 +160,7 @@ public class ProvidedArguments(Method method)
     /// <returns>The processed text value with variables replaced.</returns>
     public string GetText(string argName)
     {
-        return TextToken.ParseValue(GetValue<string, TextArgument>(argName), method.Script);
+        return GetValue<string, TextArgument>(argName);
     }
 
     /// <summary>

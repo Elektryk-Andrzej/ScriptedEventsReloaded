@@ -139,7 +139,8 @@ public class Script
     public List<Line> GetFlagLines()
     {
         DefineLines();
-
+        SliceLines();
+        TokenizeLines();
         return Lines.Where(l => l.Tokens.FirstOrDefault() is FlagToken or FlagArgumentToken).ToList();
     }
 

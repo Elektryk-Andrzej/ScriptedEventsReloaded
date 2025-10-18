@@ -14,7 +14,7 @@ public class KeywordToken : BaseToken, IContextableToken
 {
     private Type? _keywordType = null;
     
-    public static readonly Type[] PrototypeKeywords = Assembly.GetExecutingAssembly().GetTypes()
+    public static readonly Type[] KeywordTypes = Assembly.GetExecutingAssembly().GetTypes()
         .Where(t => 
             t.IsClass && 
             !t.IsAbstract && 
@@ -25,7 +25,7 @@ public class KeywordToken : BaseToken, IContextableToken
     
     protected override Result InternalParse(Script scr)
     {
-        _keywordType = PrototypeKeywords.FirstOrDefault(
+        _keywordType = KeywordTypes.FirstOrDefault(
             keyword => keyword.CreateInstance<IKeywordContext>().KeywordName == RawRepresentation);
 
         if (_keywordType is not null)

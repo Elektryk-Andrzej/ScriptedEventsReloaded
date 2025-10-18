@@ -31,29 +31,24 @@ public class LiteralVariableDefinitionContext(LiteralVariableToken varToken) : S
         }
 
         LiteralVariable newVar;
-        //Log.Debug($"the variable to copy is of type {variableToCopy.GetType().Name}");
         if (variableToCopy.GetType().BaseType!.GetGenericTypeDefinition() == typeof(TypeVariable<>))
         {
-            //Log.Debug($"Variable {variableToCopy.Name} is a TypeVariable, copying it.");
-            var newType = typeof(TypeVariable<>).MakeGenericType(variableToCopy.GetType().BaseType!.GenericTypeArguments.First());
-            
-            //Log.Debug($"Created new type for variable {variableToCopy.Name}: {newType.Name}<{newType.GenericTypeArguments.First().Name}>");
+            var newType = typeof(TypeVariable<>).MakeGenericType(
+                variableToCopy.GetType().BaseType!.GenericTypeArguments.First()
+            );
+
             var value = variableToCopy.GetType()
                 .GetProperty(nameof(TypeVariable<>.ExactValue))!
                 .GetValue(variableToCopy);
             
-            //Log.Debug($"Variables have value {value} of type {value.GetType().Name}");
             newVar = (LiteralVariable)Activator.CreateInstance(
                 newType, 
                 varToken.Name, 
                 value
             );
-            
-            //Log.Debug($"Created new variable {newVar.Name} of type {newVar.GetType().Name}");
         }
         else
         {
-            //Log.Debug($"Variable {variableToCopy.Name} is not a {nameof(TypeVariable<>)}, copying it as a {nameof(TextVariable)}.");
             newVar = LiteralVariable.CopyVariable(variableToCopy);
         }
 
@@ -94,7 +89,7 @@ public class LiteralVariableDefinitionContext(LiteralVariableToken varToken) : S
                 };
                 return TryAddTokenRes.End();
             }
-            case MethodToken and IContextableToken methodToken:
+            case MethodToken methodToken:
             {
                 if (methodToken.TryGetContext(Script).HasErrored(out var error, out var context))
                 {
@@ -161,7 +156,6 @@ public class LiteralVariableDefinitionContext(LiteralVariableToken varToken) : S
             {
                 throw new ScriptErrorException($"Method {_returningMethod.Name} hasn't returned a value, variable" +
                              $" {varToken.RawRepresentation} can't be created.");
-                return;
             }
 
             variable = LiteralVariable.CreateVariable(varToken.Name, _returningMethod.Value);
@@ -174,7 +168,6 @@ public class LiteralVariableDefinitionContext(LiteralVariableToken varToken) : S
             {
                 throw new ScriptErrorException($"Method {_referenceReturningMethod.Name} hasn't returned a value, variable " +
                              $"{varToken.RawRepresentation} can't be created.");
-                return;
             }
 
             variable = new ReferenceVariable(

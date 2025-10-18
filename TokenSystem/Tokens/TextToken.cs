@@ -43,7 +43,7 @@ public class TextToken : ValueToken<TextValue>, ILiteralValueToken
     {
         if (Slice is not CollectionSlice { SliceType: CollectionSliceType.Quotes })
         {
-            return $"Text must be in quotes.";
+            return "Text must be in quotes.";
         }
         
         Value = Slice.Value;

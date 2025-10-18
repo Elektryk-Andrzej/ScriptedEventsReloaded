@@ -27,7 +27,8 @@ public static class FileSystem
         if (!duplicates.Any()) return;
         Logger.Error(
             $"There are {string.Join(", ", duplicates.Select(d => $"{d.Item2} scripts named '{d.Key}'"))}\n" +
-            $"Please rename them to avoid conflicts.");
+            $"Please rename them to avoid conflicts."
+        );
         
         RegisteredScriptPaths = RegisteredScriptPaths
             .Where(path => !duplicates.Select(d => d.Key).Contains(Path.GetFileNameWithoutExtension(path)))

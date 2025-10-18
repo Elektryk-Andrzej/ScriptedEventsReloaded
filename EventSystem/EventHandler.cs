@@ -1,14 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Reflection;
 using LabApi.Events;
 using LabApi.Events.Arguments.Interfaces;
 using LabApi.Features.Wrappers;
 using LabApi.Loader;
 using SER.Helpers;
-using SER.Helpers.Exceptions;
 using SER.Helpers.Extensions;
 using SER.Helpers.ResultSystem;
 using SER.ScriptSystem;
@@ -23,8 +22,6 @@ public static class EventHandler
     private static readonly Dictionary<string, Action> UnsubscribeActions = [];
     private static readonly Dictionary<string, List<string>> ScriptsUsingEvent = [];
     private static readonly HashSet<string> DisabledEvents = [];
-    private static MethodInfo? _onNonArgumentedEvent;
-    private static MethodInfo? _onArgumentedEvent;
     public static List<EventInfo> AvailableEvents = [];
     
     internal static void Initialize()
@@ -34,16 +31,6 @@ public static class EventHandler
             .Select(t => t.GetEvents(BindingFlags.Instance | BindingFlags.Static | BindingFlags.Public 
                                      | BindingFlags.NonPublic | BindingFlags.DeclaredOnly).ToList())
             .Flatten().ToList();
-        
-        _onNonArgumentedEvent = typeof(EventHandler).GetMethod(
-                                    nameof(OnNonArgumentedEvent), 
-                                    BindingFlags.Static | BindingFlags.NonPublic) 
-                                ?? throw new AndrzejFuckedUpException("non arg error");
-        
-        _onArgumentedEvent = typeof(EventHandler).GetMethod(
-                                 nameof(OnArgumentedEvent), 
-                                 BindingFlags.Static | BindingFlags.NonPublic) 
-                             ?? throw new AndrzejFuckedUpException("arg error"); 
     }
     
     internal static void EventClear()
@@ -100,88 +87,100 @@ public static class EventHandler
         BindNonArgumented(matchingEventInfo);
         return true;
     }
-    
+
     private static void BindNonArgumented(EventInfo eventInfo)
     {
-        if (_onNonArgumentedEvent is null)
-        {
-            throw new AndrzejFuckedUpException();
-        }
-    
-        var handlerToUse = Delegate.CreateDelegate(
-            typeof(LabEventHandler),
-            null,
-            _onNonArgumentedEvent);
+        var evName = eventInfo.Name;
 
-        eventInfo.GetAddMethod(false).Invoke(null!, [handlerToUse]);
-        UnsubscribeActions.Add(eventInfo.Name, () => eventInfo.GetRemoveMethod(false).Invoke(null!, [handlerToUse]));
+        // Create delegate that captures evName
+        LabEventHandler handler = () => OnNonArgumentedEvent(evName);
+
+        // Subscribe
+        eventInfo.GetAddMethod(false).Invoke(null!, [handler]);
+
+        // Store unsubscribe action
+        UnsubscribeActions[evName] = () => eventInfo.GetRemoveMethod(false).Invoke(null!, [handler]);
     }
-    
+
     private static void BindArgumented(EventInfo eventInfo, Type generic)
     {
-        if (_onArgumentedEvent is null)
-        {
-            throw new AndrzejFuckedUpException();
-        }
+        var evName = eventInfo.Name;
 
-        var handlerToUse = Delegate.CreateDelegate(
-            typeof(LabEventHandler<>).MakeGenericType(generic),
-            null,
-            _onArgumentedEvent.MakeGenericMethod(generic));
+        // We'll build (T ev) => OnArgumentedEvent(evName, ev)
+        var evParam = Expression.Parameter(generic, "ev");
+        var nameConst = Expression.Constant(evName);
+        var call = Expression.Call(
+            typeof(EventHandler)
+                .GetMethod(nameof(OnArgumentedEvent), BindingFlags.Static | BindingFlags.NonPublic)!
+                .MakeGenericMethod(generic),
+            nameConst,
+            evParam
+        );
 
-        eventInfo.GetAddMethod(false).Invoke(null!, [handlerToUse]);
-        UnsubscribeActions.Add(eventInfo.Name, () => eventInfo.GetRemoveMethod(false).Invoke(null!, [handlerToUse]));
+        // Compile delegate of correct type: LabEventHandler<T>
+        var delegateType = typeof(LabEventHandler<>).MakeGenericType(generic);
+        var lambda = Expression.Lambda(delegateType, call, evParam);
+        var handler = lambda.Compile();
+
+        // Subscribe
+        eventInfo.GetAddMethod(false).Invoke(null!, [handler]);
+
+        // Store unsubscribe action
+        UnsubscribeActions[evName] = () => eventInfo.GetRemoveMethod(false).Invoke(null!, [handler]);
     }
 
-    private static void OnNonArgumentedEvent()
+    private static void OnNonArgumentedEvent(string evName)
     {
-        var evName = new StackFrame(2).GetMethod().Name.Substring("on".Length);
+        Log.Debug($"[NonArg] Event '{evName}' triggered.");
 
-        if (ScriptsUsingEvent.TryGetValue(evName, out var scriptsConnected))
+        if (!ScriptsUsingEvent.TryGetValue(evName, out var scriptsConnected))
+            return;
+
+        foreach (var scrName in scriptsConnected)
         {
-            foreach (var scrName in scriptsConnected)
+            Result rs = $"Failed to run script '{scrName}' connected to event '{evName}'";
+            if (Script.CreateByScriptName(scrName, ScriptExecutor.Get()).HasErrored(out var error, out var script))
             {
-                Result rs = $"Failed to run script '{scrName}' connected to event '{evName}'";
-                if (Script.CreateByScriptName(scrName, ScriptExecutor.Get()).HasErrored(out var error, out var script))
-                {
-                    Log.Error(scrName, rs + error);
-                    continue;
-                }
-                
-                script.Run();
+                Log.Error(scrName, rs + error);
+                continue;
             }
+
+            script.Run();
         }
     }
 
-    private static void OnArgumentedEvent<T>(T ev) where T : EventArgs
+    private static void OnArgumentedEvent<T>(string evName, T ev) where T : EventArgs
     {
-        var evName = new StackFrame(2).GetMethod().Name.Substring("on".Length);
-        
+        Log.Debug($"[Arg] Event '{evName}' triggered with {typeof(T).Name}.");
+
         if (ev is ICancellableEvent cancellable && DisabledEvents.Contains(evName))
         {
             cancellable.IsAllowed = false;
+            Log.Debug($"Event '{evName}' cancelled (disabled).");
             return;
         }
-        
-        var variables = GetVariablesFromEvent(ev);
-        if (ScriptsUsingEvent.TryGetValue(evName, out var scriptsConnected))
-        {
-            foreach (var scrName in scriptsConnected)
-            {
-                Result rs = $"Failed to run script '{scrName}' connected to event '{evName}'";
-                if (Script.CreateByScriptName(scrName, ScriptExecutor.Get()).HasErrored(out var error, out var script))
-                {
-                    Log.Error(scrName, rs + error);
-                    continue;
-                }
 
-                script.AddVariables(variables);
-                var isAllowed = script.RunForEvent();
-                if (isAllowed.HasValue && ev is ICancellableEvent cancellable1)
-                {
-                    cancellable1.IsAllowed = isAllowed.Value;
-                }
+        var variables = GetVariablesFromEvent(ev);
+        if (!ScriptsUsingEvent.TryGetValue(evName, out var scriptsConnected))
+        {
+            Log.Debug($"Event '{evName}' has no scripts connected.");
+            return;
+        }
+
+        foreach (var scrName in scriptsConnected)
+        {
+            Result rs = $"Failed to run script '{scrName}' connected to event '{evName}'";
+            Log.Debug($"Running script '{scrName}' for event '{evName}'");
+            if (Script.CreateByScriptName(scrName, ScriptExecutor.Get()).HasErrored(out var error, out var script))
+            {
+                Log.Error(scrName, rs + error);
+                continue;
             }
+
+            script.AddVariables(variables);
+            var isAllowed = script.RunForEvent();
+            if (isAllowed.HasValue && ev is ICancellableEvent cancellable1)
+                cancellable1.IsAllowed = isAllowed.Value;
         }
     }
     

@@ -36,7 +36,7 @@ public static class ScriptFlagHandler
                 Log.Warn(scriptName, "Name of flag is missing.");
                 continue;
             }
-
+            
             var args = tokens.Skip(2).Select(t => t.GetBestTextRepresentation(null)).ToArray();
             var prefix = tokens.FirstOrDefault();
             switch (prefix)
