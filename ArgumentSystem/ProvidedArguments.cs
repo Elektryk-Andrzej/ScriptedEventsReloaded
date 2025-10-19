@@ -11,6 +11,7 @@ using SER.Helpers.ResultSystem;
 using SER.MethodSystem.BaseMethods;
 using SER.ScriptSystem;
 using SER.TokenSystem.Tokens;
+using SER.ValueSystem;
 using SER.VariableSystem.Variables;
 using UnityEngine;
 
@@ -19,6 +20,11 @@ namespace SER.ArgumentSystem;
 public class ProvidedArguments(Method method)
 {
     private Dictionary<(string name, Type type), List<DynamicTryGet>> Arguments { get; } = [];
+
+    public CollectionValue GetCollection(string argName)
+    {
+        return GetValue<CollectionValue, CollectionArgument>(argName);
+    }
     
     public Room GetRoom(string argName)
     {

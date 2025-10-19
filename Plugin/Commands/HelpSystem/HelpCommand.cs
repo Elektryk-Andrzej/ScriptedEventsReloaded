@@ -485,12 +485,20 @@ public class HelpCommand : ICommand
         switch (method)
         {
             case ReturningMethod ret:
-                if (ret.ReturnTypes is not { } types)
+                string typeReturn;
+                if (ret.ReturnTypes is { } types)
                 {
-                    throw new AndrzejFuckedUpException();
+                    typeReturn = types
+                        .Select(LiteralValue.GetFriendlyName)
+                        .Select(name => $"a {name} value")
+                        .JoinStrings(" or ");
+                }
+                else
+                {
+                    typeReturn = "a value depending on your input";
                 }
                 
-                sb.AppendLine($"This method returns {types.Select(LiteralValue.GetFriendlyName).Select(name => $"a {name} value").JoinStrings(" or ")}, which can be saved or used directly.");
+                sb.AppendLine($"This method returns {typeReturn}, which can be saved or used directly.");
                 break;
             case PlayerReturningMethod:
                 sb.AppendLine("This method returns a player value, which can be saved or used directly.");

@@ -28,4 +28,6 @@ public class ReferenceValue(object obj) : LiteralValue(obj)
             ? storedObject.value
             : $"There is no object with reference '{key}'" ;
     }
+
+    protected override string StringRep => Reference;
 }

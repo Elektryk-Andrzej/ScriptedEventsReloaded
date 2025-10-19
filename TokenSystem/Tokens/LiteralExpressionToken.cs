@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using InventorySystem.Items;
 using LabApi.Features.Wrappers;
 using PlayerRoles;
 using SER.ContextSystem;
@@ -208,6 +209,7 @@ public class PlayerPropertyExpression : LiteralExpressionToken.IExpressionType
         Role,
         RoleReference,
         Team,
+        Inventory,
         IsAlive,
         UserId,
         PlayerId,
@@ -250,8 +252,9 @@ public class PlayerPropertyExpression : LiteralExpressionToken.IExpressionType
         [PlayerPropertyType.Nickname] = new Info<TextValue>(plr => plr.Nickname, null),
         [PlayerPropertyType.DisplayName] = new Info<TextValue>(plr => plr.DisplayName, null),
         [PlayerPropertyType.Role] = new Info<TextValue>(plr => plr.Role.ToString(), $"Player role type ({nameof(RoleTypeId)} enum value)"),
-        [PlayerPropertyType.RoleReference] = new Info<ReferenceValue>(plr => new ReferenceValue(plr.RoleBase), $"Reference to {nameof(PlayerRoleBase)}"),
+        [PlayerPropertyType.RoleReference] = new Info<ReferenceValue>(plr => new(plr.RoleBase), $"Reference to {nameof(PlayerRoleBase)}"),
         [PlayerPropertyType.Team] = new Info<TextValue>(plr => plr.Team.ToString(), $"Player team ({nameof(Team)} enum value)"),
+        [PlayerPropertyType.Inventory] = new Info<CollectionValue>(plr => new(plr.Inventory.UserInventory.Items.Values.ToArray()), $"A collection of references to {nameof(ItemBase)} objects"),
         [PlayerPropertyType.IsAlive] = new Info<BoolValue>(plr => plr.IsAlive, null),
         [PlayerPropertyType.UserId] = new Info<TextValue>(plr => plr.UserId, "The ID of the account (like SteamID64)"),
         [PlayerPropertyType.PlayerId] = new Info<NumberValue>(plr => plr.PlayerId, "The ID that the server assigned for this round"),

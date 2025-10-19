@@ -11,4 +11,6 @@ public class NumberValue(decimal value) : LiteralValue<decimal>(value)
     {
         return value.Value;
     }
+
+    protected override string StringRep => Value.ToString();
 }

@@ -85,7 +85,7 @@ public class BaseToken
                 return correctValue;
             }
 
-            var closestValue = LiteralValue.GetValueFromObject(result);
+            var closestValue = LiteralValue.ParseFromObject(result);
             if (closestValue is T correctValue2)
             {
                 return correctValue2;           

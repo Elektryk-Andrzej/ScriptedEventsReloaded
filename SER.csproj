@@ -82,6 +82,7 @@
     </ItemGroup>
     <ItemGroup>
         <Compile Include="ArgumentSystem\Arguments\BoolArgument.cs" />
+        <Compile Include="ArgumentSystem\Arguments\CollectionArgument.cs" />
         <Compile Include="ArgumentSystem\Arguments\ColorArgument.cs" />
         <Compile Include="ArgumentSystem\Arguments\DoorArgument.cs" />
         <Compile Include="ArgumentSystem\Arguments\DoorsArgument.cs" />
@@ -180,6 +181,7 @@
         <Compile Include="MethodSystem\Methods\EventMethods\IsAllowedMethod.cs" />
         <Compile Include="MethodSystem\Methods\HealthMethods\DamageInfoMethod.cs" />
         <Compile Include="MethodSystem\Methods\HealthMethods\HealMethod.cs" />
+        <Compile Include="MethodSystem\Methods\LiteralVariableMethods\CollectionFetchMethod.cs" />
         <Compile Include="MethodSystem\Methods\OutputMethods\ErrorMethod.cs" />
         <Compile Include="MethodSystem\Methods\OutputMethods\PrintMethod.cs" />
         <Compile Include="MethodSystem\Methods\OutputMethods\ReplyMethod.cs" />
@@ -308,6 +310,7 @@
         <Compile Include="TokenSystem\Tokens\TextToken.cs" />
         <Compile Include="TokenSystem\Tokens\ValueToken.cs" />
         <Compile Include="ValueSystem\BoolValue.cs" />
+        <Compile Include="ValueSystem\CollectionValue.cs" />
         <Compile Include="ValueSystem\DurationValue.cs" />
         <Compile Include="ValueSystem\LiteralValue.cs" />
         <Compile Include="ValueSystem\NumberValue.cs" />
@@ -315,6 +318,7 @@
         <Compile Include="ValueSystem\TextValue.cs" />
         <Compile Include="VariableSystem\LiteralVariableIndex.cs" />
         <Compile Include="VariableSystem\Variables\BoolVariable.cs" />
+        <Compile Include="VariableSystem\Variables\CollectionVariable.cs" />
         <Compile Include="VariableSystem\Variables\DurationVariable.cs" />
         <Compile Include="VariableSystem\Variables\LiteralVariable.cs" />
         <Compile Include="VariableSystem\Variables\IVariable.cs" />

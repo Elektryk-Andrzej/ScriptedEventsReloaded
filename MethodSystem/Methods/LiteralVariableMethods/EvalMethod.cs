@@ -27,6 +27,6 @@ public class EvalMethod : ReturningMethod
             throw new ScriptErrorException(error);
         }
         
-        Value = LiteralValue.GetValueFromObject(result);
+        Value = LiteralValue.ParseFromObject(result);
     }
 }

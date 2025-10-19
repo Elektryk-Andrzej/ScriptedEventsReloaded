@@ -1,9 +1,11 @@
-﻿namespace SER.ExampleScripts.Scripts;
+﻿using JetBrains.Annotations;
 
+namespace SER.ExampleScripts.Scripts;
+
+[UsedImplicitly]
 public class InviteInfoScript : ExampleScript
 {
     public override string Name => "InviteBroadcast";
-
     public override string Content =>
         """
         # this script is connected to the 'Joined' event, which means that this script will run when a player joins
