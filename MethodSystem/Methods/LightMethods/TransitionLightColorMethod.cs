@@ -46,7 +46,7 @@ public class TransitionLightColorMethod : SynchronousMethod
             }
             
             var roomLights = lightsController.Base.transform.parent.GetComponentsInChildren<RoomLight>(true);
-            var startColorForLight = ColorUtils.AverageColor(
+            var startColorForLight = AverageColor(
                 roomLights
                     .Select(l => l._overrideColorSet ? l._overrideColor : l._initialLightColor)
                     .Where(c => c != Color.clear)
@@ -71,5 +71,24 @@ public class TransitionLightColorMethod : SynchronousMethod
         }
         
         room.AllLightControllers.ForEachItem(ctrl => ctrl.OverrideLightsColor = targetColor);
+    }
+    
+    private static Color AverageColor(Color[] colors)
+    {
+        if (colors.Length == 0)
+            return Color.clear;
+
+        float r = 0f, g = 0f, b = 0f, a = 0f;
+
+        foreach (Color color in colors)
+        {
+            r += color.r;
+            g += color.g;
+            b += color.b;
+            a += color.a;
+        }
+
+        float count = colors.Length;
+        return new Color(r / count, g / count, b / count, a / count);
     }
 }

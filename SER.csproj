@@ -138,12 +138,13 @@
         <Compile Include="ContextSystem\Structures\TryAddContextRes.cs" />
         <Compile Include="ContextSystem\Structures\TryAddTokenRes.cs" />
         <Compile Include="EventSystem\EventHandler.cs" />
+        <Compile Include="ExampleScripts\ExampleScript.cs" />
+        <Compile Include="ExampleScripts\Scripts\InviteInfoScript.cs" />
         <Compile Include="FlagSystem\Flags\CustomCommandFlag.cs" />
         <Compile Include="FlagSystem\Flags\OnEventFlag.cs" />
         <Compile Include="FlagSystem\ScriptFlagHandler.cs" />
         <Compile Include="FlagSystem\Structures\ConsoleType.cs" />
         <Compile Include="FlagSystem\Structures\Flag.cs" />
-        <Compile Include="Helpers\ColorUtils.cs" />
         <Compile Include="Helpers\Compiler\CompilerRequiredAttributes.cs" />
         <Compile Include="Helpers\Compiler\IsExternalInit.cs.cs" />
         <Compile Include="Helpers\Exceptions\AndrzejFuckedUpException.cs" />
@@ -159,7 +160,6 @@
         <Compile Include="Helpers\ResultSystem\DynamicTryGet.cs" />
         <Compile Include="Helpers\ResultSystem\ITryGet.cs" />
         <Compile Include="Helpers\ResultSystem\TryGet.cs" />
-        <Compile Include="Helpers\Union.cs" />
         <Compile Include="MethodSystem\BaseMethods\Method.cs" />
         <Compile Include="MethodSystem\BaseMethods\PlayerReturningMethod.cs" />
         <Compile Include="MethodSystem\BaseMethods\SynchronousMethod.cs" />
