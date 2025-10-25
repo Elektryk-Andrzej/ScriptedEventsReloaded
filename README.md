@@ -2,37 +2,30 @@
 **Scripted Events Reloaded (SER)** is an SCP:SL plugin for LabAPI that adds a complete custom programming language for server owners to use.
 
 # Why use SER?
+## ✅ Designed with SCP:SL in mind
+Every aspect of SER is designed around simplifying the most widely used features of SCP:SL plugins.
 
-## 🎮 Customization and Control
-Have a unique idea, but can't find the right plugin? Build it yourself!
+## 🧠 Easy to learn
+SER cuts down on the unnecessary complexity to remain simple and intuitive, while still providing all the features you need.
 
-- A lucky coin with custom effects? Got it!
-- A heavy containment decontamination system? Easy peasy!
-- A party in the intercom? Heck yeah!
-- A 10% chance for someone to become an ant? Of course!
-- And much more...
+## 📰 Extensive documentation and examples
+A core part of SER is its devotion to easy access to required documentation and examples. Check out the Wiki!
 
-## 🧠 Learning Potential
-SER is a simple entry point into programming languages and SCP:SL plugin development.  
-You'll learn key concepts like methods, variables, conditions, events, and more in a straightforward way.
+## 💰 Money saving
+SER is completely free to use, why pay someone to make a simple plugin for you?
 
-Once you understand the basics and feel limited by SER's features, it's a great time to move on to full plugin development in C#.
+## 🗂️ All on the server
+You don't need any external programs to write scripts with SER, just text files and access to your server.
 
-## 🗂️ All on the Server
-You don't need any external programs to write scripts with SER — just text files and access to your server!
+## ⚡ Speed of development
+As soon as you save your script, the changes are applied immediately, no server restart is required.
 
-## ⚡ Speed of Development
-No need to compile anything! As soon as you save your script, the changes are applied immediately — no server restart required.
+## 🔌 Plugin extensions
+SER allows you to control other plugins (like custom roles) directly from your scripts! 
 
-## 🛠️ Expanding Command Functionality
-Every method in SER is available through the Remote Admin console and the server console, giving you many more options for instant server management.
-
-## 🔌 Plugin Interoperability
-SER can interact with other plugins you have installed — as long as they support SER or are built with SER integration in mind.
-
-# Just Another Way to Make Plugins?
+### Just Another Way to Make Plugins?
 Nope. SER is not here to compete with traditional plugins.
 
-To stay simple and approachable, SER supports only a few of the more advanced features that standard plugin frameworks do.  
-**Do not treat this as an all-in-one replacement** for C# plugin development.
+To stay simple and approachable, SER doesn't support the more advanced features that standard plugin frameworks do.  
+**Do not treat SER as an all-in-one replacement** for C# plugin development.
 
