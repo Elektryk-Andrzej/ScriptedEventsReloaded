@@ -6,15 +6,17 @@ using SER.ArgumentSystem.BaseArguments;
 using SER.ArgumentSystem.Structures;
 using SER.Helpers.Exceptions;
 using SER.MethodSystem.BaseMethods;
+using SER.MethodSystem.MethodDescriptors;
 using SER.ValueSystem;
 
 namespace SER.MethodSystem.Methods.RoomMethods;
 
-public class RoomInfoMethod : ReferenceResolvingMethod
+public class RoomInfoMethod : LiteralValueReturningMethod, IReferenceResolvingMethod
 {
-    public override Type ReferenceType => typeof(Room);
-    
+    public Type ReferenceType => typeof(Room);
     public override Type[] ReturnTypes => [typeof(TextValue), typeof(NumberValue)];
+
+    public override string Description => null!;
 
     public override Argument[] ExpectedArguments { get; } =
     [
@@ -31,7 +33,7 @@ public class RoomInfoMethod : ReferenceResolvingMethod
     public override void Execute()
     {
         var room = Args.GetReference<Room>("room");
-        Value = Args.GetOption("property") switch
+        ReturnValue = Args.GetOption("property") switch
         {
             "roomshape" => new TextValue(room.Shape.ToString()),
             "roomname" => new TextValue(room.Name.ToString()),

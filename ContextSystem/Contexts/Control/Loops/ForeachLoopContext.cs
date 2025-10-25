@@ -2,13 +2,16 @@
 using System.Collections.Generic;
 using System.Linq;
 using JetBrains.Annotations;
-using LabApi.Features.Wrappers;
 using SER.ContextSystem.BaseContexts;
 using SER.ContextSystem.Extensions;
 using SER.ContextSystem.Structures;
 using SER.Helpers.Exceptions;
 using SER.Helpers.ResultSystem;
 using SER.TokenSystem.Tokens;
+using SER.TokenSystem.Tokens.Interfaces;
+using SER.TokenSystem.Tokens.Variables;
+using SER.ValueSystem;
+using SER.VariableSystem.Bases;
 
 namespace SER.ContextSystem.Contexts.Control.Loops;
 
@@ -17,75 +20,103 @@ public class ForeachLoopContext : LoopContext
 {
     private readonly Result _mainErr = "Cannot create 'foreach' loop.";
     
-    private PlayerVariableToken? _iterationVariableToken;
+    private VariableToken? _itemVariableToken;
     private bool _usedInKeyword = false;
-    private PlayerVariableToken? _iterableToken;
+    private Func<Value[]>? _values = null;
 
     public override string KeywordName => "foreach";
     public override string Description =>
         "Repeats its body for each player in the player variable, assigning it its own custom variable.";
-    public override string[] Arguments => ["[player variable]", "in", "[player variable]"];
+    public override string[] Arguments => ["[variable to assign the item]", "in", "[player/collection variable]"];
 
-    public override Dictionary<IExtendableStatement.Signal, Func<IEnumerator<float>>> RegisteredSignals { get; } =
-        new();
+    public override Dictionary<IExtendableStatement.Signal, Func<IEnumerator<float>>> RegisteredSignals { get; } = new();
 
     public override TryAddTokenRes TryAddToken(BaseToken token)
     {
-        if (_iterationVariableToken is null)
+        if (_itemVariableToken is null)
         {
-            if (token is not PlayerVariableToken varToken)
+            if (token is VariableToken varToken)
             {
-                return TryAddTokenRes.Error("Foreach loop expects to have a player variable as its first argument.");
+                _itemVariableToken = varToken;
+                return TryAddTokenRes.Continue();
             }
             
-            _iterationVariableToken = varToken;
-            return TryAddTokenRes.Continue();
+            return TryAddTokenRes.Error(
+                $"'foreach' loop expects to have a variable as its first argument, " +
+                $"but received '{token.RawRep}'."
+            );
         }
 
         if (!_usedInKeyword)
         {
-            if (token.RawRepresentation != "in")
+            if (token.RawRep != "in")
             {
-                return TryAddTokenRes.Error("Foreach loop expects to have 'in' keyword as its second argument.");
+                return TryAddTokenRes.Error(
+                    $"Foreach loop expects to have 'in' keyword as its second argument, " +
+                    $"but received '{token.RawRep}'."
+                );
             }
             
             _usedInKeyword = true;
             return TryAddTokenRes.Continue();
         }
 
-        if (token is not PlayerVariableToken iterable)
+        switch (token)
         {
-            return TryAddTokenRes.Error("Foreach loop expects to have a player variable as its third argument.");
+            case IValueCapableToken<PlayerValue> playerToken:
+            {
+                _values = () =>
+                {
+                    if (playerToken.ExactValue.HasErrored(out var error, out var value))
+                    {
+                        throw new ScriptRuntimeError(error);
+                    }
+
+                    return value.Players.Select(p => new PlayerValue(p)).ToArray();
+                };
+            
+                return TryAddTokenRes.End();
+            }
+
+            case IValueCapableToken<CollectionValue> collectionToken:
+            {
+                _values = () =>
+                {
+                    if (collectionToken.ExactValue.HasErrored(out var error, out var value))
+                    {
+                        throw new ScriptRuntimeError(error);
+                    }
+
+                    return value.CastedValues;
+                };
+                
+                return TryAddTokenRes.End();
+            }
         }
-        
-        _iterableToken = iterable;
-        return TryAddTokenRes.End();
+
+        return TryAddTokenRes.Error(
+            "'foreach' loop expected to have either a player value or collection value as its third argument, " +
+            $"but received '{token.RawRep}'."
+        );
     }
 
     public override Result VerifyCurrentState()
     {
         return Result.Assert(
-            _iterationVariableToken is not null && _iterableToken is not null && _usedInKeyword,
+            _itemVariableToken is not null && 
+            _values is not null && 
+            _usedInKeyword,
             _mainErr + "Missing required arguments.");
     }
 
     protected override IEnumerator<float> Execute()
     {
-        Result rs = "foreach loop cannot execute";
-        
-        if (Script.TryGetPlayerVariable(_iterationVariableToken!).WasSuccessful())
-        {
-            throw new ScriptErrorException(rs + $"Variable {_iterationVariableToken!.Name} already exists.");
-        }
-        
-        if (Script.TryGetPlayerVariable(_iterableToken!).HasErrored(out var error, out var iterable))
-        {
-            throw new ScriptErrorException(error);
-        }
+        if (_values is null || _itemVariableToken is null) throw new AndrzejFuckedUpException();
 
-        foreach (var plr in new List<Player>(iterable.Players))
+        foreach (var value in _values())
         {
-            Script.AddLocalPlayerVariable(new(_iterationVariableToken!.Name, [plr]));
+            var itemVar = Variable.CreateVariable(_itemVariableToken.Name, value);
+            Script.AddVariable(itemVar);
             
             foreach (var coro in Children.Select(child => child.ExecuteBaseContext()))
             {
@@ -106,7 +137,7 @@ public class ForeachLoopContext : LoopContext
                 }
             }
             
-            Script.RemoveLocalPlayerVariable(_iterationVariableToken!.Name);
+            Script.RemoveVariable(itemVar);
             
             if (ExitLoop)
             {

@@ -4,6 +4,8 @@ using LabApi.Features.Wrappers;
 using SER.ArgumentSystem.BaseArguments;
 using SER.Helpers.ResultSystem;
 using SER.TokenSystem.Tokens;
+using SER.TokenSystem.Tokens.Interfaces;
+using SER.ValueSystem;
 
 namespace SER.ArgumentSystem.Arguments;
 
@@ -22,17 +24,27 @@ public class ItemsArgument(string name) : EnumHandlingArgument(name)
             },
             () =>
             {
+                Result rs = $"Value '{token.RawRep}' cannot be interpreted as {InputDescription}.";
+                
                 if (token is SymbolToken { IsJoker: true })
                 {
                     return Item.List.ToArray();
                 }
-                
-                if (ReferenceArgument<Item>.TryParse(token, Script).WasSuccessful(out var item))
+
+                if (token is not IValueCapableToken<ReferenceValue> refToken)
                 {
-                    return new[] { item };
+                    return rs;
                 }
-                
-                return $"Value '{token.RawRepresentation}' cannot be interpreted as an item or collection of items.";
+
+                return new(() =>
+                {
+                    if (ReferenceArgument<Item>.TryParse(refToken).WasSuccessful(out var item))
+                    {
+                        return new[] { item };
+                    }
+
+                    return rs;
+                });
             }
         );
     }

@@ -44,7 +44,7 @@ public class WhileLoopContext : StatementContext, IKeywordContext, IExtendableSt
     {
         if (NumericExpressionReslover.EvalCondition(_condition.ToArray(), Script).HasErrored(out var error, out var condition))
         {
-            throw new ScriptErrorException(error);
+            throw new ScriptRuntimeError(error);
         }
         
         while (condition)
@@ -66,7 +66,7 @@ public class WhileLoopContext : StatementContext, IKeywordContext, IExtendableSt
             
             if (NumericExpressionReslover.EvalCondition(_condition.ToArray(), Script).HasErrored(out var error2, out condition))
             {
-                throw new ScriptErrorException(error2);
+                throw new ScriptRuntimeError(error2);
             }
         }
 

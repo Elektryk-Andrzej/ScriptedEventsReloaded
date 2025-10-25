@@ -16,7 +16,7 @@ public class MethodToken : BaseToken, IContextableToken
     
     protected override Result InternalParse(Script scr)
     {
-        Result error = $"Method failed while parsing from '{RawRepresentation}'";
+        Result error = $"Method failed while parsing from '{RawRep}'";
 
         if (!char.IsUpper(Slice.RawRepresentation.First()))
         {

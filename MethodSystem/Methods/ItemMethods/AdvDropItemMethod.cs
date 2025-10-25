@@ -3,6 +3,7 @@ using LabApi.Features.Wrappers;
 using SER.ArgumentSystem.Arguments;
 using SER.ArgumentSystem.BaseArguments;
 using SER.MethodSystem.BaseMethods;
+using SER.ValueSystem;
 
 namespace SER.MethodSystem.Methods.ItemMethods;
 
@@ -20,6 +21,6 @@ public class AdvDropItemMethod : ReferenceReturningMethod
 
     public override void Execute()
     {
-        Reference = new(Args.GetReference<Item>("item").DropItem());
+        ReturnValue = new ReferenceValue(Args.GetReference<Item>("item").DropItem());
     }
 }

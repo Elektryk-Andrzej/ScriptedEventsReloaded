@@ -2,21 +2,23 @@
 using SER.Helpers.ResultSystem;
 using SER.ScriptSystem;
 using SER.TokenSystem.Slices;
-using SER.TokenSystem.Structures;
+using SER.TokenSystem.Tokens.Interfaces;
+using SER.TokenSystem.Tokens.Variables;
 using SER.ValueSystem;
+using SER.VariableSystem.Variables;
 
 namespace SER.TokenSystem.Tokens;
 
 public class BaseToken
 {
-    public string RawRepresentation { get; private set; } = null!;
+    public string RawRep { get; private set; } = null!;
     protected Slice Slice { get; private set; } = null!;
     protected Script Script { get; private set; } = null!;
     protected uint? LineNum { get; private set; } = null;
-
+    
     public Result TryInit(Slice slice, Script script, uint? lineNum)
     {
-        RawRepresentation = slice.RawRepresentation;
+        RawRep = slice.RawRepresentation;
         Slice = slice;
         Script = script;
         LineNum = lineNum;
@@ -30,9 +32,9 @@ public class BaseToken
     
     public string GetBestTextRepresentation(Script? script)
     {
-        if (this is ILiteralValueToken literalValueToken && script is not null)
+        if (this is IValueCapableToken<LiteralValue> literalValueToken && script is not null)
         {
-            if (!literalValueToken.GetLiteralValue(script).HasErrored(out _, out var result))
+            if (!literalValueToken.ExactValue.HasErrored(out _, out var result))
             {
                 return result.ToString();
             }
@@ -50,27 +52,29 @@ public class BaseToken
         return GetType().Name;
     }
 
-    public TryGet<T> TryGetValue<T>() where T : LiteralValue
+    public TryGet<T> TryGetLiteralValue<T>() where T : LiteralValue
     {
-        Result mainErr = $"Value '{RawRepresentation}' cannot be intrepreted as a '{typeof(T).Name}' value.";
+        Result mainErr = $"Value '{RawRep}' ({GetType().Name}) cannot be intrepreted as a '{typeof(T).Name}' value.";
         // ReSharper disable once ConvertIfStatementToSwitchStatement
-        if (this is ValueToken<T> valueToken)
+        if (this is LiteralValueToken<T> valueToken)
         {
             return valueToken.Value;
         }
 
-        if (this is ILiteralValueToken literalValueToken)
+        if (this is IValueCapableToken<LiteralValue> literalValueToken)
         {
-            if (literalValueToken.GetLiteralValue(Script)
-                .HasErrored(out var err, out var resolved))
+            if (literalValueToken.ExactValue.HasErrored(out var err, out var value))
             {
                 return mainErr + err;
             }
-            
-            if (typeof(T) == typeof(string))
+
+            if (value is T tValue)
             {
-                return TryGet<T>.Success((T)resolved);
+                return tValue;
             }
+
+            return $"The value returned by '{RawRep}' was of type '{value.GetType().Name}', " +
+                   $"but a '{typeof(T).Name}' value was expected.";
         }
         
         if (this is ParenthesesToken parenthesesToken)
@@ -79,21 +83,35 @@ public class BaseToken
             {
                 return mainErr + err;
             }
-
-            if (result is T correctValue)
+            
+            if (Value.Parse(result) is T correctValue)
             {
-                return correctValue;
+                return correctValue;           
             }
 
-            var closestValue = LiteralValue.ParseFromObject(result);
-            if (closestValue is T correctValue2)
+            return $"Expression '{parenthesesToken.RawRep}' parsed to a {result.GetType().GetAccurateName()} " +
+                   $"'{result}', which is not a '{typeof(T).Name}' value.";
+        }
+
+        if (this is VariableToken varToken)
+        {
+            if (varToken.TryGetVariable().HasErrored(out var error, out var variable))
             {
-                return correctValue2;           
+                return mainErr + error;
             }
 
-            return
-                $"Expression '{parenthesesToken.RawRepresentation}' parsed to a {result.GetType().GetAccurateName()} '{result}', " +
-                $"which is not a '{typeof(T).Name}' value.";
+            if (variable is not LiteralVariable litVariable)
+            {
+                return $"Variable '{varToken.RawRep}' is not a literal variable, but a {variable.GetType().Name}"; 
+            }
+
+            if (litVariable.Value is not T tValue)
+            {
+                return $"Value of variable '{varToken.RawRep}' is not a '{typeof(T).Name}' value, " +
+                       $"but a {litVariable.Value.GetType().Name}.";
+            }
+
+            return tValue;
         }
         
         return mainErr;

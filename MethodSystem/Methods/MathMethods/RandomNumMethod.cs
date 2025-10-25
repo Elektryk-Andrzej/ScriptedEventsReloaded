@@ -1,6 +1,6 @@
-﻿using System;
-using SER.ArgumentSystem.Arguments;
+﻿using SER.ArgumentSystem.Arguments;
 using SER.ArgumentSystem.BaseArguments;
+using SER.Helpers;
 using SER.MethodSystem.BaseMethods;
 using SER.MethodSystem.MethodDescriptors;
 using SER.ValueSystem;
@@ -9,15 +9,13 @@ using Random = UnityEngine.Random;
 
 namespace SER.MethodSystem.Methods.MathMethods;
 
-public class RandomNumMethod : ReturningMethod, IAdditionalDescription
+public class RandomNumMethod : ReturningMethod<NumberValue>, IAdditionalDescription
 {
     public override string Description =>
         "Returns a randomly generated number.";
 
     public string AdditionalDescription =>
         "'startingNum' argument MUST be smaller than 'endingNum' argument.";
-    
-    public override Type[] ReturnTypes => [typeof(NumberValue)];
 
     public override Argument[] ExpectedArguments { get; } =
     [
@@ -35,6 +33,7 @@ public class RandomNumMethod : ReturningMethod, IAdditionalDescription
 
     public override void Execute()
     {
+        Log.D("starting random num is running");
         var startingNum = Args.GetFloat("startingNum");
         var endingNum = Args.GetFloat("endingNum");
         var type = Args.GetOption("numberType");
@@ -45,6 +44,7 @@ public class RandomNumMethod : ReturningMethod, IAdditionalDescription
             val = Mathf.RoundToInt(val);
         }
         
-        Value = new NumberValue((decimal)val);
+        Log.D("random number returns " + val);
+        ReturnValue = new NumberValue((decimal)val);
     }
 }

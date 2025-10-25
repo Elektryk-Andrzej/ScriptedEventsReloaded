@@ -1,12 +1,11 @@
 ﻿using SER.Helpers;
 using SER.Helpers.ResultSystem;
 using SER.ScriptSystem;
-using SER.TokenSystem.Structures;
 using SER.ValueSystem;
 
 namespace SER.TokenSystem.Tokens;
 
-public class NumberToken : ValueToken<NumberValue>, ILiteralValueToken
+public class NumberToken : LiteralValueToken<NumberValue>
 {
     protected override Result InternalParse(Script scr)
     {
@@ -16,8 +15,8 @@ public class NumberToken : ValueToken<NumberValue>, ILiteralValueToken
             return true;
         }
 
-        if (RawRepresentation.EndsWith("%") &&
-            decimal.TryParse(RawRepresentation.Substring(0, RawRepresentation.Length - 1), out var value2))
+        if (RawRep.EndsWith("%") &&
+            decimal.TryParse(RawRep.Substring(0, RawRep.Length - 1), out var value2))
         {
             Value = value2 / 100;
             return true;

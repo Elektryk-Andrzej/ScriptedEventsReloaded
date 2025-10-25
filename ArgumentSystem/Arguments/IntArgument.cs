@@ -3,6 +3,7 @@ using SER.ArgumentSystem.BaseArguments;
 using SER.Helpers.Exceptions;
 using SER.Helpers.ResultSystem;
 using SER.TokenSystem.Tokens;
+using SER.TokenSystem.Tokens.Interfaces;
 using SER.ValueSystem;
 using UnityEngine;
 
@@ -53,6 +54,16 @@ public class IntArgument : Argument
     [UsedImplicitly]
     public DynamicTryGet<int> GetConvertSolution(BaseToken token)
     {
+        if (token is NumberToken numberToken)
+        {
+            return VerifyRange(numberToken.Value);
+        }
+        
+        if (token is not IValueCapableToken<LiteralValue>)
+        {
+            return $"Value '{token.RawRep}' cannot represent a number.";
+        }
+        
         if (TryParse(token).WasSuccessful(out var finalValue))
         {
             return finalValue;
@@ -63,15 +74,15 @@ public class IntArgument : Argument
 
     private TryGet<int> TryParse(BaseToken token)
     {
-        if (token.TryGetValue<NumberValue>().WasSuccessful(out var value))
+        if (token.TryGetLiteralValue<NumberValue>().HasErrored(out var error, out var value))
         {
-            return VerifyValue(value);
+            return new Result(false, error) + $"Value '{token.RawRep}' does not represent a valid number.";
         }
-
-        return $"Value '{token.RawRepresentation}' does not represent a valid number.";
+        
+        return VerifyRange(value);
     }
     
-    private TryGet<int> VerifyValue(NumberValue input)
+    private TryGet<int> VerifyRange(NumberValue input)
     {
         var result = (int)input.Value;
                 

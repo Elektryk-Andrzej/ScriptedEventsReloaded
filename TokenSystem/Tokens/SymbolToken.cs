@@ -1,21 +1,20 @@
 ﻿using System.Linq;
 using SER.Helpers.ResultSystem;
 using SER.ScriptSystem;
-using SER.ValueSystem;
 
 namespace SER.TokenSystem.Tokens;
 
-public class SymbolToken : ValueToken<TextValue>
+public class SymbolToken : BaseToken
 {
-    public bool IsJoker => RawRepresentation == "*";
+    public bool IsJoker => RawRep == "*";
     
     protected override Result InternalParse(Script scr)
     {
-        if (RawRepresentation.All(c => char.IsSymbol(c) || char.IsPunctuation(c)))
+        if (RawRep.All(c => char.IsSymbol(c) || char.IsPunctuation(c)))
         {
             return true;
         }
         
-        return $"Value '{RawRepresentation}' is not a symbol.";
+        return $"Value '{RawRep}' is not a symbol.";
     }
 }

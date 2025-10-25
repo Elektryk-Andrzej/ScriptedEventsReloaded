@@ -28,7 +28,7 @@ public class CommandMethod : SynchronousMethod, IAdditionalDescription
     public override void Execute()
     {
         var sender = Args.GetPlayer("sender").MaybeNull();
-        Console.singleton.TypeCommand(
+        Console.Singleton.TypeCommand(
             Args.GetText("command"), 
             sender is not null 
                 ? new PlayerCommandSender(sender.ReferenceHub) 

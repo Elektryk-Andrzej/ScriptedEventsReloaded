@@ -300,9 +300,9 @@ public class HelpCommand : ICommand
                         msg += $"> @{variable.Name} (player variable)\n";
                         continue;
                     case ReferenceVariable refVar:
-                        msg += $"> {{{refVar.Name}}} (reference variable to {refVar.ExactValue.GetType().GetAccurateName()})\n";
+                        msg += $"> {{{refVar.Name}}} (reference variable to {refVar.Value.Value}\n";
                         continue;
-                    case TextVariable:
+                    case LiteralVariable<TextValue>:
                         msg += $"> {{{variable.Name}}} (literal variable)\n";
                         continue;
                     default:
@@ -427,14 +427,16 @@ public class HelpCommand : ICommand
             foreach (var method in kvp.Value)
             {
                 var name = method.Name;
-                if (method is ReturningMethod or ReferenceReturningMethod or PlayerReturningMethod)
+                if (method is ReturningMethod)
                 {
                     name += " [rets]";
                 }
 
                 if (maxMethodLen - name.Length > 0)
                 {
-                    var descFormatted = method.Description
+                    var desc = method.Description ?? $"Extracts information from {((IReferenceResolvingMethod)method).ReferenceType.Name} objects.";
+                    
+                    var descFormatted = desc
                         .Insert(0, new string(' ', maxMethodLen - name.Length));
                     sb.AppendLine($"> {name} {descFormatted}");
                 }
@@ -474,7 +476,15 @@ public class HelpCommand : ICommand
     private static string GetMethodHelp(Method method)
     {
         var sb = new StringBuilder($"=== {method.Name} ===\n");
-        sb.AppendLine($"> {method.Description}");
+        if (method is IReferenceResolvingMethod refRes && method.Description is null)
+        {
+            sb.AppendLine($"> Extracts information from {refRes.ReferenceType.Name} objects.");
+        }
+        else
+        {
+            sb.AppendLine($"> {method.Description}");
+        }
+        
         if (method is IAdditionalDescription addDesc)
         {
             sb.AppendLine($"> {addDesc.AdditionalDescription}");
@@ -484,7 +494,37 @@ public class HelpCommand : ICommand
         
         switch (method)
         {
+            case LiteralValueReturningMethod ret:
+            {
+                string typeReturn;
+                if (ret.ReturnTypes is { } types)
+                {
+                    typeReturn = types
+                        .Select(LiteralValue.GetFriendlyName)
+                        .Select(name => $"a {name} value")
+                        .JoinStrings(" or ");
+                }
+                else
+                {
+                    typeReturn = "a literal value depending on your input";
+                }
+                
+                sb.AppendLine($"This method returns {typeReturn}, which can be saved or used directly. ");
+                break;
+            }
+            case ReturningMethod<CollectionValue>:
+                sb.AppendLine("This method returns a collection of values, which can be saved or used directly.");
+                break;
+            case ReturningMethod<PlayerValue>:
+                sb.AppendLine("This method returns players, which can be saved or used directly.");
+                break;
+            case ReferenceReturningMethod refMethod:
+                sb.AppendLine($"This method returns a reference to {refMethod.ReturnType.Name} object, which can be saved or used directly.\n" +
+                              $"References represent an object which cannot be fully represented in text.\n" +
+                              $"If you wish to use that reference further, find methods supporting references of this type.");
+                break;
             case ReturningMethod ret:
+            {
                 string typeReturn;
                 if (ret.ReturnTypes is { } types)
                 {
@@ -498,16 +538,9 @@ public class HelpCommand : ICommand
                     typeReturn = "a value depending on your input";
                 }
                 
-                sb.AppendLine($"This method returns {typeReturn}, which can be saved or used directly.");
+                sb.AppendLine($"This method returns {typeReturn}, which can be saved or used directly. ");
                 break;
-            case PlayerReturningMethod:
-                sb.AppendLine("This method returns a player value, which can be saved or used directly.");
-                break;
-            case ReferenceReturningMethod refMethod:
-                sb.AppendLine($"This method returns a reference to {refMethod.ReturnType.Name} object, which can be saved or used directly.\n" +
-                              $"References represent an object which cannot be fully represented in text.\n" +
-                              $"If you wish to use that reference further, find methods supporting references of this type.");
-                break;
+            }
         } 
         
         sb.AppendLine();

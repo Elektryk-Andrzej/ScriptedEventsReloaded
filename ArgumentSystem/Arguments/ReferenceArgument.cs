@@ -2,9 +2,9 @@
 using SER.ArgumentSystem.BaseArguments;
 using SER.Helpers.Extensions;
 using SER.Helpers.ResultSystem;
-using SER.ScriptSystem;
 using SER.TokenSystem.Tokens;
-using SER.VariableSystem.Variables;
+using SER.TokenSystem.Tokens.Interfaces;
+using SER.ValueSystem;
 
 namespace SER.ArgumentSystem.Arguments;
 
@@ -15,71 +15,26 @@ public class ReferenceArgument<TValue>(string name) : Argument(name)
     [UsedImplicitly]
     public DynamicTryGet<TValue> GetConvertSolution(BaseToken token)
     {
-        // ReSharper disable once ConvertIfStatementToSwitchStatement
-        if (token is LiteralVariableToken varToken)
+        if (token is not IValueCapableToken<ReferenceValue> refToken)
         {
-            return new(() => LiteralVariableHandler(varToken));
+            return $"Value '{token.RawRep}' does not represent a valid reference.";
         }
 
-        if (token is LiteralExpressionToken exprToken)
-        {
-            return new(() => LiteralExpressionHandler(exprToken, Script));
-        }
-        
-        return $"Value '{token.RawRepresentation}' does not represent a valid reference.";
+        return new(() => TryParse(refToken));
     }
 
-    public static TryGet<TValue> TryParse(BaseToken token, Script script)
+    public static TryGet<TValue> TryParse(IValueCapableToken<ReferenceValue> token)
     {
-        // ReSharper disable once ConvertIfStatementToSwitchStatement
-        if (token is LiteralVariableToken varToken)
-        {
-            return LiteralVariableHandler(varToken);
-        }
-
-        if (token is LiteralExpressionToken exprToken)
-        {
-            return LiteralExpressionHandler(exprToken, script);
-        }
-        
-        return $"Value '{token.RawRepresentation}' does not represent a valid reference.";
-    }
-
-    private static TryGet<TValue> LiteralExpressionHandler(LiteralExpressionToken token, Script script)
-    {
-        if (token.GetLiteralValue(script).HasErrored(out var error, out var value))
+        if (token.ExactValue.HasErrored(out var error, out var value))
         {
             return error;
         }
 
-        if (value is not TValue correctValue)
+        if (value.Value is not TValue correctValue)
         {
-            return $"Expression resulted in a value of type {value.GetType().GetAccurateName()} " +
-                   $"which is not compatible with expected reference to {typeof(TValue).GetAccurateName()}.";
-        }
-        
-        return correctValue;
-    }
-
-    private static TryGet<TValue> LiteralVariableHandler(LiteralVariableToken token)
-    {
-        if (token.Variable is null)
-        {
-            return $"There is no {token.RawRepresentation} variable defined";
-        }
-        
-        if (token.Variable is not ReferenceVariable refVar)
-        {
-            return $"Variable {token.RawRepresentation} does not hold a reference.";
+            return $"The {value} reference is not compatible with {typeof(TValue).GetAccurateName()}.";
         }
 
-        if (refVar.ExactValue.Value is not TValue correctValue)
-        {
-            return $"The reference held by variable {token.RawRepresentation} " +
-                   $"({refVar.ExactValue.Value.GetType().GetAccurateName()}) is not compatible with expected reference " +
-                   $"to {typeof(TValue).GetAccurateName()}.";
-        }
-        
         return correctValue;
     }
 }

@@ -5,10 +5,11 @@ using SER.ArgumentSystem.Arguments;
 using SER.ArgumentSystem.BaseArguments;
 using SER.Helpers.Extensions;
 using SER.MethodSystem.BaseMethods;
+using SER.ValueSystem;
 
 namespace SER.MethodSystem.Methods.PlayerVariableMethods;
 
-public class JoinPlayersMethod : PlayerReturningMethod
+public class JoinPlayersMethod : ReturningMethod<PlayerValue>
 {
     public override string Description =>
         "Returns all players that were provided from multiple player variables.";
@@ -23,10 +24,11 @@ public class JoinPlayersMethod : PlayerReturningMethod
     
     public override void Execute()
     {
-        PlayerReturn = Args
+        ReturnValue = new PlayerValue(Args
             .GetRemainingArguments<List<Player>, PlayersArgument>("players")
             .Flatten()
             .Distinct()
-            .ToArray();
+            .ToArray()
+        );
     }
 }

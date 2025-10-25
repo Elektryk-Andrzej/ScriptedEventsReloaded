@@ -1,39 +1,28 @@
-﻿using SER.Helpers.Exceptions;
+﻿using SER.Helpers.ResultSystem;
 using SER.ValueSystem;
+using SER.VariableSystem.Bases;
 
 namespace SER.VariableSystem.Variables;
 
-public abstract class LiteralVariable : IVariable
+public class LiteralVariable(string name, LiteralValue value) : Variable<LiteralValue>
 {
-    public abstract string Name { get; }
-    public abstract LiteralValue BaseValue { get; }
-    
-    public static LiteralVariable CopyVariable(LiteralVariable variable)
-    {
-        var name = variable.Name;
-        return variable switch
-        {
-            TextVariable text => new TextVariable(name, new(text.ExactValue)),
-            NumberVariable number => new NumberVariable(name, new(number.ExactValue)),
-            BoolVariable @bool => new BoolVariable(name, new(@bool.ExactValue)),
-            ReferenceVariable @ref => new ReferenceVariable(name, @ref.ExactValue),
-            DurationVariable dur => new DurationVariable(name, dur.ExactValue),
-            _ => throw new AndrzejFuckedUpException(
-                $"CopyVariable called on variable of type {variable.GetType().Name}")
-        };
-    }
+    public override string Name => name;
+    public override LiteralValue Value => value;
 
-    public static LiteralVariable CreateVariable(string name, LiteralValue value)
+    public TryGet<T> TryGetValue<T>()
     {
-        return value switch
+        if (Value is T tValue)
         {
-            BoolValue @bool => new BoolVariable(name, @bool),
-            DurationValue dur => new DurationVariable(name, dur),
-            NumberValue num => new NumberVariable(name, num),
-            ReferenceValue @ref => new ReferenceVariable(name, @ref),
-            TextValue text => new TextVariable(name, text),
-            _ => throw new AndrzejFuckedUpException(
-                $"CreateVariable called on invalid value type {value.GetType().Name}")
-        };
+            return tValue;
+        }
+
+        return
+            $"Variable '{Name}' is not a '{typeof(T).Name}' value variable, but a '{value.GetType().Name}' variable.";
     }
+}
+
+public class LiteralVariable<T>(string name, T value) : LiteralVariable(name, value)
+    where T : LiteralValue
+{
+    public new T Value => (T)base.Value;
 }

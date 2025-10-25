@@ -10,9 +10,9 @@ public abstract class Context
 {
     public string Name => GetType().Name;
     
-    public Script Script { get; set; } = null!;
+    public required Script Script { get; set; } = null!;
     
-    public uint? LineNum { get; set; }
+    public required uint? LineNum { get; set; }
 
     public StatementContext? ParentContext { get; set; } = null;
 

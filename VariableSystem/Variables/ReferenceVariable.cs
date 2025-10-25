@@ -1,7 +1,10 @@
 ﻿using SER.ValueSystem;
+using SER.VariableSystem.Bases;
 
 namespace SER.VariableSystem.Variables;
 
-// todo: reference variables should have their own syntax
-public sealed class ReferenceVariable(string name, ReferenceValue value) 
-    : TypeVariable<ReferenceValue>(name, value);
+public class ReferenceVariable(string name, ReferenceValue value) : Variable<ReferenceValue>
+{
+    public override string Name => name;
+    public override ReferenceValue Value => value;
+}

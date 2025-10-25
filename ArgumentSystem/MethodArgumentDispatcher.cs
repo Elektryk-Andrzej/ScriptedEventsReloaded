@@ -55,7 +55,7 @@ public class MethodArgumentDispatcher(Method method)
 
     public TryGet<ArgumentValueInfo> TryGetValueInfo(BaseToken token, int index)
     {
-        Result rs = $"Argument {index + 1} '{token.RawRepresentation}' for method {method.Name} is invalid.";
+        Result rs = $"Argument {index + 1} '{token.RawRep}' for method {method.Name} is invalid.";
 
         Argument arg;
         if (index >= method.ExpectedArguments.Length)

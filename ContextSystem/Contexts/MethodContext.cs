@@ -20,11 +20,11 @@ public class MethodContext(MethodToken methodToken) : YieldingContext
     
     public override TryAddTokenRes TryAddToken(BaseToken token)
     {
-        Log.Debug($"'{Method.Name}' method is now receiving token '{token.RawRepresentation}' ({token.GetType().Name})");
+        Log.Debug($"'{Method.Name}' method is now receiving token '{token.RawRep}' ({token.GetType().Name})");
         
         if (Dispatcher.TryGetValueInfo(token, _providedArguments).HasErrored(out var error, out var skeleton))
             return TryAddTokenRes.Error(
-                $"Value '{token.RawRepresentation}' is not a valid argument: " +
+                $"Value '{token.RawRep}' is not a valid argument: " +
                 $"{error}");
         
         Log.Debug($"skeleton {skeleton.Name} {skeleton.ArgumentType} registered");

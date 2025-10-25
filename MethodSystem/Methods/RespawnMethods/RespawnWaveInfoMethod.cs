@@ -6,16 +6,19 @@ using SER.ArgumentSystem.BaseArguments;
 using SER.ArgumentSystem.Structures;
 using SER.Helpers.Exceptions;
 using SER.MethodSystem.BaseMethods;
+using SER.MethodSystem.MethodDescriptors;
 using SER.ValueSystem;
 
 namespace SER.MethodSystem.Methods.RespawnMethods;
 
-public class RespawnWaveInfoMethod : ReferenceResolvingMethod
+public class RespawnWaveInfoMethod : LiteralValueReturningMethod, IReferenceResolvingMethod
 {
-    public override Type ReferenceType => typeof(RespawnWave);
+    public Type ReferenceType => typeof(RespawnWave);
 
     public override Type[] ReturnTypes => [typeof(NumberValue), typeof(TextValue)];
-    
+
+    public override string Description => null!;
+
     public override Argument[] ExpectedArguments { get; } =
     [
         new ReferenceArgument<RespawnWave>("respawnWave"),
@@ -30,7 +33,7 @@ public class RespawnWaveInfoMethod : ReferenceResolvingMethod
     public override void Execute()
     {
         var wave = Args.GetReference<RespawnWave>("respawnWave");
-        Value = Args.GetOption("property") switch
+        ReturnValue = Args.GetOption("property") switch
         {
             "faction" => new TextValue(wave.Faction.ToString()),
             "maxwavesize" => new NumberValue(wave.MaxWaveSize),

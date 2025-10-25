@@ -21,7 +21,7 @@ public static class PlayerVariableIndex
         [
             new("all", Player.ReadyList.ToList, "Other"),
             new("alivePlayers", () => Player.ReadyList.Where(plr => plr.IsAlive).ToList(), "Other"),
-            new("npcs", () => Player.ReadyList.Where(plr => plr.IsNpc).ToList(), "Other"),
+            new("npcPlayers", () => Player.ReadyList.Where(plr => plr.IsNpc).ToList(), "Other"),
             new("empty", () => [], "Other")
         ];
 

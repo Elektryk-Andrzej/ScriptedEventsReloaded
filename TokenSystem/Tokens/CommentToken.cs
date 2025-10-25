@@ -11,13 +11,17 @@ public class CommentToken : BaseToken, IContextableToken
 {
     protected override Result InternalParse(Script scr)
     {
-        if (RawRepresentation.FirstOrDefault() == '#') return true;
+        if (RawRep.FirstOrDefault() == '#') return true;
         
         return "Value is not a comment.";
     }
 
     public TryGet<Context> TryGetContext(Script scr)
     {
-        return new NoOperationContext();
+        return new NoOperationContext
+        {
+            Script = Script,
+            LineNum = LineNum,
+        };
     }
 }

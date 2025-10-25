@@ -12,5 +12,5 @@ public class BoolValue(bool value) : LiteralValue<bool>(value)
         return value.Value;
     }
 
-    protected override string StringRep => Value.ToString();
+    protected override string StringRep => Value.ToString().ToLower();
 }

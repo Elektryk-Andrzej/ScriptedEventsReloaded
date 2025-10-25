@@ -1,4 +1,4 @@
-﻿namespace SER.ScriptSystem.Structures;
+﻿namespace SER.TokenSystem.Structures;
 
 public enum CollectionSliceType
 {

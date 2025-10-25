@@ -1,10 +1,12 @@
-﻿using System.Collections.Generic;
-using LabApi.Features.Wrappers;
+﻿using LabApi.Features.Wrappers;
+using SER.ValueSystem;
+using SER.VariableSystem.Bases;
 
 namespace SER.VariableSystem.Variables;
 
-public class PlayerVariable(string name, List<Player> players) : IVariable
+public class PlayerVariable(string name, PlayerValue value) : Variable<PlayerValue>
 {
-    public virtual string Name => name;
-    public virtual List<Player> Players => players;
+    public override string Name => name;
+    public override PlayerValue Value => value;
+    public Player[] Players => Value.Players;
 }

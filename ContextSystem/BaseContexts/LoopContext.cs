@@ -13,8 +13,8 @@ public abstract class LoopContext : StatementContext, IExtendableStatement, IKey
     public abstract string Description { get; }
     public abstract string[] Arguments { get; }
     
-    protected bool SkipThisIteration { get; set; }
-    protected bool ExitLoop { get; set; }
+    public bool SkipThisIteration { get; protected set; }
+    public bool ExitLoop { get; protected set; }
 
     protected override void OnReceivedControlMessageFromChild(ParentContextControlMessage msg)
     {

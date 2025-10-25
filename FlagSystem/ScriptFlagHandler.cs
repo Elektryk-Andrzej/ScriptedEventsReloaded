@@ -30,7 +30,7 @@ public static class ScriptFlagHandler
         //Logger.Info($"handling flag lines in script {scriptName}");
         foreach (var tokens in scriptLinesWithFlags.Select(scrLine => scrLine.Tokens))
         {
-            var name = tokens.Skip(1).FirstOrDefault()?.RawRepresentation;
+            var name = tokens.Skip(1).FirstOrDefault()?.RawRep;
             if (name is null)
             {
                 Log.Warn(scriptName, "Name of flag is missing.");

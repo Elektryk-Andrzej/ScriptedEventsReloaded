@@ -8,6 +8,7 @@ using SER.ScriptSystem;
 using SER.TokenSystem.Slices;
 using SER.TokenSystem.Structures;
 using SER.TokenSystem.Tokens;
+using SER.TokenSystem.Tokens.Variables;
 
 namespace SER.TokenSystem;
 
@@ -25,12 +26,14 @@ public static class Tokenizer
         typeof(NumberToken),
         typeof(PlayerVariableToken),
         typeof(LiteralVariableToken),
+        typeof(CollectionVariableToken),
+        typeof(ReferenceVariableToken),
         typeof(DurationToken)
     ];
     
     public static readonly Type[] OrderedImportanceTokensFromCollectionSlices =
     [
-        typeof(LiteralExpressionToken),
+        typeof(ExpressionToken),
         typeof(ParenthesesToken),
         typeof(TextToken),
     ];
@@ -141,7 +144,7 @@ public static class Tokenizer
         Log.Debug(
             $"Slices [{sliceArray.Select(s => $"'{s.RawRepresentation}'").JoinStrings(" ")}] " +
             $"-> " +
-            $"Tokens [{tokens.Select(t => $"<'{t.RawRepresentation}' as {t.GetType().Name}>").JoinStrings(" ")}]");
+            $"Tokens [{tokens.Select(t => $"<'{t.RawRep}' as {t.GetType().Name}>").JoinStrings(" ")}]");
         return tokens;
     }
 

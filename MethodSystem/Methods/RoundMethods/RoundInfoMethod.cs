@@ -8,7 +8,7 @@ using SER.ValueSystem;
 
 namespace SER.MethodSystem.Methods.RoundMethods;
 
-public class RoundInfoMethod : ReturningMethod
+public class RoundInfoMethod : LiteralValueReturningMethod
 {
     public override string Description => "Returns information about the current round.";
     
@@ -24,7 +24,7 @@ public class RoundInfoMethod : ReturningMethod
 
     public override void Execute()
     {
-        Value = Args.GetOption("mode") switch
+        ReturnValue = Args.GetOption("mode") switch
         {
             "hasstarted" => new BoolValue(Round.IsRoundStarted),
             "isinprogress" => new BoolValue(Round.IsRoundInProgress),

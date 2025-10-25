@@ -29,16 +29,6 @@ public class MethodCommand : ICommand, IUsePermissions
             Executor = ScriptExecutor.Get(sender, arguments)
         };
         
-        switch (ScriptExecutor.Get(sender, arguments))
-        {
-            case PlayerConsoleExecutor playerConsole:
-                script.AddLocalPlayerVariable(new("sender", [Player.Get(playerConsole.Sender)]));
-                break;
-            case RemoteAdminExecutor remoteAdminExecutor:
-                script.AddLocalPlayerVariable(new("sender", [Player.Get(remoteAdminExecutor.Sender)!]));
-                break;
-        }
-        
         script.Run();
         response = "Method executed.";
         return true;

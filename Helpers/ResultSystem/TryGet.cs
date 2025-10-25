@@ -1,4 +1,5 @@
-﻿using System.Diagnostics.Contracts;
+﻿using System;
+using System.Diagnostics.Contracts;
 using SER.Helpers.Exceptions;
 
 namespace SER.Helpers.ResultSystem;
@@ -73,5 +74,16 @@ public class TryGet<TValue>(TValue? value, string? errorMsg)
     public static TryGet<TValue> Success(TValue value)
     {
         return new TryGet<TValue>(value, null);
+    }
+    
+    [Pure]
+    public TryGet<TTarget> OnSuccess<TTarget>(Func<TValue, TTarget> transform)
+    {
+        if (HasErrored(out var error, out TValue val))
+        {
+            return error;
+        }
+
+        return transform(val);
     }
 }

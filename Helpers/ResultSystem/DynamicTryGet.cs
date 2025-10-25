@@ -76,8 +76,7 @@ public class DynamicTryGet<T> : DynamicTryGet
     }
 
     public static implicit operator DynamicTryGet<T>(T value) => new(value);
-
-
+    
     public DynamicTryGet(Result result)
     {
         IsStatic = true;

@@ -5,6 +5,8 @@ using MapGeneration;
 using SER.ArgumentSystem.BaseArguments;
 using SER.Helpers.ResultSystem;
 using SER.TokenSystem.Tokens;
+using SER.TokenSystem.Tokens.Interfaces;
+using SER.ValueSystem;
 
 namespace SER.ArgumentSystem.Arguments;
 
@@ -25,17 +27,26 @@ public class RoomsArgument(string name) : EnumHandlingArgument(name)
             },
             () =>
             {
+                Result rs = $"Value '{token.RawRep}' cannot be interpreted as {InputDescription}.";
                 if (token is SymbolToken { IsJoker: true })
                 {
                     return Room.List.ToArray();
                 }
 
-                if (ReferenceArgument<Room>.TryParse(token, Script).WasSuccessful(out var room))
+                if (token is not IValueCapableToken<ReferenceValue> refToken)
                 {
-                    return new[] { room };
+                    return rs;
                 }
-                
-                return $"Value '{token.RawRepresentation}' cannot be interpreted as a room or collection of rooms.";
+
+                return new(() =>
+                {
+                    if (ReferenceArgument<Room>.TryParse(refToken).WasSuccessful(out var room))
+                    {
+                        return new[] { room };
+                    }
+
+                    return rs;
+                });
             }
         );
     }

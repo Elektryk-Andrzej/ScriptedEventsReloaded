@@ -7,7 +7,7 @@ using SER.ValueSystem;
 
 namespace SER.MethodSystem.Methods.TimeMethods;
 
-public class TimeInfoMethod : ReturningMethod
+public class TimeInfoMethod : LiteralValueReturningMethod
 {
     public override string Description => "Returns information about current time.";
 
@@ -28,7 +28,7 @@ public class TimeInfoMethod : ReturningMethod
     
     public override void Execute()
     {
-        Value = Args.GetOption("options").ToLower() switch
+        ReturnValue = Args.GetOption("options").ToLower() switch
         {
             "second" => new NumberValue(DateTime.Now.Second),
             "minute" => new NumberValue(DateTime.Now.Minute),

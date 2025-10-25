@@ -10,28 +10,32 @@ using SER.Helpers.Extensions;
 using SER.Helpers.ResultSystem;
 using SER.MethodSystem.BaseMethods;
 using SER.ScriptSystem;
-using SER.ScriptSystem.Structures;
 using SER.TokenSystem.Slices;
 using SER.TokenSystem.Structures;
+using SER.TokenSystem.Tokens.Interfaces;
+using SER.TokenSystem.Tokens.Variables;
 using SER.ValueSystem;
 
 namespace SER.TokenSystem.Tokens;
 
-public class LiteralExpressionToken : BaseToken, ILiteralValueToken
+// todo: split this into multiple expression tokens
+// todo: have the tokenizer return an error if a method so desires, `Result` for the parse method is not used anyway
+public class ExpressionToken : BaseToken, 
+    IValueCapableToken<LiteralValue>, 
+    IValueCapableToken<CollectionValue>, 
+    IValueCapableToken<ReferenceValue>,
+    IValueCapableToken<PlayerValue>
 {
     public interface IExpressionType
     {
-        public TryGet<LiteralValue> Handler();
+        public TryGet<Value> Handler();
     }
-
+    
     public IExpressionType Type { get; private set; } = null!;
 
-    public TryGet<LiteralValue> GetLiteralValue(Script scr)
-    {
-        return Type.Handler();
-    }
+    public TryGet<Value> BaseValue => Type.Handler();
 
-    public static TryGet<LiteralExpressionToken> TryGet(string entireExpression, Script script)
+    public static TryGet<ExpressionToken> TryGet(string entireExpression, Script script)
     {
         Result mainError = $"Value '{entireExpression}' is not a valid literal expression.";
         if (entireExpression.Length <= 1)
@@ -40,7 +44,7 @@ public class LiteralExpressionToken : BaseToken, ILiteralValueToken
         }
         
         var firstChar = entireExpression.First();
-        if (!CollectionSlice.CollectionSliceInfo.ContainsKey(firstChar))
+        if (CollectionSlice.CollectionSliceInfos.First(i => i.Type == CollectionSliceType.Curly).Start != firstChar)
         {
             return mainError + $"Expression cannot start with '{firstChar}'.";
         }
@@ -68,9 +72,9 @@ public class LiteralExpressionToken : BaseToken, ILiteralValueToken
         return TryGet(slice, script);
     }
 
-    public static TryGet<LiteralExpressionToken> TryGet(CollectionSlice slice, Script script)
+    public static TryGet<ExpressionToken> TryGet(CollectionSlice slice, Script script)
     {
-        var token = new LiteralExpressionToken();
+        var token = new ExpressionToken();
         if (token.TryInit(slice, script, null).HasErrored(out var error))
         {
             return error;
@@ -82,7 +86,7 @@ public class LiteralExpressionToken : BaseToken, ILiteralValueToken
     protected override Result InternalParse(Script scr)
     {
         Result error = $"Expression failed while parsing from '{Slice.RawRepresentation}'";
-        if (Slice is not CollectionSlice { SliceType: CollectionSliceType.Curly })
+        if (Slice is not CollectionSlice { Type: CollectionSliceType.Curly })
         {
             return error + "Slice is not in curly braces.";
         }
@@ -112,7 +116,6 @@ public class LiteralExpressionToken : BaseToken, ILiteralValueToken
 
             Type = new MethodExpression
             {
-                Token = methodToken,
                 Method = method
             };
             
@@ -123,7 +126,7 @@ public class LiteralExpressionToken : BaseToken, ILiteralValueToken
         {
             Result pvarError = $"(Expression is assumed to be a player property access expression judging by the '{pvarToken.Name}' player variable)";
             
-            var propName = tokens.Last().RawRepresentation;
+            var propName = tokens.Last().RawRep;
             if (!Enum.TryParse(propName, true, out PlayerPropertyExpression.PlayerPropertyType property))
             {
                 return error
@@ -142,7 +145,7 @@ public class LiteralExpressionToken : BaseToken, ILiteralValueToken
         
         return "Expression is not a valid literal variable, method or player property access.";
     }
-    
+
     private static TryGet<ReturningMethod> TryAttachMethod(BaseToken[] tokens, Script scr)
     {
         if (Contexter.ContextLine(tokens, null, scr)
@@ -163,41 +166,113 @@ public class LiteralExpressionToken : BaseToken, ILiteralValueToken
         
         return method;
     }
+
+    TryGet<LiteralValue> IValueCapableToken<LiteralValue>.ExactValue
+    {
+        get
+        {
+            if (Type.Handler().HasErrored(out var error, out var value))
+            {
+                return error;
+            }
+
+            if (value is not LiteralValue literalValue)
+            {
+                return
+                    $"Expression returned a {value.GetType().GetAccurateName()} value, not a literal value.";
+            }
+
+            return literalValue;
+        }
+    }
+
+    TryGet<CollectionValue> IValueCapableToken<CollectionValue>.ExactValue
+    {
+        get
+        {
+            if (Type.Handler().HasErrored(out var error, out var value))
+            {
+                return error;
+            }
+
+            if (value is not CollectionValue collection)
+            {
+                return $"Expression returned a {value.GetType().GetAccurateName()} value, not a collection value.";
+            }
+
+            return collection;
+        }
+    }
+
+    TryGet<PlayerValue> IValueCapableToken<PlayerValue>.ExactValue
+    {
+        get
+        {
+            if (Type.Handler().HasErrored(out var error, out var value))
+            {
+                return error;
+            }
+
+            if (value is not PlayerValue plrValue)
+            {
+                return $"Expression returned a {value.GetType().GetAccurateName()} value, not a player value.";
+            }
+
+            return plrValue;
+        }
+    }
+
+    TryGet<ReferenceValue> IValueCapableToken<ReferenceValue>.ExactValue
+    {
+        get
+        {
+            if (Type.Handler().HasErrored(out var error, out var value))
+            {
+                return error;
+            }
+
+            if (value is not ReferenceValue reference)
+            {
+                return $"Expression returned a {value.GetType().GetAccurateName()} value, not a reference value.";
+            }
+
+            return reference;
+        }
+    }
 }
 
-public class VariableExpression : LiteralExpressionToken.IExpressionType
+public class VariableExpression : ExpressionToken.IExpressionType
 {
     public required LiteralVariableToken Token { get; init; }
     
-    public TryGet<LiteralValue> Handler()
+    public TryGet<Value> Handler()
     {
         if (Token.TryGetVariable().HasErrored(out var err, out var variable))
         {
             return err;
         }
         
-        return variable.BaseValue;
+        return variable.Value;
     }
 }
     
-public class MethodExpression : LiteralExpressionToken.IExpressionType
+public class MethodExpression : ExpressionToken.IExpressionType
 {
-    public required MethodToken Token { get; init; }
     public required ReturningMethod Method { get; init; }
     
-    public TryGet<LiteralValue> Handler()
+    public TryGet<Value> Handler()
     {
         Method.Execute();
-        if (Method.Value is null)
+        if (Method.ReturnValue is null)
         {
             return "Method did not return any value.";
         }
         
-        return Method.Value;
+        return Method.ReturnValue;
     }
 }
 
-public class PlayerPropertyExpression : LiteralExpressionToken.IExpressionType
+public class PlayerPropertyExpression : ExpressionToken.IExpressionType
 {
     public required PlayerVariableToken Token { get; init; }
     public required PlayerPropertyType Property { get; init; }
@@ -210,10 +285,12 @@ public class PlayerPropertyExpression : LiteralExpressionToken.IExpressionType
         RoleReference,
         Team,
         Inventory,
+        HeldItemReference,
         IsAlive,
         UserId,
         PlayerId,
         CustomInfo,
+        RoomReference,
         Health,
         MaxHealth,
         ArtificialHealth,
@@ -222,6 +299,9 @@ public class PlayerPropertyExpression : LiteralExpressionToken.IExpressionType
         MaxHumeShield,
         HumeShieldRegenRate,
         GroupName,
+        PositionX,
+        PositionY,
+        PositionZ,
         IsDisarmed,
         IsMuted,
         IsIntercomMuted,
@@ -234,15 +314,15 @@ public class PlayerPropertyExpression : LiteralExpressionToken.IExpressionType
 
     public abstract class Info
     {
-        public abstract Func<Player, LiteralValue> Handler { get; }
+        public abstract Func<Player, Value> Handler { get; }
         public abstract Type ReturnType { get; }
         public abstract string? Description { get; }
     }
 
     public class Info<T>(Func<Player, T> handler, string? description) : Info 
-        where T : LiteralValue
+        where T : Value
     {
-        public override Func<Player, LiteralValue> Handler => handler;
+        public override Func<Player, Value> Handler => handler;
         public override Type ReturnType => typeof(T);
         public override string? Description => description;
     }
@@ -255,10 +335,12 @@ public class PlayerPropertyExpression : LiteralExpressionToken.IExpressionType
         [PlayerPropertyType.RoleReference] = new Info<ReferenceValue>(plr => new(plr.RoleBase), $"Reference to {nameof(PlayerRoleBase)}"),
         [PlayerPropertyType.Team] = new Info<TextValue>(plr => plr.Team.ToString(), $"Player team ({nameof(Team)} enum value)"),
         [PlayerPropertyType.Inventory] = new Info<CollectionValue>(plr => new(plr.Inventory.UserInventory.Items.Values.ToArray()), $"A collection of references to {nameof(ItemBase)} objects"),
+        [PlayerPropertyType.HeldItemReference] = new Info<ReferenceValue>(plr => new(plr.CurrentItem), "A reference to the item the player is holding"),
         [PlayerPropertyType.IsAlive] = new Info<BoolValue>(plr => plr.IsAlive, null),
         [PlayerPropertyType.UserId] = new Info<TextValue>(plr => plr.UserId, "The ID of the account (like SteamID64)"),
         [PlayerPropertyType.PlayerId] = new Info<NumberValue>(plr => plr.PlayerId, "The ID that the server assigned for this round"),
         [PlayerPropertyType.CustomInfo] = new Info<TextValue>(plr => plr.CustomInfo, "Custom info set by the server"),
+        [PlayerPropertyType.RoomReference] = new Info<ReferenceValue>(plr => new(plr.Room), "A reference to the room the player is in"),
         [PlayerPropertyType.Health] = new Info<NumberValue>(plr => (decimal)plr.Health, null),
         [PlayerPropertyType.MaxHealth] = new Info<NumberValue>(plr => (decimal)plr.MaxHealth, null),
         [PlayerPropertyType.ArtificialHealth] = new Info<NumberValue>(plr => (decimal)plr.ArtificialHealth, null),
@@ -267,6 +349,9 @@ public class PlayerPropertyExpression : LiteralExpressionToken.IExpressionType
         [PlayerPropertyType.MaxHumeShield] = new Info<NumberValue>(plr => (decimal)plr.MaxHumeShield, null),
         [PlayerPropertyType.HumeShieldRegenRate] = new Info<NumberValue>(plr => (decimal)plr.HumeShieldRegenRate, null),
         [PlayerPropertyType.GroupName] = new Info<TextValue>(plr => plr.GroupName, "The name of the group (like admin or vip)"),
+        [PlayerPropertyType.PositionX] = new Info<NumberValue>(plr => (decimal)plr.Position.x, null),
+        [PlayerPropertyType.PositionY] = new Info<NumberValue>(plr => (decimal)plr.Position.y, null),
+        [PlayerPropertyType.PositionZ] = new Info<NumberValue>(plr => (decimal)plr.Position.z, null),
         [PlayerPropertyType.IsDisarmed] = new Info<BoolValue>(plr => plr.IsDisarmed, null),
         [PlayerPropertyType.IsMuted] = new Info<BoolValue>(plr => plr.IsMuted, null),
         [PlayerPropertyType.IsIntercomMuted] = new Info<BoolValue>(plr => plr.IsIntercomMuted, null),
@@ -277,13 +362,14 @@ public class PlayerPropertyExpression : LiteralExpressionToken.IExpressionType
         [PlayerPropertyType.IsNoclipEnabled] = new Info<BoolValue>(plr => plr.IsNoclipEnabled, null),
     };
 
-    public TryGet<LiteralValue> Handler()
+    public TryGet<Value> Handler()
     {
         if (Token.TryGetVariable().HasErrored(out var err, out var variable))
         {
             return err;
         }
 
+        // todo: figure out this predicament
         return variable.Players.Len switch
         {
             < 1 => $"Player variable '{variable.Name}' has no players.",

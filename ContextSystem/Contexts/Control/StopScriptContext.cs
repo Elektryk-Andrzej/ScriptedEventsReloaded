@@ -27,6 +27,6 @@ public class StopScriptContext: StandardContext, IKeywordContext
 
     protected override void Execute()
     {
-        Script.Stop();
+        Script.Stop(true);
     }
 }

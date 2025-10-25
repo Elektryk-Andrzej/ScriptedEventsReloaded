@@ -11,10 +11,12 @@ using SER.ValueSystem;
 
 namespace SER.MethodSystem.Methods.HealthMethods;
 
-public class DamageInfoMethod : ReferenceResolvingMethod, IAdditionalDescription
+public class DamageInfoMethod : ReturningMethod, IReferenceResolvingMethod, IAdditionalDescription
 {
-    public override Type ReferenceType => typeof(DamageHandlerBase);
-    public override Type[]? ReturnTypes => [typeof(TextValue), typeof(ReferenceValue)];
+    public Type ReferenceType => typeof(DamageHandlerBase);
+    public override Type[] ReturnTypes => [typeof(TextValue), typeof(ReferenceValue)];
+
+    public override string Description => null!;
 
     public override Argument[] ExpectedArguments { get; } =
     [
@@ -33,16 +35,12 @@ public class DamageInfoMethod : ReferenceResolvingMethod, IAdditionalDescription
         var firearm = handler as FirearmDamageHandler;
         var attacker = handler as AttackerDamageHandler;
         
-        Value = Args.GetOption("property") switch
+        ReturnValue = Args.GetOption("property") switch
         {
             "damage" => new TextValue(standard?.Damage.ToString() ?? "none"),
             "hitbox" => new TextValue(standard?.Hitbox.ToString() ?? "none"),
-            "firearmused" => firearm?.Firearm is not null
-                ? new ReferenceValue(firearm.Firearm)
-                : new TextValue("none"),
-            "attacker" => attacker?.Attacker is not null
-                ? new ReferenceValue(attacker.Attacker)
-                : new TextValue("none"),
+            "firearmused" => new ReferenceValue(firearm?.Firearm),
+            "attacker" => new ReferenceValue(attacker?.Attacker),
             _ => throw new AndrzejFuckedUpException("out of range")
         };
     }

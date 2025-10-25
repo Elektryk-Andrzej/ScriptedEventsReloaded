@@ -1,5 +1,4 @@
 ﻿using System;
-using Utf8Json.Internal.DoubleConversion;
 using StringBuilder = System.Text.StringBuilder;
 
 namespace SER.ValueSystem;

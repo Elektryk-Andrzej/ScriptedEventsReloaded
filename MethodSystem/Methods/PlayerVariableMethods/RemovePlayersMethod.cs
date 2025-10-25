@@ -5,10 +5,11 @@ using SER.ArgumentSystem.Arguments;
 using SER.ArgumentSystem.BaseArguments;
 using SER.Helpers.Extensions;
 using SER.MethodSystem.BaseMethods;
+using SER.ValueSystem;
 
 namespace SER.MethodSystem.Methods.PlayerVariableMethods;
 
-public class RemovePlayersMethod : PlayerReturningMethod
+public class RemovePlayersMethod : ReturningMethod<PlayerValue>
 {
     public override string Description => 
         "Returns players from the original variable that were not present in other variables.";
@@ -29,6 +30,6 @@ public class RemovePlayersMethod : PlayerReturningMethod
             .GetRemainingArguments<List<Player>, PlayersArgument>("players to remove")
             .Flatten();
 
-        PlayerReturn = originalPlayers.Where(p => !playersToRemove.Contains(p)).ToArray();
+        ReturnValue = new PlayerValue(originalPlayers.Where(p => !playersToRemove.Contains(p)));
     }
 }

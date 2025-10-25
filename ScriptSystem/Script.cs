@@ -17,7 +17,9 @@ using SER.ScriptSystem.Structures;
 using SER.TokenSystem;
 using SER.TokenSystem.Structures;
 using SER.TokenSystem.Tokens;
+using SER.TokenSystem.Tokens.Variables;
 using SER.VariableSystem;
+using SER.VariableSystem.Bases;
 using SER.VariableSystem.Variables;
 
 namespace SER.ScriptSystem;
@@ -35,7 +37,7 @@ public class Script
         {
             if (value is RemoteAdminExecutor { Sender: { } sender } && Player.TryGet(sender, out var player))
             {
-                AddLocalPlayerVariable(new("sender", [player]));
+                AddVariable(new PlayerVariable("sender", new([player])));
             }
 
             field = value;
@@ -50,8 +52,7 @@ public class Script
     public bool IsRunning => RunningScripts.Contains(this);
 
     private static readonly List<Script> RunningScripts = [];
-    private readonly HashSet<LiteralVariable> _localLiteralVariables = [];
-    private readonly HashSet<PlayerVariable> _localPlayerVariables = [];
+    private readonly HashSet<Variable> _variables = [];
     private CoroutineHandle _scriptCoroutine;
     private bool? _isEventAllowed;
 
@@ -104,16 +105,12 @@ public class Script
         };
     }
     
-    public static Script CreateByVerifiedPath(string path, ScriptExecutor executor)
+    public static Script CreateByVerifiedPath(string path, ScriptExecutor executor) => new() 
     {
-        var name = Path.GetFileNameWithoutExtension(path);
-        return new Script
-        {
-            Name = name,
-            Content = File.ReadAllText(path),
-            Executor = executor
-        };
-    }
+        Name =  Path.GetFileNameWithoutExtension(path),
+        Content = File.ReadAllText(path),
+        Executor = executor
+    };
 
     public static int StopAll()
     {
@@ -144,48 +141,6 @@ public class Script
         return Lines.Where(l => l.Tokens.FirstOrDefault() is FlagToken or FlagArgumentToken).ToList();
     }
 
-    public void AddLocalLiteralVariable(LiteralVariable variable)
-    {
-        Log.Debug($"Added variable {variable.Name} to script {Name}");
-        RemoveLocalLiteralVariable(variable.Name);
-        _localLiteralVariables.Add(variable);
-    }
-
-    public void RemoveLocalLiteralVariable(string name)
-    {
-        _localLiteralVariables.RemoveWhere(scrVar => scrVar.Name == name);
-    }
-
-    public void AddLocalPlayerVariable(PlayerVariable variable)
-    {
-        Log.Debug($"Added player variable {variable.Name} to script {Name}");
-        RemoveLocalPlayerVariable(variable.Name);
-        _localPlayerVariables.Add(variable);
-    }
-
-    public void RemoveLocalPlayerVariable(string name)
-    {
-        _localPlayerVariables.RemoveWhere(scrVar => scrVar.Name == name);
-    }
-
-    public void AddVariables(params IVariable[] variables)
-    {
-        foreach (var variable in variables)
-        {
-            switch (variable)
-            {
-                case LiteralVariable literalVariable:
-                    AddLocalLiteralVariable(literalVariable);
-                    break;
-                case PlayerVariable playerVariable:
-                    AddLocalPlayerVariable(playerVariable);
-                    break;
-                default:
-                    throw new AndrzejFuckedUpException();
-            }
-        }
-    }
-
     /// <summary>
     /// Executes the script.
     /// </summary>
@@ -210,11 +165,11 @@ public class Script
         return _isEventAllowed;
     }
 
-    public void Stop()
+    public void Stop(bool silent = false)
     {
         RunningScripts.Remove(this);
         _scriptCoroutine.Kill();
-        Logger.Info($"Script {Name} was stopped");
+        if (!silent) Logger.Info($"Script {Name} was stopped");
     }
 
     public void SendControlMessage(ScriptControlMessage msg)
@@ -244,7 +199,7 @@ public class Script
             if (Tokenizer.SliceLine(line).HasErrored(out var error))
             {
                 Result mainErr = $"Processing line {line.LineNumber} has failed.";
-                return error;
+                return mainErr + error;
             }
         }
         
@@ -281,7 +236,7 @@ public class Script
             TokenizeLines().HasErrored(out err) || 
             ContextLines().HasErrored(out err))
         {
-            throw new ScriptErrorException(err);
+            throw new ScriptRuntimeError(err);
         }
         
         foreach (var context in Contexts)
@@ -306,53 +261,68 @@ public class Script
         RunningScripts.Remove(this);
     }
 
-    public TryGet<PlayerVariable> TryGetPlayerVariable(string name)
+    public TryGet<T> TryGetVariable<T>(VariableToken variable) where T : Variable
     {
-        var localPlrVar = _localPlayerVariables.FirstOrDefault(
-            pv => pv.Name == name);
+        return TryGetVariable<T>(variable.Name);
+    }
 
-        if (localPlrVar != null)
+    public TryGet<T> TryGetVariable<T>(string name) where T : Variable
+    {
+        var variable = _variables.FirstOrDefault(v => v.Name == name);
+        if (variable is not null)
         {
-            return localPlrVar;
+            if (variable is not T casted)
+            {
+                return $"Variable '{name}' is not of type '{typeof(T).Name}', it's of '{variable.GetType().Name}' instead.";
+            }
+
+            return casted;
         }
 
-        var globalPlrVar = PlayerVariableIndex.GlobalPlayerVariables
-            .FirstOrDefault(v => v.Name == name);
-        if (globalPlrVar == null)
+        if (typeof(T) == typeof(LiteralVariable))
         {
-            return $"There is no player variable named '@{name}'.";
+            var globalLitVar = LiteralVariableIndex.GlobalLiteralVariables
+                .FirstOrDefault(v => v.Name == name);
+            if (globalLitVar is not null)
+            {
+                return (globalLitVar as T)!;
+            }
         }
-        
-        return globalPlrVar;
+        else if (typeof(T) == typeof(PlayerVariable))
+        {
+            var globalPlrVar = PlayerVariableIndex.GlobalPlayerVariables
+                .FirstOrDefault(v => v.Name == name);
+            if (globalPlrVar is not null)
+            {
+                return (globalPlrVar as T)!;
+            }
+        }
+
+        return $"There is no variable called {name}.";
+    }
+
+    public void AddVariable(Variable variable)
+    {
+        Log.Debug($"Added variable {variable.Name} to script {Name}");
+        RemoveVariable(variable.Name);
+        _variables.Add(variable);
+    }
+
+    public void AddVariables(params Variable[] variables)
+    {
+        foreach (var variable in variables)
+        {
+            AddVariable(variable);
+        }
+    }
+
+    public void RemoveVariable(Variable variable)
+    {
+        RemoveVariable(variable.Name);
     }
     
-    public TryGet<PlayerVariable> TryGetPlayerVariable(PlayerVariableToken token)
+    public void RemoveVariable(string name)
     {
-        return TryGetPlayerVariable(token.Name);
-    }
-
-    public TryGet<LiteralVariable> TryGetLiteralVariable(string name)
-    {
-        var localPlrVar = _localLiteralVariables.FirstOrDefault(v => v.Name == name);
-        Log.Debug($"Fetching literal variable '{name}', there currently exist {_localLiteralVariables.Count} " +
-                  $"variables: {_localLiteralVariables.Select(v => v.Name).JoinStrings(", ")}");
-        if (localPlrVar != null)
-        {
-            return localPlrVar;
-        }
-        
-        var globalVar = LiteralVariableIndex.GlobalLiteralVariables
-            .FirstOrDefault(v => v.Name == name);
-        if (globalVar != null)
-        {
-            return globalVar;
-        }
-
-        return $"There is no literal variable called {name}.";
-    }
-    
-    public TryGet<LiteralVariable> TryGetLiteralVariable(LiteralVariableToken token)
-    {
-        return TryGetLiteralVariable(token.Name);
+        _variables.RemoveWhere(var => var.Name == name);
     }
 }

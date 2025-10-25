@@ -13,6 +13,7 @@ using SER.Helpers.ResultSystem;
 using SER.ScriptSystem;
 using SER.ScriptSystem.Structures;
 using SER.ValueSystem;
+using SER.VariableSystem.Bases;
 using SER.VariableSystem.Variables;
 
 namespace SER.EventSystem;
@@ -184,7 +185,7 @@ public static class EventHandler
         }
     }
     
-    public static IVariable[] GetVariablesFromEvent(EventArgs ev)
+    public static Variable[] GetVariablesFromEvent(EventArgs ev)
     {
         List<(object, string, Type)> properties = (
             from prop in ev.GetType().GetProperties()
@@ -196,7 +197,7 @@ public static class EventHandler
         return InternalGetVariablesFromProperties(properties);
     }
     
-    internal static List<IVariable> GetMimicVariables(EventInfo ev)
+    internal static List<Variable> GetMimicVariables(EventInfo ev)
     {
         var genericType = ev.EventHandlerType.GetGenericArguments().FirstOrDefault();
         if (genericType is null)
@@ -214,31 +215,32 @@ public static class EventHandler
         return GetMimicVariablesForEventHelp(properties);
     }
 
-    private static IVariable[] InternalGetVariablesFromProperties(List<(object value, string name, Type type)> properties)
+    private static Variable[] InternalGetVariablesFromProperties(List<(object value, string name, Type type)> properties)
     {
-        List<IVariable> variables = [];
+        List<Variable> variables = [];
         foreach (var (value, name, type) in properties)
         {
             switch (value)
             {
                 case Enum enumValue:
-                    variables.Add(new TextVariable(GetName(), enumValue.ToString()));
+                    variables.Add(new LiteralVariable<TextValue>(GetName(), enumValue.ToString()));
                     continue;
                 case Player player:
-                    variables.Add(new PlayerVariable(GetName(), [player]));
+                    variables.Add(new PlayerVariable(GetName(), new(player)));
                     continue;
                 case IEnumerable<Player> players:
-                    variables.Add(new PlayerVariable(GetName(), players.ToList()));
+                    variables.Add(new PlayerVariable(GetName(), new(players)));
                     continue;
                 case null:
                     if (type == typeof(Player))
                     {
-                         variables.Add(new PlayerVariable(GetName(), []));
+                        // todo: wtf is this?
+                        // variables.Add(new PlayerVariable(GetName(), []));
                     }
                     continue;
                 default:
                 {
-                    variables.Add(LiteralVariable.CreateVariable(GetName(), LiteralValue.ParseFromObject(value)));
+                    variables.Add(Variable.CreateVariable(GetName(), Value.Parse(value)));
                     continue;
                 }
             }
@@ -252,20 +254,20 @@ public static class EventHandler
         return variables.ToArray();
     }
     
-    private static List<IVariable> GetMimicVariablesForEventHelp(List<(Type type, string name)> properties)
+    private static List<Variable> GetMimicVariablesForEventHelp(List<(Type type, string name)> properties)
     {
-        List<IVariable> variables = [];
+        List<Variable> variables = [];
         foreach (var (type, name) in properties)
         {
-            IVariable var = type switch
+            Variable var = type switch
             {
                 not null when type == typeof(bool) || type == typeof(string) || type == typeof(int) ||
                               type == typeof(float) || type == typeof(double) || type == typeof(decimal) ||
                               type == typeof(byte) || type == typeof(sbyte) || type == typeof(short) ||
                               type == typeof(ushort) ||
-                              type == typeof(uint) => new TextVariable(GetName(), null!),
+                              type == typeof(uint) => new LiteralVariable<TextValue>(GetName(), null!),
                 
-                not null when type.IsEnum => new TextVariable(GetName(), null!),
+                not null when type.IsEnum => new LiteralVariable<TextValue>(GetName(), null!),
                 
                 not null when type == typeof(Player) => 
                     new PlayerVariable(GetName(), null!),

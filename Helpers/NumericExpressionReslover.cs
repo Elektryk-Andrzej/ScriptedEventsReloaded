@@ -8,9 +8,9 @@ using SER.Helpers.Extensions;
 using SER.Helpers.ResultSystem;
 using SER.ScriptSystem;
 using SER.TokenSystem;
-using SER.TokenSystem.Structures;
 using SER.TokenSystem.Tokens;
-using SER.VariableSystem.Variables;
+using SER.TokenSystem.Tokens.Interfaces;
+using SER.ValueSystem;
 
 namespace SER.Helpers;
 
@@ -26,7 +26,7 @@ public static class NumericExpressionReslover
             return mainErr + err;
         }
         
-        return ParseExpression(tokens.ToArray(), scr);
+        return ParseExpression(tokens.ToArray());
     }
     
     public static TryGet<bool> EvalCondition(string expression, Script scr)
@@ -44,7 +44,7 @@ public static class NumericExpressionReslover
     
     public static TryGet<bool> EvalCondition(BaseToken[] tokens, Script scr)
     {
-        var result = ParseExpression(tokens, scr);
+        var result = ParseExpression(tokens);
         if (result.HasErrored(out var err, out var value))
             return err;
 
@@ -61,9 +61,9 @@ public static class NumericExpressionReslover
         return "Expression did not evaluate to a true/false value.";
     }
     
-    public static TryGet<object> ParseExpression(BaseToken[] tokens, Script scr)
+    public static TryGet<object> ParseExpression(BaseToken[] tokens)
     {
-        var initial = tokens.Select(t => t.RawRepresentation).JoinStrings(" ");
+        var initial = tokens.Select(t => t.RawRep).JoinStrings(" ");
         Result mainErr = $"Expression '{initial}' is invalid.";
 
         var variables = new Dictionary<string, object>(StringComparer.OrdinalIgnoreCase);
@@ -72,27 +72,12 @@ public static class NumericExpressionReslover
 
         foreach (var token in tokens)
         {
+            Log.D($"parsing token {token.RawRep} ({token.GetType().Name})");
             switch (token)
             {
-                case LiteralVariableToken literalVariableToken:
+                case IValueCapableToken<LiteralValue> literalValue:
                 {
-                    if (literalVariableToken.TryGetVariable().HasErrored(out var error, out var variable))
-                    {
-                        return mainErr + error;
-                    }
-
-                    var value = variable.GetType().BaseType == typeof(TypeVariable<>) 
-                        ? variable.GetType().GetProperty(nameof(TypeVariable<>.ExactValue))!.GetValue(variable) 
-                        : variable.BaseValue;
-                    
-                    var tmp = MakeTempName();
-                    variables[tmp] = value;
-                    AppendRaw(tmp);
-                    continue;
-                }
-                case ILiteralValueToken literalValue:
-                {
-                    if (literalValue.GetLiteralValue(scr).HasErrored(out var err, out var resolved))
+                    if (literalValue.ExactValue.HasErrored(out var err, out var resolved))
                         return mainErr + err;
 
                     var tmp = MakeTempName();
@@ -107,7 +92,7 @@ public static class NumericExpressionReslover
                         return mainErr + tokenizeError;
                     }
                 
-                    if (ParseExpression(tokensInParentheses, scr).HasErrored(out var conditonError, out var value))
+                    if (ParseExpression(tokensInParentheses).HasErrored(out var conditonError, out var value))
                     {
                         return mainErr + conditonError;
                     }
@@ -118,7 +103,7 @@ public static class NumericExpressionReslover
                     continue;
                 }
                 default:
-                    AppendRaw(token.RawRepresentation);
+                    AppendRaw(token.RawRep);
                     break;
             }
         }

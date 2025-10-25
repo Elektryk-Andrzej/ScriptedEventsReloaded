@@ -11,7 +11,7 @@ namespace SER.MethodSystem.Methods.BroadcastMethods;
 
 public class CountdownMethod : SynchronousMethod
 {
-    private static readonly Dictionary<Player, CoroutineHandle> Coroutines = new();
+    public static readonly Dictionary<Player, CoroutineHandle> Coroutines = new();
     
     public override string Description => "Creates a countdown using broadcasts.";
 

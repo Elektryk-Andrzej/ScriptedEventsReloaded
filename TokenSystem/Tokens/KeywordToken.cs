@@ -26,14 +26,14 @@ public class KeywordToken : BaseToken, IContextableToken
     protected override Result InternalParse(Script scr)
     {
         _keywordType = KeywordTypes.FirstOrDefault(
-            keyword => keyword.CreateInstance<IKeywordContext>().KeywordName == RawRepresentation);
+            keyword => keyword.CreateInstance<IKeywordContext>().KeywordName == RawRep);
 
         if (_keywordType is not null)
         {
             return true;
         }
 
-        return $"There is no keyword called '{RawRepresentation}'.";
+        return $"There is no keyword called '{RawRep}'.";
     }
 
     public TryGet<Context> TryGetContext(Script scr)

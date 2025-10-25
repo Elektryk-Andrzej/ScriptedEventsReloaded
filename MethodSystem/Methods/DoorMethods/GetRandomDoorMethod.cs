@@ -3,6 +3,7 @@ using LabApi.Features.Wrappers;
 using SER.ArgumentSystem.BaseArguments;
 using SER.Helpers.Extensions;
 using SER.MethodSystem.BaseMethods;
+using SER.ValueSystem;
 
 namespace SER.MethodSystem.Methods.DoorMethods;
 
@@ -16,6 +17,6 @@ public class GetRandomDoorMethod : ReferenceReturningMethod
     
     public override void Execute()
     {
-        Reference = new(Door.List.GetRandomValue()!);
+        ReturnValue = new ReferenceValue(Door.List.GetRandomValue()!);
     }
 }

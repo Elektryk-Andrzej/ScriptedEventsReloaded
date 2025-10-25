@@ -11,8 +11,9 @@ using SER.Helpers.ResultSystem;
 using SER.MethodSystem.BaseMethods;
 using SER.ScriptSystem;
 using SER.TokenSystem.Tokens;
+using SER.TokenSystem.Tokens.Variables;
 using SER.ValueSystem;
-using SER.VariableSystem.Variables;
+using SER.VariableSystem.Bases;
 using UnityEngine;
 
 namespace SER.ArgumentSystem;
@@ -21,6 +22,21 @@ public class ProvidedArguments(Method method)
 {
     private Dictionary<(string name, Type type), List<DynamicTryGet>> Arguments { get; } = [];
 
+    public T GetToken<T>(string argName) where T : BaseToken
+    {
+        return GetValue<T, TokenArgument<T>>(argName);
+    }
+    
+    public T GetValue<T>(string argName) where T : Value
+    {
+        return GetValue<T, ValueArgument<T>>(argName);
+    }
+    
+    public Value GetAnyValue(string argName)
+    {
+        return GetValue<Value, AnyValueArgument>(argName);
+    }
+    
     public CollectionValue GetCollection(string argName)
     {
         return GetValue<CollectionValue, CollectionArgument>(argName);
@@ -66,9 +82,9 @@ public class ProvidedArguments(Method method)
     /// </summary>
     /// <param name="argName">The name of the argument containing the variable value.</param>
     /// <returns>An instance of <see cref="IVariable"/> representing the retrieved variable.</returns>
-    public IVariable GetVariable(string argName)
+    public Variable GetVariable(string argName)
     {
-        return GetValue<IVariable, VariableArgument>(argName);
+        return GetValue<Variable, VariableArgument>(argName);
     }
 
     /// <summary>
@@ -279,8 +295,7 @@ public class ProvidedArguments(Method method)
     private List<DynamicTryGet<TValue>> GetEvaluators<TValue, TArg>(string argName)
     {
         Result mainErr = 
-            $"Fetching argument '{argName}' (value {typeof(TValue).Name}) (argtype {typeof(TArg).Name}) " +
-            $"for method '{method.Name}' failed.";
+            $"Fetching argument '{argName}' for method '{method.Name}' failed.";
 
         var evaluators = GetValueInternal<TValue, TArg>(argName);
 
@@ -289,7 +304,7 @@ public class ProvidedArguments(Method method)
         {
             if (evaluator.Result.HasErrored(out var error))
             {
-                throw new ScriptErrorException(mainErr + error);
+                throw new ScriptRuntimeError(mainErr + error);
             }
 
             if (evaluator is not DynamicTryGet<TValue> argEvalRes)
@@ -317,7 +332,7 @@ public class ProvidedArguments(Method method)
 
         if (!foundArg.IsOptional)
         {
-            throw new ScriptErrorException($"Method '{method.Name}' is missing required argument '{argName}'.");
+            throw new ScriptRuntimeError($"Method '{method.Name}' is missing required argument '{argName}'.");
         }
 
         return foundArg.DefaultValue switch

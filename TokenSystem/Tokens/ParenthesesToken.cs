@@ -3,14 +3,17 @@ using SER.Helpers;
 using SER.Helpers.Exceptions;
 using SER.Helpers.ResultSystem;
 using SER.ScriptSystem;
-using SER.ScriptSystem.Structures;
 using SER.TokenSystem.Slices;
+using SER.TokenSystem.Structures;
 
 namespace SER.TokenSystem.Tokens;
 
 public class ParenthesesToken : BaseToken
 {
     private BaseToken[]? _tokens = null;
+
+    public string RawContent { get; private set; } = null!;
+    
     public TryGet<BaseToken[]> TryGetTokens()
     {
         if (_tokens is not null)
@@ -35,11 +38,11 @@ public class ParenthesesToken : BaseToken
 
     protected override Result InternalParse(Script scr)
     {
-        if (Slice is CollectionSlice { SliceType: CollectionSliceType.Round })
+        if (Slice is CollectionSlice { Type: CollectionSliceType.Round } slice)
         {
+            RawContent = slice.Value;
             return true;
         }
-
         
         return $"Slice '{Slice.RawRepresentation}' is not in round brackets.";
     }
@@ -51,6 +54,6 @@ public class ParenthesesToken : BaseToken
             return error;
         }
         
-        return NumericExpressionReslover.ParseExpression(tokens, Script);
+        return NumericExpressionReslover.ParseExpression(tokens);
     }
 }

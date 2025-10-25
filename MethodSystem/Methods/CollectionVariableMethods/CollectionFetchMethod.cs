@@ -28,9 +28,9 @@ public class CollectionFetchMethod : ReturningMethod
         
         if (coll.GetAt(index).HasErrored(out var error, out var value))
         {
-            throw new ScriptErrorException(error);
+            throw new ScriptRuntimeError(error);
         }
 
-        Value = LiteralValue.ParseFromObject(value);
+        ReturnValue = Value.Parse(value);
     }
 }

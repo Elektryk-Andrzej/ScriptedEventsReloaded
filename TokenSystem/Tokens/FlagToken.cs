@@ -12,11 +12,15 @@ public class FlagToken : BaseToken, IContextableToken
     {
         if (Slice.RawRepresentation == "!--") return true;
 
-        return $"Value '{RawRepresentation}' is not a valid flag beginning '!--'";
+        return $"Value '{RawRep}' is not a valid flag beginning '!--'";
     }
 
     public TryGet<Context> TryGetContext(Script scr)
     {
-        return new NoOperationContext();
+        return new NoOperationContext
+        {
+            Script = Script,
+            LineNum = LineNum,
+        };
     }
 }

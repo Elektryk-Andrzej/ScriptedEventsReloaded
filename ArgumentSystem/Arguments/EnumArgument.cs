@@ -42,12 +42,12 @@ public class EnumArgument<TEnum> : Argument where TEnum : struct, Enum
     public static TryGet<object> Convert(BaseToken token, Script script, Type enumType)
     {
         var stringRep = token.GetBestTextRepresentation(script);
-        if (Enum.TryParse(stringRep, true, out TEnum result))
+        if (Enum.IsDefined(enumType, stringRep))
         {
-            return result;
+            return Enum.Parse(enumType, stringRep, true);
         }
         
-        return $"Value '{token.RawRepresentation}' does not represent a valid {enumType.GetAccurateName()} " +
+        return $"Value '{stringRep}' does not represent a valid {enumType.GetAccurateName()} " +
                $"enum value.";
     }
     

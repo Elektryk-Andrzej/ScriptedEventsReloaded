@@ -6,12 +6,14 @@ using MapGeneration;
 using SER.ArgumentSystem.BaseArguments;
 using SER.Helpers.ResultSystem;
 using SER.TokenSystem.Tokens;
+using SER.TokenSystem.Tokens.Interfaces;
+using SER.ValueSystem;
 
 namespace SER.ArgumentSystem.Arguments;
 
 public class DoorsArgument(string name) : EnumHandlingArgument(name)
 {
-    public override string InputDescription => $"{nameof(DoorName)} enum, {nameof(FacilityZone)} enum, {nameof(RoomName)} enum, reference to {nameof(Door)}, or * for every door";
+    public override string InputDescription => $"{nameof(DoorName)} enum, {nameof(FacilityZone)} enum, {nameof(RoomName)} enum, reference to {nameof(Door)}, reference to {nameof(Room)} or * for every door";
 
     [UsedImplicitly]
     public DynamicTryGet<Door[]> GetConvertSolution(BaseToken token)
@@ -32,17 +34,32 @@ public class DoorsArgument(string name) : EnumHandlingArgument(name)
             },
             () =>
             {
-                if (token.RawRepresentation == "*")
+                Result rs =
+                    $"Value '{token.RawRep}' cannot be interpreted as a door or collection of doors.";
+                if (token.RawRep == "*")
                 {
                     return Door.List.Where(d => d is not ElevatorDoor).ToArray();
                 }
 
-                if (ReferenceArgument<Door>.TryParse(token, Script).WasSuccessful(out var door))
+                if (token is not IValueCapableToken<ReferenceValue> refToken)
                 {
-                    return new[] { door };
+                    return rs;
                 }
                 
-                return $"Value '{token.RawRepresentation}' cannot be interpreted as a door or collection of doors.";
+                return new(() =>
+                {
+                    if (ReferenceArgument<Door>.TryParse(refToken).WasSuccessful(out var door))
+                    {
+                        return new[] { door };
+                    }
+
+                    if (ReferenceArgument<Room>.TryParse(refToken).WasSuccessful(out var room))
+                    {
+                        return room.Doors.ToArray();
+                    }
+                    
+                    return rs;
+                });
             }
         );
     }

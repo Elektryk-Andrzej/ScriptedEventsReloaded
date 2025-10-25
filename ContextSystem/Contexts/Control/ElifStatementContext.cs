@@ -42,7 +42,7 @@ public class ElifStatementContext : StatementContext, IStatementExtender, IExten
     {
         if (NumericExpressionReslover.EvalCondition(_condition.ToArray(), Script).HasErrored(out var error, out var result))
         {
-            throw new ScriptErrorException($"'elif' statement condition error: {error}");
+            throw new ScriptRuntimeError($"'elif' statement condition error: {error}");
         }
         
         if (!result)

@@ -2,6 +2,7 @@
 using SER.ArgumentSystem.BaseArguments;
 using SER.Helpers.ResultSystem;
 using SER.TokenSystem.Tokens;
+using SER.TokenSystem.Tokens.Variables;
 
 namespace SER.ArgumentSystem.Arguments;
 
@@ -14,7 +15,7 @@ public class PlayerVariableNameArgument(string name) : Argument(name)
     {
         if (token is not PlayerVariableToken playerVariableToken)
         {
-            return $"Value '{token.RawRepresentation}' is not a syntactically valid player variable.";
+            return $"Value '{token.RawRep}' is not a syntactically valid player variable.";
         }
 
         return playerVariableToken;

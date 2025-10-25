@@ -30,7 +30,7 @@ public class ElevatorsArgument(string name) : EnumHandlingArgument(name)
                 }
 
                 return
-                    $"Value '{token.RawRepresentation}' cannot be interpreted as an elevator or collection of elevators.";
+                    $"Value '{token.RawRep}' cannot be interpreted as an elevator or collection of elevators.";
             }
         );
     }

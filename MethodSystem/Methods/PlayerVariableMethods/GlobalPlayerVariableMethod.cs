@@ -16,8 +16,7 @@ public class GlobalPlayerVariableMethod : SynchronousMethod
     [
         new PlayerVariableNameArgument("variableName")
         {
-            Description = "Warning! DO NOT use a variable name that is already predefined by SER, like " +
-                          "@alivePlayers, @scpPlayers etc."
+            Description = "Warning! DO NOT use a variable name that is already predefined by SER"
         },
         new PlayersArgument("players"),
     ];
@@ -36,6 +35,6 @@ public class GlobalPlayerVariableMethod : SynchronousMethod
         PlayerVariableIndex.GlobalPlayerVariables.RemoveWhere(var => 
             var.Name == variableName.Name);
 
-        PlayerVariableIndex.GlobalPlayerVariables.Add(new(variableName.Name, players));
+        PlayerVariableIndex.GlobalPlayerVariables.Add(new(variableName.Name, new(players)));
     }
 }

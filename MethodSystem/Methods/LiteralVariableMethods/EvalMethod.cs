@@ -24,9 +24,9 @@ public class EvalMethod : ReturningMethod
         var value = Args.GetText("value");
         if (NumericExpressionReslover.EvalString(value, Script).HasErrored(out var error, out var result))
         {
-            throw new ScriptErrorException(error);
+            throw new ScriptRuntimeError(error);
         }
         
-        Value = LiteralValue.ParseFromObject(result);
+        ReturnValue = Value.Parse(result);
     }
 }

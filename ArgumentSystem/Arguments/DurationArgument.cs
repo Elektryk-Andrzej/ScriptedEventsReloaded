@@ -16,16 +16,16 @@ public class DurationArgument(string name) : Argument(name)
     [UsedImplicitly]
     public DynamicTryGet<TimeSpan> GetConvertSolution(BaseToken token)
     {
-        Result rs = $"Value '{token.RawRepresentation}' is not a duration.";
+        Result rs = $"Value '{token.RawRep}' is not a duration.";
         return token switch
         {
             DurationToken durToken => durToken.Value.Value,
-            LiteralExpressionToken { Type: MethodExpression methodExpr } => new(() =>
+            ExpressionToken { Type: MethodExpression methodExpr } => new(() =>
             {
                 methodExpr.Method.Execute();
-                if (methodExpr.Method.Value is not DurationValue durValue)
+                if (methodExpr.Method.ReturnValue is not DurationValue durValue)
                 {
-                    throw new ScriptErrorException(rs);
+                    throw new ScriptRuntimeError(rs);
                 }
 
                 return durValue.Value;

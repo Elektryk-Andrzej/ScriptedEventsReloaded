@@ -4,13 +4,14 @@ using SER.ArgumentSystem.Arguments;
 using SER.ArgumentSystem.BaseArguments;
 using SER.MethodSystem.BaseMethods;
 using SER.MethodSystem.MethodDescriptors;
+using SER.ValueSystem;
 
 namespace SER.MethodSystem.Methods.LiteralVariableMethods;
 
 // ReSharper disable once ClassNeverInstantiated.Global
 public class SetPlayerDataMethod : SynchronousMethod, IAdditionalDescription
 {
-    public static readonly Dictionary<Player, Dictionary<string, string>> PlayerData = [];
+    public static readonly Dictionary<Player, Dictionary<string, Value>> PlayerData = [];
     
     public override string Description => "Associates a custom key with a value for a given player.";
     
@@ -24,14 +25,14 @@ public class SetPlayerDataMethod : SynchronousMethod, IAdditionalDescription
     [
         new PlayerArgument("player"),
         new TextArgument("key"),
-        new TextArgument("valueToSet")
+        new AnyValueArgument("value to set")
     ];
 
     public override void Execute()
     {
         var player = Args.GetPlayer("player");
         var key = Args.GetText("key");
-        var valueToSet = Args.GetText("valueToSet");
+        var valueToSet = Args.GetAnyValue("value to set");
         
         if (PlayerData.TryGetValue(player, out var dict))
         {
@@ -39,7 +40,7 @@ public class SetPlayerDataMethod : SynchronousMethod, IAdditionalDescription
         }
         else
         {
-            PlayerData.Add(player, new Dictionary<string, string> { { key, valueToSet } });
+            PlayerData.Add(player, new Dictionary<string, Value> { { key, valueToSet } });
         }
     }
 }

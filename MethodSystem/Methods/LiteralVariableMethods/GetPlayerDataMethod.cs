@@ -1,20 +1,16 @@
 ﻿using System;
 using SER.ArgumentSystem.Arguments;
 using SER.ArgumentSystem.BaseArguments;
+using SER.Helpers.Exceptions;
 using SER.MethodSystem.BaseMethods;
-using SER.MethodSystem.MethodDescriptors;
-using SER.ValueSystem;
 
 namespace SER.MethodSystem.Methods.LiteralVariableMethods;
 
-public class GetPlayerDataMethod : ReturningMethod, IAdditionalDescription
+public class GetPlayerDataMethod : ReturningMethod
 {
     public override string Description => "Gets player data from the key.";
 
-    public override Type[] ReturnTypes => [typeof(TextValue)];
-    
-    public string AdditionalDescription =>
-        "If the provided key has no associated value for this player, 'none' will be returned instead.";
+    public override Type[]? ReturnTypes => null;
     
     public override Argument[] ExpectedArguments { get; } =
     [
@@ -30,10 +26,9 @@ public class GetPlayerDataMethod : ReturningMethod, IAdditionalDescription
         if (!SetPlayerDataMethod.PlayerData.TryGetValue(player, out var dict) || 
             !dict.TryGetValue(key, out var value))
         {
-            Value = new TextValue("none");
-            return;
+            throw new ScriptRuntimeError($"Key '{key}' was not found for player '{player.Nickname}'.");
         }
 
-        Value = new TextValue(value);
+        ReturnValue = value;
     }
 }

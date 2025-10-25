@@ -3,7 +3,8 @@ using SER.ArgumentSystem.BaseArguments;
 using SER.Helpers;
 using SER.Helpers.ResultSystem;
 using SER.TokenSystem.Tokens;
-using SER.VariableSystem.Variables;
+using SER.TokenSystem.Tokens.Interfaces;
+using SER.ValueSystem;
 
 namespace SER.ArgumentSystem.Arguments;
 
@@ -14,37 +15,17 @@ public class TextArgument(string name) : Argument(name)
     [UsedImplicitly]
     public DynamicTryGet<string> GetConvertSolution(BaseToken token)
     {
-        Log.Debug("using text argument converter");
-        if (token is LiteralVariableToken varToken)
+        switch (token)
         {
-            return new(() => VariableHandling(varToken));
+            case TextToken { ContainsExpressions: false } textToken:
+                return TryGet<string>.Success(textToken.Value);
+            case TextToken textToken:
+                return new(() => TryGet<string>.Success(textToken.ParsedValue()));
+            case IValueCapableToken<LiteralValue> capableToken:
+                return new(() => capableToken.ExactValue.OnSuccess(v => v.ToString()));
+            default:
+                Log.D($"{token.RawRep} | {token.GetType().Name}");
+                return DynamicTryGet.Error($"Value '{token.RawRep}' cannot represent text.");
         }
-        
-        if (token is not TextToken textToken)
-        {
-            return DynamicTryGet.Success(token.GetBestTextRepresentation(Script));
-        }
-        
-        if (!textToken.ContainsExpressions)
-        {
-            return DynamicTryGet.Success(textToken.Value.Value);
-        }
-            
-        return new(() => TryGet<string>.Success(textToken.ParsedValue(Script)));
-    }
-
-    private static TryGet<string> VariableHandling(LiteralVariableToken token)
-    {
-        if (token.TryGetVariable().HasErrored(out var error, out var variable))
-        {
-            return TryGet<string>.Error(error);
-        }
-
-        if (variable is TextVariable textVariable)
-        {
-            return TryGet<string>.Success(textVariable.ExactValue.Value);
-        }
-
-        return TryGet<string>.Success(variable.BaseValue.Value.ToString());
     }
 }

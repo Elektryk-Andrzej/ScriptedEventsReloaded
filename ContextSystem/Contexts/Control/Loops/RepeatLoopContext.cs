@@ -6,8 +6,8 @@ using SER.ContextSystem.Extensions;
 using SER.ContextSystem.Structures;
 using SER.Helpers.Exceptions;
 using SER.Helpers.ResultSystem;
-using SER.TokenSystem.Structures;
 using SER.TokenSystem.Tokens;
+using SER.TokenSystem.Tokens.Interfaces;
 using SER.ValueSystem;
 
 namespace SER.ContextSystem.Contexts.Control.Loops;
@@ -37,17 +37,17 @@ public class RepeatLoopContext : StatementContext, IKeywordContext
                 
                 _repeatCount = (uint)numberToken.Value;
                 return TryAddTokenRes.End();
-            case ILiteralValueToken literalValueToken:
+            case IValueCapableToken<LiteralValue> literalValueToken:
                 _repeatCountExpression = () =>
                 {
-                    if (literalValueToken.GetLiteralValue(Script).HasErrored(out var error, out var value))
+                    if (literalValueToken.ExactValue.HasErrored(out var error, out var value))
                     {
                         return error;
                     }
 
                     if (value is not NumberValue numberValue)
                     {
-                        return $"Value '{value}' retreived from {token.RawRepresentation} is not a number.";
+                        return $"Value '{value}' retreived from {token.RawRep} is not a number.";
                     }
 
                     if (numberValue.Value < 0)
@@ -60,7 +60,7 @@ public class RepeatLoopContext : StatementContext, IKeywordContext
                 return TryAddTokenRes.End();
         }
 
-        return TryAddTokenRes.Error($"Value '{token.RawRepresentation}' cannot be interpreted as a number.");
+        return TryAddTokenRes.Error($"Value '{token.RawRep}' cannot be interpreted as a number.");
     }
 
     public override Result VerifyCurrentState()
@@ -79,7 +79,7 @@ public class RepeatLoopContext : StatementContext, IKeywordContext
 
             if (_repeatCountExpression().HasErrored(out var error, out var val))
             {
-                throw new ScriptErrorException(error);
+                throw new ScriptRuntimeError(error);
             }
             
             _repeatCount = val;

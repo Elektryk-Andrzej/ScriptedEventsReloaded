@@ -1,7 +1,7 @@
 ﻿using SER.ArgumentSystem.Arguments;
 using SER.ArgumentSystem.BaseArguments;
 using SER.MethodSystem.BaseMethods;
-using SER.VariableSystem.Variables;
+using SER.VariableSystem.Bases;
 
 namespace SER.MethodSystem.Methods.ScriptMethods;
 
@@ -21,7 +21,7 @@ public class TransferVariablesMethod : SynchronousMethod
     public override void Execute()
     {
         var script = Args.GetScript("target script");
-        var variables = Args.GetRemainingArguments<IVariable, VariableArgument>("variables");
+        var variables = Args.GetRemainingArguments<Variable, VariableArgument>("variables");
         
         script.AddVariables(variables);
     }

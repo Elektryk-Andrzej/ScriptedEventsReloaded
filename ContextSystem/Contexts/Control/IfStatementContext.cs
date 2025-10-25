@@ -38,7 +38,7 @@ public class IfStatementContext : StatementContext, IExtendableStatement, IKeywo
     {
         if (NumericExpressionReslover.EvalCondition(_condition.ToArray(), Script).HasErrored(out var error, out var result))
         {
-            throw new ScriptErrorException($"'if' statement condition error: {error}");
+            throw new ScriptRuntimeError($"'if' statement condition error: {error}");
         }
         
         if (!result)

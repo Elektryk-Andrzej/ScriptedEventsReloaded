@@ -26,9 +26,10 @@ public static class BetterCoros
             {
                 if (!routine.MoveNext()) break;
             }
-            catch (ScriptErrorException scrErr)
+            catch (ScriptRuntimeError scrErr)
             {
-                scr.Error(scrErr.Message);
+                Log.Debug($"cought error with message {scrErr.Message ?? "not provided"}");
+                scr.Error(scrErr.Message!);
                 yield break;
             }
             catch (Exception ex)

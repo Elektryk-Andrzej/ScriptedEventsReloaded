@@ -24,6 +24,12 @@ public class ColorArgument(string name) : Argument(name)
 
     public static TryGet<Color> TryParseColor(string value)
     {
+        var initValue = value;
+        if (value.StartsWith("#"))
+        {
+            value = value.Substring(1);
+        }
+        
         switch (value.Length)
         {
             // RRGGBB
@@ -45,7 +51,7 @@ public class ColorArgument(string name) : Argument(name)
                 return new Color(r, g, b, a);
             }
             default:
-                return $"Invalid color format. Expected RRGGBB or RRGGBBAA, got {value.Length}.";
+                return $"Invalid color format. Expected RRGGBB (6) or RRGGBBAA (8), got '{initValue}' ({value.Length}).";
         }
     }
 }

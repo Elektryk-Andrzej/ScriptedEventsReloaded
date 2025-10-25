@@ -1,6 +1,7 @@
 ﻿using System;
 using JetBrains.Annotations;
 using SER.TokenSystem.Tokens;
+using SER.TokenSystem.Tokens.Variables;
 
 namespace SER.Testing;
 

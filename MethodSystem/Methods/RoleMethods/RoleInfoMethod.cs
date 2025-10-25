@@ -5,15 +5,16 @@ using SER.ArgumentSystem.BaseArguments;
 using SER.ArgumentSystem.Structures;
 using SER.Helpers.Exceptions;
 using SER.MethodSystem.BaseMethods;
+using SER.MethodSystem.MethodDescriptors;
 using SER.ValueSystem;
 
 namespace SER.MethodSystem.Methods.RoleMethods;
 
-public class RoleInfoMethod : ReferenceResolvingMethod
+public class RoleInfoMethod : ReturningMethod<TextValue>, IReferenceResolvingMethod
 {
-    public override Type ReferenceType => typeof(PlayerRoleBase);
+    public Type ReferenceType => typeof(PlayerRoleBase);
 
-    public override Type[] ReturnTypes => [typeof(TextValue)];
+    public override string Description => null!;
     
     public override Argument[] ExpectedArguments { get; } =
     [
@@ -29,7 +30,7 @@ public class RoleInfoMethod : ReferenceResolvingMethod
     public override void Execute()
     {
         var role = Args.GetReference<PlayerRoleBase>("playerRole");
-        Value = Args.GetOption("property") switch
+        ReturnValue = Args.GetOption("property") switch
         {
             "type" => new TextValue(role.RoleTypeId.ToString()),
             "team" => new TextValue(role.Team.ToString()),

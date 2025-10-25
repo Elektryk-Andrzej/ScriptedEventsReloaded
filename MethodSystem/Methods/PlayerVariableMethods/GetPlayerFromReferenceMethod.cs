@@ -4,10 +4,11 @@ using SER.ArgumentSystem.Arguments;
 using SER.ArgumentSystem.BaseArguments;
 using SER.MethodSystem.BaseMethods;
 using SER.MethodSystem.MethodDescriptors;
+using SER.ValueSystem;
 
 namespace SER.MethodSystem.Methods.PlayerVariableMethods;
 
-public class GetPlayerFromReferenceMethod : PlayerReturningMethod, IReferenceResolvingMethod
+public class GetPlayerFromReferenceMethod : ReturningMethod<PlayerValue>, IReferenceResolvingMethod
 {
     public Type ReferenceType => typeof(Player);
 
@@ -21,6 +22,6 @@ public class GetPlayerFromReferenceMethod : PlayerReturningMethod, IReferenceRes
 
     public override void Execute()
     {
-        PlayerReturn = [Args.GetReference<Player>("playerReference")];
+        ReturnValue = new PlayerValue(Args.GetReference<Player>("playerReference"));
     }
 }

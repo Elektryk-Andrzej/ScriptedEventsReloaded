@@ -6,14 +6,17 @@ using SER.ArgumentSystem.BaseArguments;
 using SER.ArgumentSystem.Structures;
 using SER.Helpers.Exceptions;
 using SER.MethodSystem.BaseMethods;
+using SER.MethodSystem.MethodDescriptors;
 using SER.ValueSystem;
 
 namespace SER.MethodSystem.Methods.DoorMethods;
 
-public class DoorInfoMethod : ReferenceResolvingMethod
+public class DoorInfoMethod : LiteralValueReturningMethod, IReferenceResolvingMethod
 {
-    public override Type ReferenceType => typeof(Door);
-    public override Type[]? ReturnTypes => [typeof(TextValue), typeof(BoolValue)];
+    public Type ReferenceType => typeof(Door);
+    public override Type[] ReturnTypes => [typeof(TextValue), typeof(BoolValue)];
+
+    public override string Description => null!;
 
     public override Argument[] ExpectedArguments { get; } =
     [
@@ -32,7 +35,7 @@ public class DoorInfoMethod : ReferenceResolvingMethod
         var door = Args.GetReference<Door>("door");
         var info = Args.GetOption("info");
         
-        Value = info switch
+        ReturnValue = info switch
         {
             "doorname" => new TextValue(door.DoorName.ToString()),
             "unityname" => new TextValue(door.Base.name),

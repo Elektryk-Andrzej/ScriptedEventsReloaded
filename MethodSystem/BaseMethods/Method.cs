@@ -35,7 +35,7 @@ public abstract class Method
 
     public readonly string Name;
     
-    public abstract string Description { get; }
+    public abstract string? Description { get; }
     
     public abstract Argument[] ExpectedArguments { get; }
     
@@ -52,10 +52,5 @@ public abstract class Method
         var handle = coro.Run(Script);
         _coroutines.Add(handle);
         return handle;
-    }
-
-    public void Terminate()
-    {
-        _coroutines.ForEach(x => Timing.KillCoroutines(x));
     }
 }

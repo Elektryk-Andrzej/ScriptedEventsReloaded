@@ -6,11 +6,11 @@ using SER.ValueSystem;
 
 namespace SER.TokenSystem.Tokens;
 
-public class DurationToken : ValueToken<DurationValue>
+public class DurationToken : LiteralValueToken<DurationValue>
 {
     protected override Result InternalParse(Script scr)
     {
-        var value = RawRepresentation;
+        var value = RawRep;
         if (TimeSpan.TryParse(value, out var result) && result.TotalMilliseconds > 0)
         {
             Value = result;

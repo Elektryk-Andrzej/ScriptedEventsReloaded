@@ -15,7 +15,7 @@ public class TokenArgument<T>(string name) : Argument(name) where T : BaseToken
     {
         if (token is not T cToken)
         {
-            return $"Token '{token.RawRepresentation}' is not of type {nameof(T)}.";
+            return $"Token '{token.RawRep}' is not of type {nameof(T)}.";
         }
         
         return cToken;

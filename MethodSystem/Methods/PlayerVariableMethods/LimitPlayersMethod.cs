@@ -2,10 +2,11 @@
 using SER.ArgumentSystem.BaseArguments;
 using SER.Helpers.Extensions;
 using SER.MethodSystem.BaseMethods;
+using SER.ValueSystem;
 
 namespace SER.MethodSystem.Methods.PlayerVariableMethods;
 
-public class LimitPlayersMethod : PlayerReturningMethod
+public class LimitPlayersMethod : ReturningMethod<PlayerValue>
 {
     public override string Description =>
         "Returns a player variable with amount of players being equal or lower than the provided amount.";
@@ -26,6 +27,6 @@ public class LimitPlayersMethod : PlayerReturningMethod
             players.PullRandomItem();
         }
         
-        PlayerReturn = players.ToArray();
+        ReturnValue = new PlayerValue(players);
     }
 }

@@ -7,6 +7,8 @@ using SER.ArgumentSystem.BaseArguments;
 using SER.Helpers.Extensions;
 using SER.Helpers.ResultSystem;
 using SER.TokenSystem.Tokens;
+using SER.TokenSystem.Tokens.Interfaces;
+using SER.ValueSystem;
 
 namespace SER.ArgumentSystem.Arguments;
 
@@ -46,12 +48,22 @@ public class DoorArgument(string name) : EnumHandlingArgument(name)
             },
             () =>
             {
-                if (ReferenceArgument<Door>.TryParse(token, Script).WasSuccessful(out var door))
+                Result rs = $"Value '{token.RawRep}' cannot be interpreted as {InputDescription}.";
+                
+                if (token is not IValueCapableToken<ReferenceValue> refToken)
                 {
-                    return door;
+                    return rs;
                 }
 
-                return $"Value '{token.RawRepresentation}' cannot be interpreted as a door.";
+                return new(() =>
+                {
+                    if (ReferenceArgument<Door>.TryParse(refToken).WasSuccessful(out var door))
+                    {
+                        return door;
+                    }
+
+                    return rs;
+                });
             }
         );
     }

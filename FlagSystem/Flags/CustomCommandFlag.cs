@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using CommandSystem;
 using JetBrains.Annotations;
-using LabApi.Features.Wrappers;
 using RemoteAdmin;
 using SER.FlagSystem.Structures;
 using SER.Helpers.Exceptions;
@@ -11,6 +10,7 @@ using SER.Helpers.Extensions;
 using SER.Helpers.ResultSystem;
 using SER.ScriptSystem;
 using SER.ScriptSystem.Structures;
+using SER.ValueSystem;
 using SER.VariableSystem.Variables;
 using Console = GameCore.Console;
 
@@ -87,7 +87,7 @@ public class CustomCommandFlag : Flag
                     QueryProcessor.DotCommandHandler.RegisterCommand(Command);
                     continue;
                 case ConsoleType.Server:
-                    Console.singleton.ConsoleCommandHandler.RegisterCommand(Command);
+                    Console.ConsoleCommandHandler.RegisterCommand(Command);
                     continue;
                 case ConsoleType.RemoteAdmin:
                     CommandProcessor.RemoteAdminCommandHandler.RegisterCommand(Command);
@@ -112,7 +112,7 @@ public class CustomCommandFlag : Flag
                     QueryProcessor.DotCommandHandler.UnregisterCommand(Command);
                     break;
                 case ConsoleType.Server:
-                    Console.singleton.ConsoleCommandHandler.UnregisterCommand(Command);
+                    Console.ConsoleCommandHandler.UnregisterCommand(Command);
                     break;
                 case ConsoleType.RemoteAdmin:
                     CommandProcessor.RemoteAdminCommandHandler.UnregisterCommand(Command);
@@ -180,15 +180,6 @@ public class CustomCommandFlag : Flag
             return error;
         }
 
-        switch (sender)
-        {
-            case PlayerConsoleExecutor playerConsole:
-                script.AddLocalPlayerVariable(new("sender", [Player.Get(playerConsole.Sender)]));
-                break;
-            case RemoteAdminExecutor remoteAdminExecutor:
-                script.AddLocalPlayerVariable(new("sender", [Player.Get(remoteAdminExecutor.Sender)!]));
-                break;
-        }
 
         for (var index = 0; index < requestingCommand.Usage.Length; index++)
         {
@@ -196,7 +187,7 @@ public class CustomCommandFlag : Flag
             var name = argVariable[0].ToString().ToLower() + argVariable.Substring(1);
             
             // todo: need to parse values from string too (probably using tokenizer)
-            script.AddLocalLiteralVariable(new TextVariable(name, args[index]));
+            script.AddVariable(new LiteralVariable<TextValue>(name, args[index]));
         }
 
         script.Run();
