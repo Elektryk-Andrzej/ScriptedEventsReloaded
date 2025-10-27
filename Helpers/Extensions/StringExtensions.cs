@@ -29,4 +29,22 @@ public static class StringExtensions
     {
         return new Result(false, error);
     }
+
+    [Pure]
+    public static string Spaceify(this string str)
+    {
+        string res = "";
+        for (var index = 0; index < str.Length; index++)
+        {
+            var c = str[index];
+            if (char.IsUpper(c) && index != 0)
+            {
+                res += " ";
+            }
+
+            res += c;
+        }
+
+        return res;
+    }
 }
