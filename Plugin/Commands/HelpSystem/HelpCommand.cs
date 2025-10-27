@@ -38,7 +38,7 @@ public class HelpCommand : ICommand
         [HelpOption.RefResMethods] = GetReferenceResolvingMethodsHelpPage,
         [HelpOption.PlayerProperty] = GetPlayerInfoAccessorsHelpPage,
         [HelpOption.Flags] = GetFlagHelpPage,
-        [HelpOption.Keywords] = GetKeywordHelpPage
+        //[HelpOption.Keywords] = GetKeywordHelpPage
     };
     
     public bool Execute(ArraySegment<string> arguments, ICommandSender _, out string response)
@@ -468,10 +468,9 @@ public class HelpCommand : ICommand
         
         if (method is IAdditionalDescription addDesc)
         {
+            sb.AppendLine();
             sb.AppendLine($"> {addDesc.AdditionalDescription}");
         }
-
-        sb.AppendLine();
         
         switch (method)
         {
@@ -489,17 +488,21 @@ public class HelpCommand : ICommand
                 {
                     typeReturn = "a literal value depending on your input";
                 }
-                
+
+                sb.AppendLine();
                 sb.AppendLine($"This method returns {typeReturn}, which can be saved or used directly. ");
                 break;
             }
             case ReturningMethod<CollectionValue>:
+                sb.AppendLine();
                 sb.AppendLine("This method returns a collection of values, which can be saved or used directly.");
                 break;
             case ReturningMethod<PlayerValue>:
+                sb.AppendLine();
                 sb.AppendLine("This method returns players, which can be saved or used directly.");
                 break;
             case ReferenceReturningMethod refMethod:
+                sb.AppendLine();
                 sb.AppendLine($"This method returns a reference to {refMethod.ReturnType.Name} object, which can be saved or used directly.\n" +
                               $"References represent an object which cannot be fully represented in text.\n" +
                               $"If you wish to use that reference further, find methods supporting references of this type.");
@@ -523,15 +526,15 @@ public class HelpCommand : ICommand
                 break;
             }
         } 
-        
-        sb.AppendLine();
 
         if (method.ExpectedArguments.Length == 0)
         {
+            sb.AppendLine();
             sb.AppendLine("This method does not expect any arguments.");
             return sb.ToString();
         }
         
+        sb.AppendLine();
         sb.AppendLine("This method expects the following arguments:");
         for (var index = 0; index < method.ExpectedArguments.Length; index++)
         {

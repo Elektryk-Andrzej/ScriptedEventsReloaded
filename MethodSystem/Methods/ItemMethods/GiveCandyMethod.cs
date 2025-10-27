@@ -14,13 +14,16 @@ public class GiveCandyMethod : SynchronousMethod
         new PlayersArgument("players"),
         new EnumArgument<CandyKindID>("candyType"),
         new IntArgument("amount", 1)
+        {
+            DefaultValue = 1
+        }
     ];
     
     public override void Execute()
     {
         var players = Args.GetPlayers("players");
         var candyType = Args.GetEnum<CandyKindID>("candyType");
-        var amount = Args.GetIntAmount("amount");
+        var amount = Args.GetInt("amount");
 
         foreach (var plr in players)
         {

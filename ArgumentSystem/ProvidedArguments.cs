@@ -186,16 +186,6 @@ public class ProvidedArguments(Method method)
     }
 
     /// <summary>
-    /// Retrieves the integer amount associated with the specified argument name.
-    /// </summary>
-    /// <param name="argName">The name of the argument to retrieve the integer value from.</param>
-    /// <returns>The integer value associated with the specified argument.</returns>
-    public int GetIntAmount(string argName)
-    {
-        return GetValue<int, IntArgument>(argName);
-    }
-
-    /// <summary>
     /// Retrieves the unprocessed raw text value associated with the specified argument name.
     /// </summary>
     /// <param name="argName">The name of the argument to retrieve the unprocessed text from.</param>

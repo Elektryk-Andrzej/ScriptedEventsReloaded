@@ -24,7 +24,7 @@ public class DropItemMethod : SynchronousMethod
     {
         var players = Args.GetPlayers("players");
         var itemTypeToDrop = Args.GetEnum<ItemType>("itemTypeToDrop");
-        var amountToDrop = Args.GetIntAmount("amountToDrop");
+        var amountToDrop = Args.GetInt("amountToDrop");
 
         foreach (var plr in players)
         {

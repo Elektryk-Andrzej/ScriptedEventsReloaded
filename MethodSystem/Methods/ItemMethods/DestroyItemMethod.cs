@@ -22,7 +22,7 @@ public class DestroyItemMethod : SynchronousMethod
     {
         var players = Args.GetPlayers("players");
         var item = Args.GetEnum<ItemType>("item");
-        var amount = Args.GetIntAmount("amount");
+        var amount = Args.GetInt("amount");
 
         foreach (var plr in players)
         {
