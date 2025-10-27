@@ -84,7 +84,7 @@ public class IntArgument : Argument
     
     private TryGet<int> VerifyRange(NumberValue input)
     {
-        var result = (int)input.Value;
+        var result = (int)input.ExactValue;
                 
         if (result < _minValue)
             return $"Value '{result}' is lower than allowed minimum value {_minValue}.";

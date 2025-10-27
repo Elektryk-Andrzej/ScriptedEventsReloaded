@@ -13,6 +13,9 @@ public class WaitUntilMethod : YieldingMethod
     public override Argument[] ExpectedArguments { get; } =
     [
         new BoolArgument("condition")
+        {
+            IsFunction = true
+        }
     ];
 
     public override IEnumerator<float> Execute()

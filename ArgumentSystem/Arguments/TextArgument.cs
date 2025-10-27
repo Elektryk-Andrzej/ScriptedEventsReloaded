@@ -17,10 +17,8 @@ public class TextArgument(string name) : Argument(name)
     {
         switch (token)
         {
-            case TextToken { ContainsExpressions: false } textToken:
-                return TryGet<string>.Success(textToken.Value);
             case TextToken textToken:
-                return new(() => TryGet<string>.Success(textToken.ParsedValue()));
+                return textToken.GetDynamicResolver();
             case IValueCapableToken<LiteralValue> capableToken:
                 return new(() => capableToken.ExactValue.OnSuccess(v => v.ToString()));
             default:

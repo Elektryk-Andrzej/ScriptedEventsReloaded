@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
@@ -12,6 +13,7 @@ using SER.Helpers.Extensions;
 using SER.Helpers.ResultSystem;
 using SER.ScriptSystem;
 using SER.ScriptSystem.Structures;
+using SER.TokenSystem.Tokens.Variables;
 using SER.ValueSystem;
 using SER.VariableSystem.Bases;
 using SER.VariableSystem.Variables;
@@ -168,7 +170,7 @@ public static class EventHandler
             return;
         }
 
-        foreach (var scrName in scriptsConnected)
+        foreach (var scrName in scriptsConnected.ToArray())
         {
             Result rs = $"Failed to run script '{scrName}' connected to event '{evName}'";
             Log.Debug($"Running script '{scrName}' for event '{evName}'");
@@ -197,7 +199,7 @@ public static class EventHandler
         return InternalGetVariablesFromProperties(properties);
     }
     
-    internal static List<Variable> GetMimicVariables(EventInfo ev)
+    public static List<string> GetMimicVariables(EventInfo ev)
     {
         var genericType = ev.EventHandlerType.GetGenericArguments().FirstOrDefault();
         if (genericType is null)
@@ -254,31 +256,47 @@ public static class EventHandler
         return variables.ToArray();
     }
     
-    private static List<Variable> GetMimicVariablesForEventHelp(List<(Type type, string name)> properties)
+    private static List<string> GetMimicVariablesForEventHelp(List<(Type type, string name)> properties)
     {
-        List<Variable> variables = [];
+        List<string> variables = [];
         foreach (var (type, name) in properties)
         {
-            Variable var = type switch
+            string var;
+            if (type is null) continue;
+            
+            if (type == typeof(bool) ||
+                type == typeof(string) ||
+                type == typeof(int) ||
+                type == typeof(float) ||
+                type == typeof(double) ||
+                type == typeof(decimal) ||
+                type == typeof(byte) ||
+                type == typeof(sbyte) ||
+                type == typeof(short) ||
+                type == typeof(ushort) ||
+                type == typeof(uint) ||
+                type.IsEnum)
             {
-                not null when type == typeof(bool) || type == typeof(string) || type == typeof(int) ||
-                              type == typeof(float) || type == typeof(double) || type == typeof(decimal) ||
-                              type == typeof(byte) || type == typeof(sbyte) || type == typeof(short) ||
-                              type == typeof(ushort) ||
-                              type == typeof(uint) => new LiteralVariable<TextValue>(GetName(), null!),
-                
-                not null when type.IsEnum => new LiteralVariable<TextValue>(GetName(), null!),
-                
-                not null when type == typeof(Player) => 
-                    new PlayerVariable(GetName(), null!),
-                
-                not null when typeof(IEnumerable<Player>).IsAssignableFrom(type) => 
-                    new PlayerVariable(GetName(), null!),
-                
-                _ => new ReferenceVariable(GetName(), null!)
-            };
+                var = $"{new LiteralVariableToken().Prefix}{GetName()}";
+            }
+            else if (
+                type == typeof(Player) ||
+                typeof(IEnumerable<Player>).IsAssignableFrom(type)
+            )
+            {
+                var = $"{new PlayerVariableToken().Prefix}{GetName()}";
+            }
+            else if (typeof(IEnumerable).IsAssignableFrom(type) && type != typeof(string))
+            {
+                var = $"{new CollectionVariableToken().Prefix}{GetName()}";
+            }
+            else
+            {
+                var = $"{new ReferenceVariableToken().Prefix}{GetName()}";
+            }
             
             variables.Add(var);
+            continue;
 
             string GetName()
             {

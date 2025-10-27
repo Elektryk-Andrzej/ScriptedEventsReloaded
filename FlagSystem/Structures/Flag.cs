@@ -2,7 +2,15 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using LabApi.Features.Console;
+using SER.Helpers;
 using SER.Helpers.ResultSystem;
+using FlagDictionary = System.Collections.Generic.Dictionary<string, 
+    (
+    System.Type type,
+    string description, 
+    (string argName, string description)? inlineArgDescription, System.Collections.Generic.Dictionary<string, string> argDescription
+    )>;
 
 namespace SER.FlagSystem.Structures;
 
@@ -14,9 +22,9 @@ public abstract class Flag
 
     public abstract Dictionary<string, (string description, Func<string[], Result> handler)> Arguments { get; }
 
-    public abstract Result TryBind(string[] inlineArgs);
+    public abstract Result TryInitialize(string[] inlineArgs);
 
-    public abstract void Confirm();
+    public abstract void FinalizeFlag();
 
     public abstract void Unbind();
 
@@ -24,17 +32,24 @@ public abstract class Flag
 
     public string Name { get; set; } = null!;
     
-    public static Dictionary<string, 
-        (
-            Type type,
-            string description, 
-            (string argName, string description)? inlineArgDescription, 
-            Dictionary<string, string> argDescription
-        )> FlagInfos = [];
+    public static FlagDictionary FlagInfos = [];
 
-    public static void RegisterFlags()
+    internal static void RegisterFlags()
     {
-        FlagInfos = Assembly.GetExecutingAssembly().GetTypes()
+        FlagInfos = GetRegisteredFlags(Assembly.GetExecutingAssembly());
+    }
+
+    // ReSharper disable once UnusedMember.Global
+    public static void RegisterFlagsAsExternalPlugin()
+    {
+        Logger.Info($"Registering flags from '{Assembly.GetCallingAssembly().GetName().Name}' plugin.");
+        var flags = GetRegisteredFlags(Assembly.GetCallingAssembly());
+        FlagInfos = FlagInfos.Concat(flags).ToDictionary(kvp => kvp.Key, kvp => kvp.Value);
+    }
+
+    private static FlagDictionary GetRegisteredFlags(Assembly ass)
+    {
+        return ass.GetTypes()
             .Where(t => t.IsClass && !t.IsAbstract && typeof(Flag).IsAssignableFrom(t))
             .Select(t => (t, Activator.CreateInstance(t) as Flag))
             .Cast<(Type type, Flag flag)>()

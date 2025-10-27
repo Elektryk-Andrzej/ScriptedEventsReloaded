@@ -5,17 +5,18 @@ using LabApi.Features.Wrappers;
 using MapGeneration;
 using PlayerRoles;
 using SER.Helpers.Extensions;
+using SER.VariableSystem.Bases;
 using SER.VariableSystem.Variables;
 
 namespace SER.VariableSystem;
 
-public static class PlayerVariableIndex
+public static class VariableIndex
 {
-    public static readonly HashSet<PlayerVariable> GlobalPlayerVariables = [];
+    public static readonly List<Variable> GlobalVariables = [];
 
     public static void Initialize()
     {
-        GlobalPlayerVariables.Clear();
+        GlobalVariables.Clear();
         
         List<PredefinedPlayerVariable> allApiVariables =
         [
@@ -28,7 +29,6 @@ public static class PlayerVariableIndex
         allApiVariables.AddRange(
             Enum.GetValues(typeof(RoleTypeId))
                 .Cast<RoleTypeId>()
-                .Where(role => role is not RoleTypeId.None)
                 .Select(roleType =>
                 {
                     return new PredefinedPlayerVariable(roleType.ToString().LowerFirst() + "Players",
@@ -39,7 +39,6 @@ public static class PlayerVariableIndex
         allApiVariables.AddRange(
             Enum.GetValues(typeof(FacilityZone))
                 .Cast<FacilityZone>()
-                .Where(zone => zone is not FacilityZone.None and not FacilityZone.Other)
                 .Select(zone =>
                 {
                     return new PredefinedPlayerVariable(zone.ToString().LowerFirst() + "Players",
@@ -76,7 +75,7 @@ public static class PlayerVariableIndex
 
         foreach (var variable in allApiVariables)
         {
-            GlobalPlayerVariables.Add(variable);
+            GlobalVariables.Add(variable);
         }
     }
 }

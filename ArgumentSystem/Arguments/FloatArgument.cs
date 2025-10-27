@@ -57,7 +57,7 @@ public class FloatArgument : Argument
     {
         if (token is NumberToken number)
         {
-            return VerifyRange((float)number.Value.Value);
+            return VerifyRange((float)number.Value.ExactValue);
         }
         
         if (token is not IValueCapableToken<LiteralValue>)
@@ -80,7 +80,7 @@ public class FloatArgument : Argument
             return error;
         }
 
-        return VerifyRange((float)value.Value);
+        return VerifyRange((float)value.ExactValue);
     }
 
     private TryGet<float> VerifyRange(float value)

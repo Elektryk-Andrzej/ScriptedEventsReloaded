@@ -13,7 +13,8 @@ public class CassieMethod : SynchronousMethod
     [
         new OptionsArgument("mode",
             "jingle",
-            "noJingle"),
+            "noJingle"
+        ),
         new TextArgument("message"),
         new TextArgument("translation")
         {

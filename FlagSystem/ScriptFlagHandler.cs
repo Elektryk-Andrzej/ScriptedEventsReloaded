@@ -52,7 +52,7 @@ public static class ScriptFlagHandler
             }
         }
         
-        _currentFlag?.Confirm();
+        _currentFlag?.FinalizeFlag();
         _currentFlag = null;
     }
 
@@ -78,7 +78,7 @@ public static class ScriptFlagHandler
 
     private static void HandleFlag(string name, string[] arguments, string scriptName)
     {
-        _currentFlag?.Confirm();
+        _currentFlag?.FinalizeFlag();
         Result rs = $"Flag '{name}' failed when parsing.";
         
         if (Flag.TryGet(name, scriptName).HasErrored(out var getErr, out var flag))
@@ -87,7 +87,7 @@ public static class ScriptFlagHandler
             return;
         }
         
-        if (flag.TryBind(arguments).HasErrored(out var bindErr))
+        if (flag.TryInitialize(arguments).HasErrored(out var bindErr))
         {
             Log.Error(scriptName, rs + bindErr);
             return;

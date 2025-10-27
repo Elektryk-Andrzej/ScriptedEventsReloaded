@@ -12,7 +12,7 @@ public class DurationValue(TimeSpan value) : LiteralValue<TimeSpan>(value)
     
     public static implicit operator TimeSpan(DurationValue value)
     {
-        return value.Value;
+        return value.ExactValue;
     }
 
     protected override string StringRep
@@ -20,24 +20,24 @@ public class DurationValue(TimeSpan value) : LiteralValue<TimeSpan>(value)
         get
         {
             StringBuilder sb = new();
-            if (Value.Hours > 0)
+            if (ExactValue.Hours > 0)
             {
-                sb.Append($"{Value.Hours}h ");
+                sb.Append($"{ExactValue.Hours}h ");
             }
 
-            if (Value.Minutes > 0)
+            if (ExactValue.Minutes > 0)
             {
-                sb.Append($"{Value.Minutes}m ");
+                sb.Append($"{ExactValue.Minutes}m ");
             }
 
-            if (Value.Seconds > 0)
+            if (ExactValue.Seconds > 0)
             {
-                sb.Append($"{Value.Seconds}s ");
+                sb.Append($"{ExactValue.Seconds}s ");
             }
 
-            if (Value.Milliseconds > 0)
+            if (ExactValue.Milliseconds > 0)
             {
-                sb.Append($"{Value.Milliseconds:D3}ms ");
+                sb.Append($"{ExactValue.Milliseconds:D3}ms ");
             }
             
             return sb.Remove(sb.Length - 1, 1).ToString();

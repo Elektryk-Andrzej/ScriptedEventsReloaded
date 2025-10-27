@@ -9,8 +9,8 @@ public class TextValue(string value) : LiteralValue<string>(value)
     
     public static implicit operator string(TextValue value)
     {
-        return value.Value;
+        return value.ExactValue;
     }
 
-    protected override string StringRep => Value;
+    protected override string StringRep => ExactValue;
 }

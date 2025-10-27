@@ -251,7 +251,7 @@ public class ProvidedArguments(Method method)
     {
         var obj = GetValue<object, EnumArgument<TEnum>>(argName);
         if (obj is not TEnum value)
-            throw new AndrzejFuckedUpException($"Cannot convert {obj.GetType().Name} to {typeof(TEnum).Name}");
+            throw new AndrzejFuckedUpException($"Enum got {obj.GetType().AccurateName}, not {typeof(TEnum).AccurateName}");
 
         return value;
     }

@@ -11,26 +11,39 @@ public class BoolArgument(string name) : Argument(name)
 {
     public override string InputDescription => "boolean (true or false) value";
 
+    public bool IsFunction { get; init; } = false;
+
+    private static TryGet<bool> ParseAsLiteral(BaseToken token)
+    {
+        if (token.TryGetLiteralValue<BoolValue>().HasErrored(out var error, out var value))
+        {
+            return error;
+        }
+
+        return value.ExactValue;
+    }
+    
     [UsedImplicitly]
     public DynamicTryGet<bool> GetConvertSolution(BaseToken token)
     {
-        if (token.TryGetLiteralValue<BoolValue>().WasSuccessful(out var boolValue))
+        if (ParseAsLiteral(token).WasSuccessful(out var value))
         {
-            return boolValue.Value;
+            if (IsFunction) return new(() => ParseAsLiteral(token));
+            return value;
         }
             
         if (token is IValueCapableToken<LiteralValue> literalValueToken)
         {
             return new(() =>
             {
-                if (literalValueToken.ExactValue.HasErrored(out var error, out var value))
+                if (literalValueToken.ExactValue.HasErrored(out var error, out var valueTheGreat))
                 {
                     return error;
                 }
 
-                if (value.Value is not bool @bool)
+                if (valueTheGreat.BaseValue is not bool @bool)
                 {
-                    return $"Value '{value}' retreived from {token.RawRep} is not a boolean.";
+                    return $"Value '{valueTheGreat}' retreived from {token.RawRep} is not a boolean.";
                 }
 
                 return @bool;

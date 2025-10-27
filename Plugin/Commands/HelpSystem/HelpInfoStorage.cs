@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using Interactables.Interobjects;
 using LabApi.Features.Enums;
 using MapGeneration;
+using SER.FlagSystem.Flags;
 using SER.FlagSystem.Structures;
 using SER.TokenSystem.Tokens;
 
@@ -17,7 +18,7 @@ public static class HelpInfoStorage
         typeof(DoorName),
         typeof(ItemType),
         typeof(ElevatorGroup),
-        typeof(ConsoleType),
+        typeof(CustomCommandFlag.ConsoleType),
         typeof(PlayerPropertyExpression.PlayerPropertyType)
     ];
 }

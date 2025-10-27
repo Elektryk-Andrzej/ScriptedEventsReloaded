@@ -14,7 +14,7 @@ namespace SER.MethodSystem.Methods.DoorMethods;
 public class DoorInfoMethod : LiteralValueReturningMethod, IReferenceResolvingMethod
 {
     public Type ReferenceType => typeof(Door);
-    public override Type[] ReturnTypes => [typeof(TextValue), typeof(BoolValue)];
+    public override Type[] LiteralReturnTypes => [typeof(TextValue), typeof(BoolValue)];
 
     public override string Description => null!;
 

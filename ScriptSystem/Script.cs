@@ -72,7 +72,7 @@ public class Script
         Stop();
     }
 
-    public static TryGet<Script> CreateByScriptName(string dirtyName, ScriptExecutor executor)
+    public static TryGet<Script> CreateByScriptName(string dirtyName, ScriptExecutor? executor)
     {
         var name = Path.GetFileNameWithoutExtension(dirtyName);
         if (!FileSystem.DoesScriptExist(name, out var path))
@@ -84,11 +84,11 @@ public class Script
         {
             Name = name,
             Content = File.ReadAllText(path),
-            Executor = executor
+            Executor = executor ?? ScriptExecutor.Get()
         };
     }
     
-    public static TryGet<Script> CreateByPath(string path, ScriptExecutor executor)
+    public static TryGet<Script> CreateByPath(string path, ScriptExecutor? executor)
     {
         var name = Path.GetFileNameWithoutExtension(path);
         
@@ -101,15 +101,15 @@ public class Script
         {
             Name = name,
             Content = File.ReadAllText(path),
-            Executor = executor
+            Executor = executor ?? ScriptExecutor.Get()
         };
     }
     
-    public static Script CreateByVerifiedPath(string path, ScriptExecutor executor) => new() 
+    public static Script CreateByVerifiedPath(string path, ScriptExecutor? executor) => new() 
     {
         Name =  Path.GetFileNameWithoutExtension(path),
         Content = File.ReadAllText(path),
-        Executor = executor
+        Executor = executor ?? ScriptExecutor.Get()
     };
 
     public static int StopAll()
@@ -231,10 +231,12 @@ public class Script
 
     private IEnumerator<float> InternalExecute()
     {
-        if (DefineLines().HasErrored(out var err) || 
+        if (
+            DefineLines().HasErrored(out var err) || 
             SliceLines().HasErrored(out err) ||
             TokenizeLines().HasErrored(out err) || 
-            ContextLines().HasErrored(out err))
+            ContextLines().HasErrored(out err)
+        )
         {
             throw new ScriptRuntimeError(err);
         }
@@ -278,24 +280,11 @@ public class Script
 
             return casted;
         }
-
-        if (typeof(T) == typeof(LiteralVariable))
+        
+        var global = VariableIndex.GlobalVariables.FirstOrDefault(v => v.Name == name);
+        if (global is T globalT)
         {
-            var globalLitVar = LiteralVariableIndex.GlobalLiteralVariables
-                .FirstOrDefault(v => v.Name == name);
-            if (globalLitVar is not null)
-            {
-                return (globalLitVar as T)!;
-            }
-        }
-        else if (typeof(T) == typeof(PlayerVariable))
-        {
-            var globalPlrVar = PlayerVariableIndex.GlobalPlayerVariables
-                .FirstOrDefault(v => v.Name == name);
-            if (globalPlrVar is not null)
-            {
-                return (globalPlrVar as T)!;
-            }
+            return globalT;
         }
 
         return $"There is no variable called {name}.";

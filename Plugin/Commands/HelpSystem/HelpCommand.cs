@@ -250,7 +250,7 @@ public class HelpCommand : ICommand
             .JoinStrings("\n");
         
         return
-            """
+            $"""
             Flags are a way to change script behavior depending on your needs.
             
             This how they are used:
@@ -261,7 +261,8 @@ public class HelpCommand : ICommand
             
             Below is a list of all flags available in SER:
             (for more info about their usage, use 'serhelp flagName')
-            """ + flags;
+            {flags}
+            """;
     }
 
     private static string GetFlagInfo(string flagName)
@@ -288,32 +289,12 @@ public class HelpCommand : ICommand
     private static string GetEventInfo(EventInfo ev)
     {
         var variables = EventHandler.GetMimicVariables(ev);
-        string msg;
-        if (variables.Count > 0)
-        {
-            msg = "This event has the following variables attached to it:\n";
-            foreach (var variable in variables)
-            {
-                switch (variable)
-                {
-                    case PlayerVariable:
-                        msg += $"> @{variable.Name} (player variable)\n";
-                        continue;
-                    case ReferenceVariable refVar:
-                        msg += $"> {{{refVar.Name}}} (reference variable to {refVar.Value.Value}\n";
-                        continue;
-                    case LiteralVariable<TextValue>:
-                        msg += $"> {{{variable.Name}}} (literal variable)\n";
-                        continue;
-                    default:
-                        throw new AndrzejFuckedUpException();
-                }
-            }
-        }
-        else
-        {
-            msg = "This event does not have any variables attached to it.";
-        }
+        var msg = variables.Count > 0 
+            ? variables.Aggregate(
+                "This event has the following variables attached to it:\n", 
+                (current, variable) => current + $"> {variable}\n"
+            ) 
+            : "This event does not have any variables attached to it.";
         
         return 
              $"""
@@ -452,7 +433,7 @@ public class HelpCommand : ICommand
     
     private static string GetVariableList()
     {
-        var allVars = PlayerVariableIndex.GlobalPlayerVariables
+        var allVars = VariableIndex.GlobalVariables
             .Where(var => var is PredefinedPlayerVariable)
             .Cast<PredefinedPlayerVariable>()
             .ToList();
@@ -497,7 +478,7 @@ public class HelpCommand : ICommand
             case LiteralValueReturningMethod ret:
             {
                 string typeReturn;
-                if (ret.ReturnTypes is { } types)
+                if (ret.LiteralReturnTypes is { } types)
                 {
                     typeReturn = types
                         .Select(LiteralValue.GetFriendlyName)

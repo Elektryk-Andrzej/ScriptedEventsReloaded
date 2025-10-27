@@ -5,6 +5,11 @@ namespace SER.Helpers.Extensions;
 
 public static class TypeExtensions
 {
+    extension(Type type)
+    {
+        public string AccurateName => GetAccurateName(type);
+    }
+    
     // done by chatgpt
     public static string GetAccurateName(this Type type)
     {

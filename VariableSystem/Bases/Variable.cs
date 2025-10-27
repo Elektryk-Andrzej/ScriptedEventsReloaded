@@ -7,7 +7,9 @@ namespace SER.VariableSystem.Bases;
 public abstract class Variable
 {
     public abstract string Name { get; }
-    
+
+    public abstract Value BaseValue { get; }
+
     public static Variable CopyVariable(Variable variable)
     {
         var name = variable.Name;
@@ -40,4 +42,5 @@ public abstract class Variable<TValue> : Variable
     where TValue : Value
 {
     public abstract TValue Value { get; }
+    public override Value BaseValue => Value;
 }

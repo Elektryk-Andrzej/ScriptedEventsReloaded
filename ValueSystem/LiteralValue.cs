@@ -1,5 +1,6 @@
 ﻿using System;
 using SER.Helpers.Extensions;
+using SER.Helpers.ResultSystem;
 
 namespace SER.ValueSystem;
 
@@ -7,7 +8,7 @@ public abstract class LiteralValue(object value) : Value
 {
     protected abstract string StringRep { get; }
     
-    public object Value => value;
+    public object BaseValue => value;
 
     public override string ToString()
     {
@@ -20,11 +21,21 @@ public abstract class LiteralValue(object value) : Value
     {
         return type.Name.Replace("Value", "").LowerFirst();
     }
+
+    public TryGet<T> TryGetValue<T>() where T : Value
+    {
+        if (this is T tValue)
+        {
+            return tValue;
+        }
+        
+        return $"Value is not of type {typeof(T).AccurateName}, but {BaseValue.GetType().AccurateName}.";
+    }
 }
 
 public abstract class LiteralValue<T>(T value) : LiteralValue(value) 
     where T : notnull
 {
-    public new T Value => value;
+    public T ExactValue => value;
 }
 

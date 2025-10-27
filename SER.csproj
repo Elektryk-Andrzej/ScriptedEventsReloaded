@@ -147,9 +147,9 @@
         <Compile Include="ExampleScripts\ExampleScript.cs" />
         <Compile Include="ExampleScripts\Scripts\InviteInfoScript.cs" />
         <Compile Include="FlagSystem\Flags\CustomCommandFlag.cs" />
+        <Compile Include="FlagSystem\Flags\OnCustomTriggerFlag.cs" />
         <Compile Include="FlagSystem\Flags\OnEventFlag.cs" />
         <Compile Include="FlagSystem\ScriptFlagHandler.cs" />
-        <Compile Include="FlagSystem\Structures\ConsoleType.cs" />
         <Compile Include="FlagSystem\Structures\Flag.cs" />
         <Compile Include="Helpers\Compiler\CompilerRequiredAttributes.cs" />
         <Compile Include="Helpers\Compiler\IsExternalInit.cs.cs" />
@@ -185,6 +185,8 @@
         <Compile Include="MethodSystem\Methods\EventMethods\DisableEventMethod.cs" />
         <Compile Include="MethodSystem\Methods\EventMethods\EnableEventMethod.cs" />
         <Compile Include="MethodSystem\Methods\EventMethods\IsAllowedMethod.cs" />
+        <Compile Include="MethodSystem\Methods\GeneralVariableMethods\GlobalVariableMethod.cs" />
+        <Compile Include="MethodSystem\Methods\GeneralVariableMethods\PopVariableMethod.cs" />
         <Compile Include="MethodSystem\Methods\GeneralVariableMethods\VarExistsMethod.cs" />
         <Compile Include="MethodSystem\Methods\HealthMethods\DamageInfoMethod.cs" />
         <Compile Include="MethodSystem\Methods\HealthMethods\HealMethod.cs" />
@@ -197,7 +199,6 @@
         <Compile Include="MethodSystem\Methods\ItemMethods\AdvDropItemMethod.cs" />
         <Compile Include="MethodSystem\Methods\ItemMethods\DestroyItemMethod.cs" />
         <Compile Include="MethodSystem\Methods\LiteralVariableMethods\GetPlayerDataMethod.cs" />
-        <Compile Include="MethodSystem\Methods\LiteralVariableMethods\GlobalLiteralVariableMethod.cs" />
         <Compile Include="MethodSystem\Methods\LiteralVariableMethods\SetPlayerDataMethod.cs" />
         <Compile Include="MethodSystem\Methods\MapMethods\DestroyRagdollMethod.cs" />
         <Compile Include="MethodSystem\Methods\MathMethods\RandomNumMethod.cs" />
@@ -209,7 +210,6 @@
         <Compile Include="MethodSystem\Methods\PlayerMethods\SetSizeMethod.cs" />
         <Compile Include="MethodSystem\Methods\PlayerVariableMethods\ContainsPlayerMethod.cs" />
         <Compile Include="MethodSystem\Methods\PlayerVariableMethods\GetPlayerFromReferenceMethod.cs" />
-        <Compile Include="MethodSystem\Methods\PlayerVariableMethods\GlobalPlayerVariableMethod.cs" />
         <Compile Include="MethodSystem\Methods\PlayerVariableMethods\JoinPlayersMethod.cs" />
         <Compile Include="MethodSystem\Methods\PlayerVariableMethods\LimitPlayersMethod.cs" />
         <Compile Include="MethodSystem\Methods\PlayerVariableMethods\RemovePlayersMethod.cs" />
@@ -223,13 +223,13 @@
         <Compile Include="MethodSystem\Methods\RoundMethods\RoundInfoMethod.cs" />
         <Compile Include="MethodSystem\Methods\RoundMethods\RoundLockMethod.cs" />
         <Compile Include="MethodSystem\Methods\ScriptMethods\TransferVariablesMethod.cs" />
+        <Compile Include="MethodSystem\Methods\ScriptMethods\TriggerMethod.cs" />
         <Compile Include="MethodSystem\Methods\ServerMethods\CommandMethod.cs" />
         <Compile Include="MethodSystem\Methods\BroadcastMethods\BroadcastMethod.cs" />
         <Compile Include="MethodSystem\Methods\BroadcastMethods\ClearBroadcastsMethod.cs" />
         <Compile Include="MethodSystem\Methods\BroadcastMethods\HintMethod.cs" />
         <Compile Include="MethodSystem\Methods\CASSIEMethods\CassieMethod.cs" />
         <Compile Include="MethodSystem\Methods\CASSIEMethods\ClearCassieMethod.cs" />
-        <Compile Include="MethodSystem\Methods\CASSIEMethods\PlayerCassieMethod.cs" />
         <Compile Include="MethodSystem\Methods\DoorMethods\CloseDoorMethod.cs" />
         <Compile Include="MethodSystem\Methods\DoorMethods\DoorInfoMethod.cs" />
         <Compile Include="MethodSystem\Methods\DoorMethods\GetRandomDoorMethod.cs" />
@@ -264,6 +264,8 @@
         <Compile Include="MethodSystem\Methods\TeleportMethods\TPRoomMethod.cs" />
         <Compile Include="MethodSystem\Methods\TeleportMethods\TPSpawnMethod.cs" />
         <Compile Include="MethodSystem\Methods\TextMethods\JoinTextMethod.cs" />
+        <Compile Include="MethodSystem\Methods\TextMethods\ReplaceTextMethod.cs" />
+        <Compile Include="MethodSystem\Methods\TimeMethods\ToDurationMethod.cs" />
         <Compile Include="MethodSystem\Methods\TimeMethods\TimeInfoMethod.cs" />
         <Compile Include="MethodSystem\Methods\WarheadMethods\DetonateWarheadMethod.cs" />
         <Compile Include="MethodSystem\Methods\WaitingMethods\WaitMethod.cs" />
@@ -334,11 +336,10 @@
         <Compile Include="ValueSystem\TextValue.cs" />
         <Compile Include="ValueSystem\Value.cs" />
         <Compile Include="VariableSystem\Bases\Variable.cs" />
-        <Compile Include="VariableSystem\LiteralVariableIndex.cs" />
         <Compile Include="VariableSystem\Variables\CollectionVariable.cs" />
         <Compile Include="VariableSystem\Variables\LiteralVariable.cs" />
         <Compile Include="VariableSystem\Variables\PlayerVariable.cs" />
-        <Compile Include="VariableSystem\PlayerVariableIndex.cs" />
+        <Compile Include="VariableSystem\VariableIndex.cs" />
         <Compile Include="VariableSystem\Variables\PredefinedPlayerVariable.cs" />
         <Compile Include="VariableSystem\Variables\ReferenceVariable.cs" />
     </ItemGroup>

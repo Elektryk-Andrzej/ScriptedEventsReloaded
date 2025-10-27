@@ -5,7 +5,7 @@ using SER.Helpers.Exceptions;
 using SER.MethodSystem.BaseMethods;
 using SER.ValueSystem;
 
-namespace SER.MethodSystem.Methods.LiteralVariableMethods;
+namespace SER.MethodSystem.Methods.CollectionVariableMethods;
 
 public class CollectionFetchMethod : ReturningMethod
 {

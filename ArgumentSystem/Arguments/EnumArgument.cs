@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using JetBrains.Annotations;
 using SER.ArgumentSystem.BaseArguments;
 using SER.Helpers.Extensions;
@@ -26,7 +27,15 @@ public class EnumArgument<TEnum> : Argument where TEnum : struct, Enum
             return value;
         }
 
-        return new(() => InternalConvert(token));
+        return new(() =>
+        {
+            if (InternalConvert(token).HasErrored(out var error, out value))
+            {
+                return error;
+            }
+
+            return value;
+        });
     }
 
     public static TryGet<T> Convert<T>(BaseToken token, Script script) where T : struct, Enum
@@ -42,7 +51,9 @@ public class EnumArgument<TEnum> : Argument where TEnum : struct, Enum
     public static TryGet<object> Convert(BaseToken token, Script script, Type enumType)
     {
         var stringRep = token.GetBestTextRepresentation(script);
-        if (Enum.IsDefined(enumType, stringRep))
+        
+        // only allow exact matches or matches with the first letter not capitalized
+        if (Enum.GetNames(enumType).Any(n => n.LowerFirst() == stringRep))
         {
             return Enum.Parse(enumType, stringRep, true);
         }

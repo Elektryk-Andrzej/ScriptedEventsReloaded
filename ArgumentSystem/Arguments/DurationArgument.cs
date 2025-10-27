@@ -1,11 +1,10 @@
 ﻿using System;
 using JetBrains.Annotations;
 using SER.ArgumentSystem.BaseArguments;
-using SER.Helpers.Exceptions;
 using SER.Helpers.ResultSystem;
 using SER.TokenSystem.Tokens;
+using SER.TokenSystem.Tokens.Interfaces;
 using SER.ValueSystem;
-using Result = SER.Helpers.ResultSystem.Result;
 
 namespace SER.ArgumentSystem.Arguments;
 
@@ -16,21 +15,25 @@ public class DurationArgument(string name) : Argument(name)
     [UsedImplicitly]
     public DynamicTryGet<TimeSpan> GetConvertSolution(BaseToken token)
     {
-        Result rs = $"Value '{token.RawRep}' is not a duration.";
         return token switch
         {
-            DurationToken durToken => durToken.Value.Value,
-            ExpressionToken { Type: MethodExpression methodExpr } => new(() =>
+            DurationToken durToken => durToken.Value.ExactValue,
+            IValueCapableToken<DurationValue> capable => new(() => capable.ExactValue.OnSuccess(v => v.ExactValue)),
+            IValueCapableToken<LiteralValue> litCapable => new(() =>
             {
-                methodExpr.Method.Execute();
-                if (methodExpr.Method.ReturnValue is not DurationValue durValue)
+                if (litCapable.ExactValue.HasErrored(out var litValError, out var literalValue))
                 {
-                    throw new ScriptRuntimeError(rs);
+                    return litValError;
                 }
 
-                return durValue.Value;
+                if (literalValue.TryGetValue<DurationValue>().HasErrored(out var durValError, out var durationValue))
+                {
+                    return durValError;
+                }
+                
+                return durationValue.ExactValue;
             }),
-            _ => rs
+            _ => $"Value '{token.RawRep}' is not a duration."
         };
     }
 }

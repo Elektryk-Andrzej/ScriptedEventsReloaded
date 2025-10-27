@@ -2,7 +2,9 @@
 using JetBrains.Annotations;
 using LabApi.Features;
 using LabApi.Features.Console;
+using MEC;
 using SER.FlagSystem.Structures;
+using SER.Helpers;
 using SER.MethodSystem;
 using SER.MethodSystem.Methods.LiteralVariableMethods;
 using SER.ScriptSystem;
@@ -33,10 +35,8 @@ public class MainPlugin : LabApi.Loader.Features.Plugins.Plugin
         Script.StopAll();
         EventHandler.Initialize();
         MethodIndex.Initialize();
-        PlayerVariableIndex.Initialize();
+        VariableIndex.Initialize();
         Flag.RegisterFlags();
-        FileSystem.Initialize();
-        //KeywordToken.RegisterKeywords();
         
         Events.ServerEvents.WaitingForPlayers += OnServerFullyInit;
         Events.ServerEvents.RoundRestarted += () =>
@@ -44,6 +44,8 @@ public class MainPlugin : LabApi.Loader.Features.Plugins.Plugin
             Script.StopAll();
             SetPlayerDataMethod.PlayerData.Clear();
         };
+        
+        Timing.CallDelayed(1.5f, FileSystem.Initialize);
     }
 
     public override void Disable()
@@ -55,12 +57,13 @@ public class MainPlugin : LabApi.Loader.Features.Plugins.Plugin
     {
         Logger.Raw(
             $"""
-                    Thank you for using ### Scripted Events Reloaded ### by {Author}!
-                    
-                    Help command: {HelpCommandName}
-                    GitHub repository: {GitHubLink}
-                    Wiki page: {WikiLink}
-                    """,
-            ConsoleColor.White);
+             Thank you for using ### Scripted Events Reloaded ### by {Author}!
+
+             Help command: {HelpCommandName}
+             GitHub repository: {GitHubLink}
+             Wiki page: {WikiLink}
+             """,
+            ConsoleColor.Cyan
+        );
     }
 }

@@ -50,12 +50,12 @@ public class RepeatLoopContext : StatementContext, IKeywordContext
                         return $"Value '{value}' retreived from {token.RawRep} is not a number.";
                     }
 
-                    if (numberValue.Value < 0)
+                    if (numberValue.ExactValue < 0)
                     {
                         return $"Value '{value}' cannot be negative.";
                     }
 
-                    return (uint)numberValue.Value;
+                    return (uint)numberValue.ExactValue;
                 };
                 return TryAddTokenRes.End();
         }

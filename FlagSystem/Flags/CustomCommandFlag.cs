@@ -45,8 +45,17 @@ public class CustomCommandFlag : Flag
             AddDescription
         )
     };
+    
+    [Flags]
+    public enum ConsoleType
+    {
+        None        = 0,
+        Player      = 1 << 0,
+        RemoteAdmin = 1 << 1,
+        Server      = 1 << 2
+    }
 
-    public override Result TryBind(string[] inlineArgs)
+    public override Result TryInitialize(string[] inlineArgs)
     {
         switch (inlineArgs.Length)
         {
@@ -70,7 +79,7 @@ public class CustomCommandFlag : Flag
         return true;
     }
 
-    public override void Confirm()
+    public override void FinalizeFlag()
     {
         if (ScriptCommands.ContainsKey(Command))
         {

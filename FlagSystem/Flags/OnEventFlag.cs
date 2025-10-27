@@ -20,7 +20,7 @@ public class OnEventFlag : Flag
     
     public override Dictionary<string, (string description, Func<string[], Result> handler)> Arguments => new();
 
-    public override Result TryBind(string[] inlineArgs)
+    public override Result TryInitialize(string[] inlineArgs)
     {
         switch (inlineArgs.Length)
         {
@@ -38,7 +38,7 @@ public class OnEventFlag : Flag
         return true;
     }
 
-    public override void Confirm()
+    public override void FinalizeFlag()
     {
     }
 

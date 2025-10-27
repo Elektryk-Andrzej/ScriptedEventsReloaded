@@ -23,8 +23,7 @@ public class MethodToken : BaseToken, IContextableToken
             return error + "First character must be uppercase.";
         }
 
-        if (MethodIndex.TryGetMethod(Slice.RawRepresentation)
-                .HasErrored(out var err, out var method))
+        if (MethodIndex.TryGetMethod(Slice.RawRepresentation).HasErrored(out var err, out var method))
         {
             return error + err;
         }

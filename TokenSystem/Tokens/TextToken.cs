@@ -11,8 +11,6 @@ namespace SER.TokenSystem.Tokens;
 public class TextToken : LiteralValueToken<TextValue>
 {
     private static readonly Regex ExpressionRegex = new(@"\{.*?\}", RegexOptions.Compiled);
-    
-    public TryGet<string> TextRepresentation(Script _) => TryGet<string>.Success(Value);
 
     public string ParsedValue() => ContainsExpressions ? ParseValue(Value, Script) : Value;
 
@@ -41,7 +39,7 @@ public class TextToken : LiteralValueToken<TextValue>
             return "<error>";
         }
             
-        return result.Value.ToString();
+        return result.ToString();
     });
 
     protected override Result InternalParse(Script scr)
@@ -55,15 +53,9 @@ public class TextToken : LiteralValueToken<TextValue>
         return true;
     }
 
-    public DynamicTryGet<TextValue> GetDynamicResolver()
+    public DynamicTryGet<string> GetDynamicResolver()
     {
-        if (ContainsExpressions) return new(() => ParsedValue());
-        return Value;
-    }
-    
-    public DynamicTryGet<LiteralValue> GetDynamicResolverLiteral()
-    {
-        if (ContainsExpressions) return new(() => ParsedValue());
-        return Value;
+        if (ContainsExpressions) return new(() => TryGet<string>.Success(ParsedValue()));
+        return DynamicTryGet.Success(Value.ExactValue);
     }
 }
