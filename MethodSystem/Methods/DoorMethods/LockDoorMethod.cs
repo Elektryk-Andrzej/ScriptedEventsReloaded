@@ -12,7 +12,10 @@ public class LockDoorMethod : SynchronousMethod
     public override Argument[] ExpectedArguments { get; } = 
     [       
         new DoorsArgument("doors"),
-        new EnumArgument<DoorLockReason>("lock") 
+        new EnumArgument<DoorLockReason>("lock")
+        {
+            DefaultValue = DoorLockReason.AdminCommand
+        }
     ];
     
     public override void Execute()
