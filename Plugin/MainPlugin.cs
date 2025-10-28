@@ -22,7 +22,7 @@ public class MainPlugin : LabApi.Loader.Features.Plugins.Plugin
     public override string Description => "The scripting language for SCP:SL.";
     public override string Author => "Elektryk_Andrzej";
     public override Version RequiredApiVersion => LabApiProperties.CurrentVersion;
-    public override Version Version => new(0, 3, 0);
+    public override Version Version => new(0, 4, 0);
     
     public static string GitHubLink => "https://github.com/ScriptedEvents/ScriptedEventsReloaded";
     public static string HelpCommandName => "serhelp";
