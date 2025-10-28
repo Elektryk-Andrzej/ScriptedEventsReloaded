@@ -39,6 +39,7 @@ public static class VariableIndex
         allApiVariables.AddRange(
             Enum.GetValues(typeof(FacilityZone))
                 .Cast<FacilityZone>()
+                .Where(zone => zone != FacilityZone.None)
                 .Select(zone =>
                 {
                     return new PredefinedPlayerVariable(zone.ToString().LowerFirst() + "Players",
@@ -72,10 +73,7 @@ public static class VariableIndex
                         "Team");
                 })
                 .OfType<PredefinedPlayerVariable>());
-
-        foreach (var variable in allApiVariables)
-        {
-            GlobalVariables.Add(variable);
-        }
+        
+        GlobalVariables.AddRange(allApiVariables);
     }
 }
