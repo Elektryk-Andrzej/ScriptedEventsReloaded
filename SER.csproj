@@ -209,6 +209,7 @@
         <Compile Include="MethodSystem\Methods\PlayerMethods\SetCustomInfoMethod.cs" />
         <Compile Include="MethodSystem\Methods\PlayerMethods\GodModeMethod.cs" />
         <Compile Include="MethodSystem\Methods\PlayerMethods\NoclipMethod.cs" />
+        <Compile Include="MethodSystem\Methods\PlayerMethods\SetGroupMethod.cs" />
         <Compile Include="MethodSystem\Methods\PlayerMethods\SetSizeMethod.cs" />
         <Compile Include="MethodSystem\Methods\PlayerVariableMethods\ContainsPlayerMethod.cs" />
         <Compile Include="MethodSystem\Methods\PlayerVariableMethods\GetPlayerFromReferenceMethod.cs" />
