@@ -220,9 +220,11 @@
         <Compile Include="MethodSystem\Methods\RoleMethods\SetRoleMethod.cs" />
         <Compile Include="MethodSystem\Methods\RoomMethods\GetRoomByNameMethod.cs" />
         <Compile Include="MethodSystem\Methods\RoomMethods\RoomInfoMethod.cs" />
+        <Compile Include="MethodSystem\Methods\RoundMethods\EndRoundMethod.cs" />
         <Compile Include="MethodSystem\Methods\RoundMethods\LobbyLockMethod.cs" />
         <Compile Include="MethodSystem\Methods\RoundMethods\RoundInfoMethod.cs" />
         <Compile Include="MethodSystem\Methods\RoundMethods\RoundLockMethod.cs" />
+        <Compile Include="MethodSystem\Methods\RoundMethods\StartRoundMethod.cs" />
         <Compile Include="MethodSystem\Methods\ScriptMethods\TransferVariablesMethod.cs" />
         <Compile Include="MethodSystem\Methods\ScriptMethods\TriggerMethod.cs" />
         <Compile Include="MethodSystem\Methods\ServerMethods\CommandMethod.cs" />
