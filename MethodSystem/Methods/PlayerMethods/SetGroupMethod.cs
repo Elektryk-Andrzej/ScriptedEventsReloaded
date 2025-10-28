@@ -19,6 +19,9 @@ public class SetGroupMethod : SynchronousMethod
     {
         string gr = Args.GetText("group");
         List<Player> pls = Args.GetPlayers("players");
-        pls.ForEach(p=>p.UserGroup = ServerStatic.PermissionsHandler.GetGroup(gr == "NONE" ? null: gr));
+        foreach(Player p in pls)
+        {
+            p.UserGroup = gr == "NONE" ? null : ServerStatic.PermissionsHandler.GetGroup(gr);
+        }
     }
 }
