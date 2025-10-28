@@ -58,7 +58,7 @@
         <Private>true</Private>
       </Reference>
       <Reference Include="LabApi">
-        <HintPath>..\..\Desktop\LABAPI REF\LabApi.dll</HintPath>
+        <HintPath>$(SL_DEV_REFERENCES)\LabApi.dll</HintPath>
       </Reference>
       <Reference Include="Mirror">
         <HintPath>$(SL_DEV_REFERENCES)\Mirror.dll</HintPath>
