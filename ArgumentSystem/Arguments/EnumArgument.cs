@@ -53,7 +53,7 @@ public class EnumArgument<TEnum> : Argument where TEnum : struct, Enum
         var stringRep = token.GetBestTextRepresentation(script);
         
         // only allow exact matches or matches with the first letter not capitalized
-        if (Enum.GetNames(enumType).Any(n => n.LowerFirst() == stringRep))
+        if (Enum.IsDefined(enumType, stringRep))
         {
             return Enum.Parse(enumType, stringRep, true);
         }
