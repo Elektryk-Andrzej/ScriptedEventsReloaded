@@ -192,6 +192,7 @@
         <Compile Include="MethodSystem\Methods\HealthMethods\HealMethod.cs" />
         <Compile Include="MethodSystem\Methods\ItemMethods\ItemInfoMethod.cs" />
         <Compile Include="MethodSystem\Methods\LiteralVariableMethods\PlayerDataExistsMethod.cs" />
+        <Compile Include="MethodSystem\Methods\MapMethods\CleanupPickupsMethod.cs" />
         <Compile Include="MethodSystem\Methods\MapMethods\DecontaminationMethod.cs" />
         <Compile Include="MethodSystem\Methods\OutputMethods\ErrorMethod.cs" />
         <Compile Include="MethodSystem\Methods\OutputMethods\PrintMethod.cs" />
@@ -201,7 +202,7 @@
         <Compile Include="MethodSystem\Methods\ItemMethods\DestroyItemMethod.cs" />
         <Compile Include="MethodSystem\Methods\LiteralVariableMethods\GetPlayerDataMethod.cs" />
         <Compile Include="MethodSystem\Methods\LiteralVariableMethods\SetPlayerDataMethod.cs" />
-        <Compile Include="MethodSystem\Methods\MapMethods\DestroyRagdollMethod.cs" />
+        <Compile Include="MethodSystem\Methods\MapMethods\CleanupRagdollsMethod.cs" />
         <Compile Include="MethodSystem\Methods\MathMethods\RandomNumMethod.cs" />
         <Compile Include="MethodSystem\Methods\PickupMethods\AddPickupToInventoryMethod.cs" />
         <Compile Include="MethodSystem\Methods\PlayerMethods\BypassMethod.cs" />
