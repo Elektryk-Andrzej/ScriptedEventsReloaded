@@ -50,9 +50,9 @@ public abstract class VariableToken<TVariable, TValue> : VariableToken, IValueCa
         }
         
         Name = RawRep.Substring(1);
-        if (Name.Any(c => !char.IsLetter(c) && !char.IsDigit(c)))
+        if (Name.Any(c => !char.IsLetter(c) && !char.IsDigit(c) && c != '_'))
         {
-            return "Variable name must only contain letters and digits.";
+            return "Variable name can only contain letters, digits and underscores.";
         }
         
         return true;
