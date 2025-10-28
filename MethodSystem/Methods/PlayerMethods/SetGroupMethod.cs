@@ -10,18 +10,25 @@ public class SetGroupMethod : SynchronousMethod
 {
     public override string Description => "Sets or removes group from specified players";
     
-    public override Argument[] ExpectedArguments => [
+    public override Argument[] ExpectedArguments => 
+    [
         new PlayersArgument("players"),
-        new TextArgument("group"){Description = "Name of the group or set to NONE if you want to remove group from specified players" }
+        new TextArgument("group")
+        {
+            Description = "Name of the group or set to NONE if you want to remove group from specified players"
+        }
     ];
 
     public override void Execute()
     {
-        string gr = Args.GetText("group");
-        List<Player> pls = Args.GetPlayers("players");
-        foreach(Player p in pls)
+        string group = Args.GetText("group");
+        List<Player> players = Args.GetPlayers("players");
+        
+        foreach (Player plr in players)
         {
-            p.UserGroup = gr == "NONE" ? null : ServerStatic.PermissionsHandler.GetGroup(gr);
+            plr.UserGroup = group == "NONE" 
+                ? null 
+                : ServerStatic.PermissionsHandler.GetGroup(group);
         }
     }
 }
