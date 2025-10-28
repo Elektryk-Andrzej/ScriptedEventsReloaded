@@ -20,9 +20,9 @@ public class LimitPlayersMethod : ReturningMethod<PlayerValue>
     public override void Execute()
     {
         var players = Args.GetPlayers("players");
-        var amount = Args.GetInt("limit");
+        var limit = Args.GetInt("limit");
 
-        while (amount > players.Len && players.Len > 0)
+        while (players.Len > limit && players.Len > 0)
         {
             players.PullRandomItem();
         }
