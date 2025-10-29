@@ -47,7 +47,7 @@ public class MainPlugin : LabApi.Loader.Features.Plugins.Plugin
         new(Instance.Author, Contribution.LeadDeveloper),
         new("Whitty985playz", Contribution.QualityAssurance | Contribution.EarlyAdopter),
         new("Jraylor", Contribution.Sponsor),
-        new("Luke", Contribution.Developer | Contribution.Sponsor),
+        new("Luke", Contribution.Betatester | Contribution.Sponsor),
         new("Krzysiu Wojownik", Contribution.QualityAssurance | Contribution.Developer),
         new("Raging Tornado", Contribution.Betatester)
     ];
