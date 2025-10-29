@@ -299,7 +299,7 @@ public class ProvidedArguments(Method method)
 
             if (evaluator is not DynamicTryGet<TValue> argEvalRes)
                 throw new AndrzejFuckedUpException(
-                    mainErr + $"Argument value is not of type {typeof(TValue).Name}");
+                    mainErr + $"Argument value is not of type {typeof(TValue).Name}, evaluator: {evaluator.GetType().AccurateName}.");
             
             resultList.Add(argEvalRes);
         }
