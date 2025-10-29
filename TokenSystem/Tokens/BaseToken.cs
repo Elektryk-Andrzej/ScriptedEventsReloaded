@@ -54,7 +54,7 @@ public class BaseToken
 
     public TryGet<T> TryGetLiteralValue<T>() where T : LiteralValue
     {
-        Result mainErr = $"Value '{RawRep}' ({GetType().Name}) cannot be intrepreted as a '{typeof(T).Name}' value.";
+        Result mainErr = $"Value '{RawRep}' ({GetType().Name}) cannot be intrepreted as a '{typeof(T).Name}'.";
         // ReSharper disable once ConvertIfStatementToSwitchStatement
         if (this is LiteralValueToken<T> valueToken)
         {
