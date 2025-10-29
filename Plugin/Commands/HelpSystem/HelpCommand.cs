@@ -267,22 +267,48 @@ public class HelpCommand : ICommand
 
     private static string GetFlagInfo(string flagName)
     {
-        var info = Flag.FlagInfos[flagName];
-        var flagArgs = info.argDescription.Keys.Select(a => $"-- {a} ...").JoinStrings("\n");
-        var flagArgsInfo = info.argDescription.Select(kvp => $"{kvp.Key}: {kvp.Value}").JoinStrings("\n\n");
+        var flag = Flag.FlagInfos[flagName].CreateInstance<Flag>();
+        
+        var inlineArgumentUsage = flag.InlineArgument.HasValue
+            ? "..."
+            : string.Empty;
+        
+        var argumentsUsage = flag.Arguments
+            .Select(arg => $"-- {arg.Name} ...")
+            .JoinStrings("\n");
+
+        StringBuilder argumentDescription = new();
+        if (flag.InlineArgument.HasValue)
+        {
+            argumentDescription.AppendLine($"  Inline argument '{flag.InlineArgument.Value.Name}':");
+            argumentDescription.AppendLine($"  > {flag.InlineArgument.Value.Description}");
+            argumentDescription.AppendLine();
+        }
+
+        foreach (var arg in flag.Arguments)
+        {
+            argumentDescription.AppendLine($"  Additional argument '{arg.Name}':");
+            argumentDescription.AppendLine($"  > {arg.Description}");
+            
+            if (!arg.IsRequired)
+            {
+                argumentDescription.AppendLine($"  > This argument is not required for the flag to operate");
+            }
+            
+            argumentDescription.AppendLine();
+        }
         
         return
             $"""
              ===== {flagName} =====
-             > {info.description}
+             > {flag.Description}
              
              Usage:
-             !-- {flagName} {(info.inlineArgDescription?.argName is { } name ? $"{name}" : "")}
-             {flagArgs}
+             !-- {flagName} {inlineArgumentUsage}
+             {argumentsUsage}
              
-             Argument information:
-             {(info.inlineArgDescription is { } inlineArg ? $"{inlineArg.argName}: {inlineArg.description}\n" : "")}
-             {flagArgsInfo}
+             {(argumentDescription.Length > 0 ? "Arguments:" : "")}
+             {argumentDescription}
              """;
     }
 

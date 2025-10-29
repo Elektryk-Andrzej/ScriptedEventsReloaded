@@ -19,23 +19,25 @@ public class OnCustomTriggerFlag : Flag
     public override string Description =>
         $"Makes a script execute when a trigger with a matching name is fired (done using {nameof(TriggerMethod).Replace("Method", "")} method)";
 
-    public override (string argName, string description)? InlineArgDescription =>
-        ("triggerName", "The name of the trigger to bind to.");
-
-    public override Dictionary<string, (string description, Func<string[], Result> handler)> Arguments => [];
-    
-    public override Result TryInitialize(string[] inlineArgs)
-    {
-        switch (inlineArgs.Length)
+    public override Argument? InlineArgument => new(
+        "triggerName",
+        "The name of the trigger to bind to.",
+        inlineArgs =>
         {
-            case < 1: return "Trigger name is missing";
-            case > 1: return "Too many arguments, only trigger name is allowed";
-        }
+            switch (inlineArgs.Length)
+            {
+                case < 1: return "Trigger name is missing";
+                case > 1: return "Too many arguments, only trigger name is allowed";
+            }
 
-        _trigger = inlineArgs.First();
-        ScriptsBoundToTrigger.AddOrInitListWithKey(_trigger, ScriptName);
-        return true;
-    }
+            _trigger = inlineArgs.First();
+            ScriptsBoundToTrigger.AddOrInitListWithKey(_trigger, ScriptName);
+            return true;
+        },
+        true
+    );
+    
+    public override Argument[] Arguments => [];
 
     public override void FinalizeFlag()
     {

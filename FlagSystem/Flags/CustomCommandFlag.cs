@@ -10,6 +10,7 @@ using SER.Helpers.Extensions;
 using SER.Helpers.ResultSystem;
 using SER.ScriptSystem;
 using SER.ScriptSystem.Structures;
+using SER.TokenSystem;
 using SER.ValueSystem;
 using SER.VariableSystem.Variables;
 using Console = GameCore.Console;
@@ -22,29 +23,62 @@ public class CustomCommandFlag : Flag
     public override string Description => 
         "Creates a command and binds it to the script. When the command is ran, it executes the script.";
 
-    public override (string argName, string description)? InlineArgDescription =>
-        ("commandName", "The name of the command; cannot have any whitespace.");
 
-    public override Dictionary<string, (string description, Func<string[], Result> handler)> Arguments => new()
-    {
-        ["arguments"] = (
+    public override Argument? InlineArgument => new(
+        "command name",
+        "The name of the command to create",
+        inlineArgs =>
+        {
+            switch (inlineArgs.Length)
+            {
+                case 0:
+                    return "Command name is missing.";
+                case > 1:
+                    return "Command name can only be a single word, no whitespace allowed.";
+            }
+        
+            var name = inlineArgs.First();
+            if (name.Any(char.IsWhiteSpace))
+            {
+                return "Command name can only be a single word, no whitespace allowed.";
+            }
+        
+            Command = new CustomCommand
+            {
+                Command = name
+            };
+        
+            return true;
+        },
+        true
+    );
+
+    public override Argument[] Arguments =>
+    [
+        new(
+            "arguments",
             "The arguments that this command expects in order to run. " +
             "The script cannot run unless every single argument is specified. " +
             "When the command is ran, the provided values for the arguments turn into their own literal local " +
             "variables for you to use in the script. " +
             "For example: making a command with an argument 'x' will then create a local variable {x} in your script. " +
-            "Side note: when a player is running the command, a @sender local player variable will also be created.", 
-            AddArguments
+            "Side note: when a player is running the command, a @sender local player variable will also be created.",
+            AddArguments,
+            false
         ),
-        ["availableFor"] = (
+        new(
+            "availableFor",
             $"Specifies from which console the command can be executed from. Accepts {nameof(ConsoleType)} enum values.",
-            AddConsoleType
+            AddConsoleType,
+            false
         ),
-        ["description"] = (
-            "The description of the command.", 
-            AddDescription
+        new(
+            "description",
+            "The description of the command.",
+            AddDescription,
+            false
         )
-    };
+    ];
     
     [Flags]
     public enum ConsoleType
@@ -53,30 +87,6 @@ public class CustomCommandFlag : Flag
         Player      = 1 << 0,
         RemoteAdmin = 1 << 1,
         Server      = 1 << 2
-    }
-
-    public override Result TryInitialize(string[] inlineArgs)
-    {
-        switch (inlineArgs.Length)
-        {
-            case 0:
-                return "Command name is missing.";
-            case > 1:
-                return "Command name can only be a single word, no whitespace allowed.";
-        }
-        
-        var name = inlineArgs.First();
-        if (name.Any(char.IsWhiteSpace))
-        {
-            return "Command name can only be a single word, no whitespace allowed.";
-        }
-        
-        Command = new CustomCommand
-        {
-            Command = name
-        };
-        
-        return true;
     }
 
     public override void FinalizeFlag()
@@ -171,16 +181,22 @@ public class CustomCommandFlag : Flag
             return "The script that was supposed to handle this command was not found.";
         }
 
-        if (args.Length < requestingCommand.Usage.Length)
+        if (Tokenizer.SliceLine(args.JoinStrings(" ")).HasErrored(out var sliceError, out var outSlices))
         {
-            return "Not enough arguments. " +
-                   $"Expected {requestingCommand.Usage.Length} but got {args.Length}.";
+            return sliceError;
         }
 
-        if (args.Length > requestingCommand.Usage.Length)
+        var slices = outSlices.ToArray();
+        if (slices.Length < requestingCommand.Usage.Length)
+        {
+            return "Not enough arguments. " +
+                   $"Expected {requestingCommand.Usage.Length} but got {slices.Length}.";
+        }
+
+        if (slices.Length > requestingCommand.Usage.Length)
         {
             return "Too many arguments. " +
-                   $"Expected {requestingCommand.Usage.Length} but got {args.Length}.";
+                   $"Expected {requestingCommand.Usage.Length} but got {slices.Length}.";
         }
 
         if (Script.CreateByScriptName(flag.ScriptName, sender)
@@ -196,7 +212,7 @@ public class CustomCommandFlag : Flag
             var name = argVariable[0].ToString().ToLower() + argVariable.Substring(1);
             
             // todo: need to parse values from string too (probably using tokenizer)
-            script.AddVariable(new LiteralVariable<TextValue>(name, args[index]));
+            script.AddVariable(new LiteralVariable<TextValue>(name, slices[index].Value));
         }
 
         script.Run();

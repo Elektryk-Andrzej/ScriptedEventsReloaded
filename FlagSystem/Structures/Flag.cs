@@ -3,13 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using LabApi.Features.Console;
+using SER.Helpers.Extensions;
 using SER.Helpers.ResultSystem;
-using FlagDictionary = System.Collections.Generic.Dictionary<string, 
-    (
-    System.Type type,
-    string description, 
-    (string argName, string description)? inlineArgDescription, System.Collections.Generic.Dictionary<string, string> argDescription
-    )>;
 
 namespace SER.FlagSystem.Structures;
 
@@ -17,11 +12,17 @@ public abstract class Flag
 {
     public abstract string Description { get; }
 
-    public abstract (string argName, string description)? InlineArgDescription { get; }
+    public readonly struct Argument(string name, string description, Func<string[], Result> handler, bool required)
+    {
+        public string Name => name;
+        public string Description => description;
+        public Result AddArgument(string[] values) => handler(values);
+        public bool IsRequired => required;
+    }
 
-    public abstract Dictionary<string, (string description, Func<string[], Result> handler)> Arguments { get; }
+    public abstract Argument? InlineArgument { get; }
 
-    public abstract Result TryInitialize(string[] inlineArgs);
+    public abstract Argument[] Arguments { get; }
 
     public abstract void FinalizeFlag();
 
@@ -31,7 +32,7 @@ public abstract class Flag
 
     public string Name { get; set; } = null!;
     
-    public static FlagDictionary FlagInfos = [];
+    public static Dictionary<string, Type> FlagInfos = [];
 
     internal static void RegisterFlags()
     {
@@ -46,32 +47,22 @@ public abstract class Flag
         FlagInfos = FlagInfos.Concat(flags).ToDictionary(kvp => kvp.Key, kvp => kvp.Value);
     }
 
-    private static FlagDictionary GetRegisteredFlags(Assembly ass)
+    private static Dictionary<string, Type> GetRegisteredFlags(Assembly? ass = null)
     {
+        ass ??= Assembly.GetExecutingAssembly();
         return ass.GetTypes()
             .Where(t => t.IsClass && !t.IsAbstract && typeof(Flag).IsAssignableFrom(t))
-            .Select(t => (t, Activator.CreateInstance(t) as Flag))
-            .Cast<(Type type, Flag flag)>()
-            .ToDictionary(tuple => tuple.type.Name.Replace("Flag", ""), tuple =>
-            {
-                return
-                (
-                    tuple.type,
-                    tuple.flag.Description,
-                    tuple.flag.InlineArgDescription,
-                    tuple.flag.Arguments.ToDictionary(kvp => kvp.Key, kvp => kvp.Value.description)
-                );
-            });
+            .ToDictionary(t => t.Name.Replace("Flag", ""), t => t);
     }
 
     public static TryGet<Flag> TryGet(string flagName, string scriptName)
     {
-        if (!FlagInfos.TryGetValue(flagName, out var tuple))
+        if (!FlagInfos.TryGetValue(flagName, out var type))
         {
             return $"Flag '{flagName}' is not a valid flag.";
         }
         
-        var flag = (Flag)Activator.CreateInstance(tuple.type);
+        var flag = type.CreateInstance<Flag>();
         flag.ScriptName = scriptName;
         flag.Name = flagName;
         return flag;

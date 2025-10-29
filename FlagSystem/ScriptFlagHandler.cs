@@ -64,13 +64,14 @@ public static class ScriptFlagHandler
             return;
         }
 
-        if (!_currentFlag.Arguments.TryGetValue(argName, out var argInfo))
+        var arg = _currentFlag.Arguments.FirstOrDefault(arg => arg.Name == argName);
+        if (string.IsNullOrEmpty(arg.Name))
         {
             Log.Error(scriptName, $"Flag {_currentFlag.Name} does not accept the '{argName}' argument.");
             return;
         }
 
-        if (argInfo.handler(arguments).HasErrored(out var error))
+        if (arg.AddArgument(arguments).HasErrored(out var error))
         {
             Log.Error(scriptName, $"Error while handling flag argument '{argName}' in flag '{_currentFlag.Name}': {error}");
         }
@@ -86,10 +87,10 @@ public static class ScriptFlagHandler
             Log.Error(scriptName, rs + getErr);
             return;
         }
-        
-        if (flag.TryInitialize(arguments).HasErrored(out var bindErr))
+
+        if (flag.InlineArgument.HasValue && flag.InlineArgument.Value.AddArgument(arguments).HasErrored(out var error))
         {
-            Log.Error(scriptName, rs + bindErr);
+            Log.Error(scriptName, rs + error);
             return;
         }
         
