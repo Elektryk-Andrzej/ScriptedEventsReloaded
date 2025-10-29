@@ -183,6 +183,7 @@
         <Compile Include="MethodSystem\Methods\BroadcastMethods\CountdownMethod.cs" />
         <Compile Include="MethodSystem\Methods\CASSIEMethods\IsCassieSpeakingMethod.cs" />
         <Compile Include="MethodSystem\Methods\CollectionVariableMethods\CollectionFetchMethod.cs" />
+        <Compile Include="MethodSystem\Methods\DoorMethods\SetDoorPermissionMethod.cs" />
         <Compile Include="MethodSystem\Methods\ElevatorMethods\LockElevatorMethod.cs" />
         <Compile Include="MethodSystem\Methods\ElevatorMethods\SendElevatorMethod.cs" />
         <Compile Include="MethodSystem\Methods\ElevatorMethods\UnlockElevatorMethod.cs" />
