@@ -13,13 +13,18 @@ public class SetLightColorMethod : SynchronousMethod
     [
         new RoomsArgument("rooms"),
         new ColorArgument("color"),
+        new FloatArgument("intensity", 0)
+        {
+            DefaultValue = 1
+        }
     ];
     
     public override void Execute()
     {
         var rooms = Args.GetRooms("rooms");
-        var color = Args.GetColor("color");
-        
+        var intensity = Args.GetFloat("intensity");
+        var color = Args.GetColor("color") * intensity;
+
         rooms.ForEachItem(room => 
             room.AllLightControllers.ForEachItem(ctrl =>
                 ctrl.OverrideLightsColor = color
