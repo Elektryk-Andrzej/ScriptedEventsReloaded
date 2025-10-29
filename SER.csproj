@@ -193,8 +193,10 @@
         <Compile Include="MethodSystem\Methods\GeneralVariableMethods\GlobalVariableMethod.cs" />
         <Compile Include="MethodSystem\Methods\GeneralVariableMethods\PopVariableMethod.cs" />
         <Compile Include="MethodSystem\Methods\GeneralVariableMethods\VarExistsMethod.cs" />
+        <Compile Include="MethodSystem\Methods\HealthMethods\AddHumeMethod.cs" />
         <Compile Include="MethodSystem\Methods\HealthMethods\DamageInfoMethod.cs" />
         <Compile Include="MethodSystem\Methods\HealthMethods\HealMethod.cs" />
+        <Compile Include="MethodSystem\Methods\HealthMethods\SetHumeShieldMethod.cs" />
         <Compile Include="MethodSystem\Methods\ItemMethods\ItemInfoMethod.cs" />
         <Compile Include="MethodSystem\Methods\LiteralVariableMethods\PlayerDataExistsMethod.cs" />
         <Compile Include="MethodSystem\Methods\MapMethods\CleanupPickupsMethod.cs" />
@@ -214,6 +216,7 @@
         <Compile Include="MethodSystem\Methods\PlayerMethods\SetCustomInfoMethod.cs" />
         <Compile Include="MethodSystem\Methods\PlayerMethods\GodModeMethod.cs" />
         <Compile Include="MethodSystem\Methods\PlayerMethods\NoclipMethod.cs" />
+        <Compile Include="MethodSystem\Methods\PlayerMethods\SetGravityMethod.cs" />
         <Compile Include="MethodSystem\Methods\PlayerMethods\SetGroupMethod.cs" />
         <Compile Include="MethodSystem\Methods\PlayerMethods\SetSizeMethod.cs" />
         <Compile Include="MethodSystem\Methods\PlayerVariableMethods\ContainsPlayerMethod.cs" />
