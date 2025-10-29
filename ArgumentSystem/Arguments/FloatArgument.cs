@@ -4,7 +4,6 @@ using SER.ArgumentSystem.BaseArguments;
 using SER.Helpers.Exceptions;
 using SER.Helpers.ResultSystem;
 using SER.TokenSystem.Tokens;
-using SER.TokenSystem.Tokens.Interfaces;
 using SER.ValueSystem;
 using Random = UnityEngine.Random;
 
@@ -57,40 +56,20 @@ public class FloatArgument : Argument
     {
         if (token is NumberToken number)
         {
-            return VerifyRange((float)number.Value.ExactValue);
+            return VerifyRange(number.Value.ExactValue);
         }
-        
-        if (token is not IValueCapableToken<LiteralValue>)
-        {
-            return $"Value '{token.RawRep}' cannot represent a number.";
-        }
-        
-        if (TryParse(token).WasSuccessful(out var value))
-        {
-            return value;
-        }
-
-        return new(() => TryParse(token));
+        return new(() => token.TryGetLiteralValue<NumberValue>().OnSuccess(VerifyRange));
     }
 
-    private TryGet<float> TryParse(BaseToken token)
+    private TryGet<float> VerifyRange(NumberValue value)
     {
-        if (token.TryGetLiteralValue<NumberValue>().HasErrored(out var error, out var value))
-        {
-            return error;
-        }
-
-        return VerifyRange((float)value.ExactValue);
-    }
-
-    private TryGet<float> VerifyRange(float value)
-    {
-        if (value < _minValue)
+        var result = (float)value.ExactValue;
+        if (result < _minValue)
             return $"Value {value} is lower than allowed minimum value {_minValue}.";
             
-        if (value > _maxValue)
+        if (result > _maxValue)
             return $"Value {value} is higher than allowed maximum value {_maxValue}.";
 
-        return value;
+        return result;
     }
 }

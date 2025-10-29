@@ -3,7 +3,6 @@ using SER.ArgumentSystem.BaseArguments;
 using SER.Helpers.Exceptions;
 using SER.Helpers.ResultSystem;
 using SER.TokenSystem.Tokens;
-using SER.TokenSystem.Tokens.Interfaces;
 using SER.ValueSystem;
 using UnityEngine;
 
@@ -54,43 +53,21 @@ public class IntArgument : Argument
     [UsedImplicitly]
     public DynamicTryGet<int> GetConvertSolution(BaseToken token)
     {
-        if (token is NumberToken numberToken)
+        if (token is NumberToken number)
         {
-            return VerifyRange(numberToken.Value);
+            return VerifyRange(number.Value.ExactValue);
         }
-        
-        if (token is not IValueCapableToken<LiteralValue>)
-        {
-            return $"Value '{token.RawRep}' cannot represent a number.";
-        }
-        
-        if (TryParse(token).WasSuccessful(out var finalValue))
-        {
-            return finalValue;
-        }
-
-        return new(() => TryParse(token));
+        return new(() => token.TryGetLiteralValue<NumberValue>().OnSuccess(VerifyRange));
     }
 
-    private TryGet<int> TryParse(BaseToken token)
+    private TryGet<int> VerifyRange(NumberValue value)
     {
-        if (token.TryGetLiteralValue<NumberValue>().HasErrored(out var error, out var value))
-        {
-            return new Result(false, error) + $"Value '{token.RawRep}' does not represent a valid number.";
-        }
-        
-        return VerifyRange(value);
-    }
-    
-    private TryGet<int> VerifyRange(NumberValue input)
-    {
-        var result = (int)input.ExactValue;
-                
+        var result = (int)value.ExactValue;
         if (result < _minValue)
-            return $"Value '{result}' is lower than allowed minimum value {_minValue}.";
-                
+            return $"Value {value} is lower than allowed minimum value {_minValue}.";
+            
         if (result > _maxValue)
-            return $"Value '{result}' is higher than allowed maximum value {_maxValue}.";
+            return $"Value {value} is higher than allowed maximum value {_maxValue}.";
 
         return result;
     }
