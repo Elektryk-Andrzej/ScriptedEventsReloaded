@@ -6,6 +6,9 @@
  # What is `Scripted Events Reloaded`?
 **Scripted Events Reloaded (SER)** is an SCP:SL plugin for LabAPI that adds a complete custom programming language for server owners to use.
 
+# SER Tutorials
+> https://scriptedeventsreloaded.gitbook.io/docs/tutorial
+
 # Why use SER?
 ## ✅ Designed with SCP:SL in mind
 Every aspect of SER is designed around simplifying the most widely used features of SCP:SL plugins.
