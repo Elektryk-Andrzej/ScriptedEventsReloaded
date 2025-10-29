@@ -18,7 +18,11 @@
     <Target Name="PostBuild" AfterTargets="PostBuildEvent">
         <Copy
                 SourceFiles="$(TargetDir)SER.dll"
-                DestinationFolder="C:\Users\Olgie\AppData\Roaming\SCP Secret Laboratory\LabAPI\plugins\global"
+                DestinationFolder="$(LABAPI_PLUGINS)"
+        />
+        <Copy
+                SourceFiles="$(TargetDir)SER.dll"
+                DestinationFolder="$(SL_DEV_REFERENCES)"
         />
     </Target>
     <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
