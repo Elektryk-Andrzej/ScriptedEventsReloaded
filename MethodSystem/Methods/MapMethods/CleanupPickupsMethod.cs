@@ -7,7 +7,7 @@ namespace SER.MethodSystem.Methods.MapMethods;
 
 public class CleanupPickupsMethod : SynchronousMethod
 {
-    public override string? Description => "Cleans pickups (items) from the map.";
+    public override string Description => "Cleans pickups (items) from the map.";
 
     public override Argument[] ExpectedArguments { get; } = [];
     

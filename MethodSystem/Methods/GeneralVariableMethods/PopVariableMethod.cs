@@ -8,7 +8,7 @@ namespace SER.MethodSystem.Methods.GeneralVariableMethods;
 
 public class PopVariableMethod : ReturningMethod
 {
-    public override string? Description => "Erases a given variable, returning its value.";
+    public override string Description => "Erases a given variable, returning its value.";
 
     public override Type[]? ReturnTypes => null;
 

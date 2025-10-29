@@ -8,7 +8,7 @@ namespace SER.MethodSystem.Methods.GeneralVariableMethods;
 
 public class VarExistsMethod : ReturningMethod<BoolValue>
 {
-    public override string? Description => "Returns a bool value indicating if the provided variable exists.";
+    public override string Description => "Returns a bool value indicating if the provided variable exists.";
 
     public override Argument[] ExpectedArguments { get; } =
     [
