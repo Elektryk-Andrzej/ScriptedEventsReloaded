@@ -86,4 +86,15 @@ public class TryGet<TValue>(TValue? value, string? errorMsg)
 
         return transform(val);
     }
+    
+    [Pure]
+    public TryGet<TTarget> OnSuccess<TTarget>(Func<TValue, TryGet<TTarget>> transform)
+    {
+        if (HasErrored(out var error, out TValue val))
+        {
+            return error;
+        }
+
+        return transform(val);
+    }
 }
