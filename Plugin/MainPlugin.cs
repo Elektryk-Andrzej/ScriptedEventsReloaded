@@ -22,7 +22,7 @@ public class MainPlugin : LabApi.Loader.Features.Plugins.Plugin
     public override string Description => "The scripting language for SCP:SL.";
     public override string Author => "Elektryk_Andrzej";
     public override Version RequiredApiVersion => LabApiProperties.CurrentVersion;
-    public override Version Version => new(0, 4, 1);
+    public override Version Version => new(0, 5, 0);
     
     public static string GitHubLink => "https://github.com/ScriptedEvents/ScriptedEventsReloaded";
     public static string HelpCommandName => "serhelp";
@@ -34,23 +34,24 @@ public class MainPlugin : LabApi.Loader.Features.Plugins.Plugin
     public enum Contribution
     {
         None             = 0,
-        Developer        = 1 << 1,
-        QualityAssurance = 1 << 2,
-        Sponsor          = 1 << 3,
-        Betatester       = 1 << 4,
-        EarlyAdopter     = 1 << 5
+        LeadDeveloper    = 1 << 1,
+        Developer        = 1 << 2,
+        QualityAssurance = 1 << 3,
+        Sponsor          = 1 << 4,
+        Betatester       = 1 << 5,
+        EarlyAdopter     = 1 << 6
     }
-    
+
     public static Contributor[] Contributors => 
     [
-        new(Instance.Author, Contribution.Developer),
+        new(Instance.Author, Contribution.LeadDeveloper),
         new("Whitty985playz", Contribution.QualityAssurance | Contribution.EarlyAdopter),
         new("Jraylor", Contribution.Sponsor),
-        new("Luke", Contribution.Sponsor),
-        new("Krzysiu Wojownik", Contribution.QualityAssurance),
+        new("Luke", Contribution.Developer | Contribution.Sponsor),
+        new("Krzysiu Wojownik", Contribution.QualityAssurance | Contribution.Developer),
         new("Raging Tornado", Contribution.Betatester)
-    ]; 
-    
+    ];
+
     public override void Enable()
     {
         Instance = this;
