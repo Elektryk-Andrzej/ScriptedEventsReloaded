@@ -22,6 +22,8 @@ public class SetLightColorMethod : SynchronousMethod
         
         rooms.ForEachItem(room => 
             room.AllLightControllers.ForEachItem(ctrl =>
-                ctrl.OverrideLightsColor = color));
+                ctrl.OverrideLightsColor = color
+            )
+        );
     }
 }
