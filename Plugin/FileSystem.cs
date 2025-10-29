@@ -3,6 +3,8 @@ using System.Linq;
 using LabApi.Features.Console;
 using LabApi.Loader.Features.Paths;
 using SER.FlagSystem;
+using SER.Helpers;
+using SER.Helpers.Extensions;
 using SER.ScriptSystem;
 using SER.ScriptSystem.Structures;
 
@@ -15,7 +17,13 @@ public static class FileSystem
 
     public static void UpdateScriptPathCollection()
     {
-        RegisteredScriptPaths = Directory.GetFiles(DirPath, "*.txt", SearchOption.AllDirectories);
+        RegisteredScriptPaths = Directory
+            .GetFiles(DirPath, "*.txt", SearchOption.AllDirectories)
+            // ignore files with a pound sign at the start
+            .Where(path => Path.GetFileName(path).FirstOrDefault() != '#')
+            .ToArray();
+        
+        //Log.Signal(RegisteredScriptPaths.JoinStrings(" "));
         
         var duplicates = RegisteredScriptPaths
             .Select(Path.GetFileNameWithoutExtension)
