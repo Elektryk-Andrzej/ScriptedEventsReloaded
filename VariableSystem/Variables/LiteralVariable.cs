@@ -1,4 +1,5 @@
-﻿using SER.Helpers.ResultSystem;
+﻿using SER.Helpers.Extensions;
+using SER.Helpers.ResultSystem;
 using SER.ValueSystem;
 using SER.VariableSystem.Bases;
 
@@ -17,7 +18,7 @@ public class LiteralVariable(string name, LiteralValue value) : Variable<Literal
         }
 
         return
-            $"Variable '{Name}' is not a '{typeof(T).Name}' value variable, but a '{value.GetType().Name}' variable.";
+            $"Variable '{Name}' is not a '{typeof(T).Name}' value variable, but a '{value.GetType().AccurateName}' variable.";
     }
 }
 

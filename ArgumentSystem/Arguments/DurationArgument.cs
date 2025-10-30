@@ -1,6 +1,7 @@
 ﻿using System;
 using JetBrains.Annotations;
 using SER.ArgumentSystem.BaseArguments;
+using SER.Helpers.Extensions;
 using SER.Helpers.ResultSystem;
 using SER.TokenSystem.Tokens;
 using SER.TokenSystem.Tokens.Interfaces;
@@ -15,25 +16,16 @@ public class DurationArgument(string name) : Argument(name)
     [UsedImplicitly]
     public DynamicTryGet<TimeSpan> GetConvertSolution(BaseToken token)
     {
-        return token switch
+        if (token is not IValueToken valueToken || valueToken.CanReturn<DurationValue>(out var get))
         {
-            DurationToken durToken => durToken.Value.ExactValue,
-            IValueCapableToken<DurationValue> capable => new(() => capable.ExactValue.OnSuccess(v => v.ExactValue)),
-            IValueCapableToken<LiteralValue> litCapable => new(() =>
-            {
-                if (litCapable.ExactValue.HasErrored(out var litValError, out var literalValue))
-                {
-                    return litValError;
-                }
+            return $"Value '{token.RawRep}' is not a duration.";
+        }
 
-                if (literalValue.TryGetValue<DurationValue>().HasErrored(out var durValError, out var durationValue))
-                {
-                    return durValError;
-                }
-                
-                return durationValue.ExactValue;
-            }),
-            _ => $"Value '{token.RawRep}' is not a duration."
-        };
+        if (valueToken.IsConstant)
+        {
+            return get().OnSuccess(v => v.ExactValue);
+        }
+        
+        return new(() => get().OnSuccess(v => v.ExactValue));
     }
 }

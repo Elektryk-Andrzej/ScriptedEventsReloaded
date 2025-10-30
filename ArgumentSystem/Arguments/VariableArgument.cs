@@ -2,7 +2,7 @@
 using SER.ArgumentSystem.BaseArguments;
 using SER.Helpers.ResultSystem;
 using SER.TokenSystem.Tokens;
-using SER.TokenSystem.Tokens.Variables;
+using SER.TokenSystem.Tokens.VariableTokens;
 using SER.VariableSystem.Bases;
 
 namespace SER.ArgumentSystem.Arguments;

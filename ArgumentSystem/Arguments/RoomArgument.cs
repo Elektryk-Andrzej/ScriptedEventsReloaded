@@ -3,6 +3,7 @@ using JetBrains.Annotations;
 using LabApi.Features.Wrappers;
 using MapGeneration;
 using SER.ArgumentSystem.BaseArguments;
+using SER.Helpers.Extensions;
 using SER.Helpers.ResultSystem;
 using SER.TokenSystem.Tokens;
 using SER.TokenSystem.Tokens.Interfaces;
@@ -26,14 +27,19 @@ public class RoomArgument(string name) : EnumHandlingArgument(name)
             () =>
             {
                 Result rs = $"Value '{token.RawRep}' cannot be interpreted as {InputDescription}.";
-                if (token is not IValueCapableToken<ReferenceValue> refToken)
+                if (token is not IValueToken valToken || valToken.CanReturn<ReferenceValue>(out var get))
                 {
                     return rs;
                 }
 
                 return new(() =>
                 {
-                    if (ReferenceArgument<Room>.TryParse(refToken).WasSuccessful(out var room))
+                    if (get().HasErrored(out var error, out var refVal))
+                    {
+                        return error;   
+                    }
+                    
+                    if (ReferenceArgument<Room>.TryParse(refVal).WasSuccessful(out var room))
                     {
                         return room;
                     }

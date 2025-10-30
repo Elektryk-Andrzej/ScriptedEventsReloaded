@@ -12,5 +12,5 @@ public class TextValue(string value) : LiteralValue<string>(value)
         return value.ExactValue;
     }
 
-    protected override string StringRep => ExactValue;
+    public override string StringRep => ExactValue;
 }

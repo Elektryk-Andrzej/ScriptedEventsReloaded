@@ -11,7 +11,7 @@ using SER.Helpers.ResultSystem;
 using SER.MethodSystem.BaseMethods;
 using SER.ScriptSystem;
 using SER.TokenSystem.Tokens;
-using SER.TokenSystem.Tokens.Variables;
+using SER.TokenSystem.Tokens.VariableTokens;
 using SER.ValueSystem;
 using SER.VariableSystem.Bases;
 using UnityEngine;
@@ -332,7 +332,7 @@ public class ProvidedArguments(Method method)
             null when foundArg.IsOptional => [new DynamicTryGet<TValue>((TValue)(object)null!)], // magik
             _ => throw new AndrzejFuckedUpException(
                 $"Argument {argName} for method {method.Name} has its default value set to type " +
-                $"{foundArg.DefaultValue?.GetType().Name ?? "null"}, expected of type {typeof(TValue).Name} or a list of " +
+                $"{foundArg.DefaultValue?.GetType().AccurateName ?? "null"}, expected of type {typeof(TValue).Name} or a list of " +
                 $"{typeof(TValue).Name}s.")
         };
     }

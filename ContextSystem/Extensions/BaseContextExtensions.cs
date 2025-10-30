@@ -2,6 +2,7 @@
 using SER.ContextSystem.BaseContexts;
 using SER.Helpers;
 using SER.Helpers.Exceptions;
+using SER.Helpers.Extensions;
 
 namespace SER.ContextSystem.Extensions;
 
@@ -9,7 +10,7 @@ public static class BaseContextExtensions
 {
     public static IEnumerator<float> ExecuteBaseContext(this Context context)
     {
-        Log.Debug($"Executing context {context.GetType().Name}");
+        Log.Debug($"Executing context {context.FriendlyTypeName()}");
         switch (context)
         {
             case StandardContext standardContext:

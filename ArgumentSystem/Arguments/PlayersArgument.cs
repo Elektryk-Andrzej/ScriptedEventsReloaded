@@ -3,10 +3,11 @@ using System.Linq;
 using JetBrains.Annotations;
 using LabApi.Features.Wrappers;
 using SER.ArgumentSystem.BaseArguments;
+using SER.Helpers.Extensions;
 using SER.Helpers.ResultSystem;
 using SER.TokenSystem.Tokens;
 using SER.TokenSystem.Tokens.Interfaces;
-using SER.TokenSystem.Tokens.Variables;
+using SER.TokenSystem.Tokens.VariableTokens;
 using SER.ValueSystem;
 
 namespace SER.ArgumentSystem.Arguments;
@@ -23,12 +24,12 @@ public class PlayersArgument(string name) : Argument(name)
             return new(() => Player.ReadyList.ToList());
         }
 
-        if (token is not IValueCapableToken<PlayerValue> valueCapableToken)
+        if (token is not IValueToken valToken || !valToken.CanReturn<PlayerValue>(out var get))
         {
             return $"Value '{token.RawRep}' does not represent a valid player variable.";
         }
         
-        return new(() => valueCapableToken.ExactValue.OnSuccess(p => p.Players.ToList()));
+        return new(() => get().OnSuccess(v => v.Players.ToList()));
     }
 }
 

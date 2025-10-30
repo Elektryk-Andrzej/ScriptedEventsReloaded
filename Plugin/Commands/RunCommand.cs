@@ -30,8 +30,7 @@ public class RunCommand : ICommand, IUsePermissions
             return false;
         }
 
-        if (Script.CreateByScriptName(name, ScriptExecutor.Get(sender, arguments))
-            .HasErrored(out var err, out var script))
+        if (Script.CreateByScriptName(name, ScriptExecutor.Get(sender)).HasErrored(out var err, out var script))
         {
             response = err;
             return false;

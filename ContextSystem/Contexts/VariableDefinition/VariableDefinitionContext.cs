@@ -6,8 +6,7 @@ using SER.Helpers.Extensions;
 using SER.Helpers.ResultSystem;
 using SER.MethodSystem.BaseMethods;
 using SER.TokenSystem.Tokens;
-using SER.TokenSystem.Tokens.Interfaces;
-using SER.TokenSystem.Tokens.Variables;
+using SER.TokenSystem.Tokens.VariableTokens;
 using SER.ValueSystem;
 using SER.VariableSystem.Bases;
 using Log = SER.Helpers.Log;
@@ -57,12 +56,12 @@ public abstract class VariableDefinitionContext<TVarToken, TValue, TVariable>(TV
             return TryAddTokenRes.End();
         }
 
-        if (token is IValueCapableToken<TValue> valueCapable)
+        if (token.CanReturn<TValue>(out var get))
         {
             Log.D("set parser using value capable");
             _parser = () =>
             {
-                if (valueCapable.ExactValue.HasErrored(out var error, out var value))
+                if (get().HasErrored(out var error, out var value))
                 {
                     throw new ScriptRuntimeError(error);
                 }

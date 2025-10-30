@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 using SER.ContextSystem.BaseContexts;
 using SER.Helpers.ResultSystem;
 using SER.ScriptSystem;
@@ -7,7 +8,7 @@ using SER.TokenSystem.Tokens.Interfaces;
 using SER.ValueSystem;
 using SER.VariableSystem.Bases;
 
-namespace SER.TokenSystem.Tokens.Variables;
+namespace SER.TokenSystem.Tokens.VariableTokens;
 
 public abstract class VariableToken : BaseToken, IContextableToken
 {
@@ -22,14 +23,12 @@ public abstract class VariableToken : BaseToken, IContextableToken
     public abstract TryGet<Context> TryGetContext(Script scr);
 }
 
-public abstract class VariableToken<TVariable, TValue> : VariableToken, IValueCapableToken<TValue>
+public abstract class VariableToken<TVariable, TValue> : VariableToken, IValueToken
     where TVariable : Variable<TValue>
     where TValue : Value
 {
     public override string Name { get; protected set; } = null!;
-
-    public TryGet<Value> BaseValue => TryGetVariable().OnSuccess(Value (var) => var.Value);
-
+    
     public new TryGet<TVariable> TryGetVariable()
     {
         return Script.TryGetVariable<TVariable>(this);
@@ -37,24 +36,27 @@ public abstract class VariableToken<TVariable, TValue> : VariableToken, IValueCa
 
     public TryGet<TValue> ExactValue => TryGetVariable().OnSuccess(variable => variable.Value);
 
-    protected override Result InternalParse(Script scr)
+    protected override IParseResult InternalParse(Script scr)
     {
-        if (RawRep.Length < 2)
+        if (RawRep.Length < 2 || RawRep.FirstOrDefault() != Prefix)
         {
-            return "Variable name is too short.";
+            return new Ignore();
         }
 
-        if (RawRep.FirstOrDefault() != Prefix)
-        {
-            return $"Variable is missing '{Prefix}' prefix.";
-        }
-        
         Name = RawRep.Substring(1);
         if (Name.Any(c => !char.IsLetter(c) && !char.IsDigit(c) && c != '_'))
         {
-            return "Variable name can only contain letters, digits and underscores.";
+            return new Ignore();
         }
         
-        return true;
+        return new Success();
     }
+
+    public TryGet<Value> Value()
+    {
+        return TryGetVariable().OnSuccess(Value (variable) => variable.Value);
+    }
+
+    public Type[]? PossibleValueTypes => [typeof(TValue)];
+    public bool IsConstant => false;
 }

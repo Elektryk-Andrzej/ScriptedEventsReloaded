@@ -14,17 +14,17 @@ public class CollectionSlice : Slice
     private readonly CollectionSliceInfo _info;
     private readonly StringBuilder _value = new();
 
-    public CollectionSliceType Type => _info.Type;
+    public CollectionBrackets Type => _info.Type;
     
     public override string Value => _value.ToString();
 
-    public record CollectionSliceInfo(char Start, char End, CollectionSliceType Type);
+    public record CollectionSliceInfo(char Start, char End, CollectionBrackets Type);
 
     public static readonly CollectionSliceInfo[] CollectionSliceInfos =
     [
-        new('{', '}', CollectionSliceType.Curly),
-        new('(', ')', CollectionSliceType.Round),
-        new('"', '"', CollectionSliceType.Quotes),
+        new('{', '}', CollectionBrackets.Curly),
+        new('(', ')', CollectionBrackets.Round),
+        new('"', '"', CollectionBrackets.Quotes),
     ];
 
     public static readonly HashSet<char> CollectionStarters = CollectionSliceInfos.Select(i => i.Start).ToHashSet();
@@ -56,9 +56,9 @@ public class CollectionSlice : Slice
 
         char[] startChars = [_info.Start];
         char[] endChars = [_info.End];
-        if (_info.Type == CollectionSliceType.Quotes)
+        if (_info.Type == CollectionBrackets.Quotes)
         {
-            var curly = CollectionSliceInfos.First(i => i.Type == CollectionSliceType.Curly);
+            var curly = CollectionSliceInfos.First(i => i.Type == CollectionBrackets.Curly);
             startChars = startChars.Append(curly.Start).ToArray();
             endChars = endChars.Append(curly.End).ToArray();
         }
@@ -80,6 +80,6 @@ public class CollectionSlice : Slice
 
     public override Result VerifyState()
     {
-        return Result.Assert(_depth == 0, $"Collection '{RawRepresentation}' was not closed.");
+        return Result.Assert(_depth == 0, $"Collection '{RawRep}' was not closed.");
     }
 }

@@ -72,12 +72,12 @@ public static class NumericExpressionReslover
 
         foreach (var token in tokens)
         {
-            Log.D($"parsing token {token.RawRep} ({token.GetType().Name})");
+            Log.D($"parsing token {token.RawRep} ({token.GetType().AccurateName})");
             switch (token)
             {
-                case IValueCapableToken<LiteralValue> literalValue:
+                case IValueToken valueToken when valueToken.CanReturn<LiteralValue>(out var get):
                 {
-                    if (literalValue.ExactValue.HasErrored(out var err, out var resolved))
+                    if (get().HasErrored(out var err, out var resolved))
                         return mainErr + err;
 
                     var tmp = MakeTempName();
@@ -153,7 +153,7 @@ public static class NumericExpressionReslover
         catch (Exception ex)
         {
             // Keep error messages friendly and actionable
-            return rs + $"{ex.GetType().Name}: {ex.Message}";
+            return rs + $"{ex.GetType().AccurateName}: {ex.Message}";
         }
     }
 

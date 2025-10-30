@@ -31,18 +31,26 @@ public static class StringExtensions
     }
 
     [Pure]
-    public static string Spaceify(this string str)
+    public static string Spaceify(this string str, bool lowerCase = false)
     {
         string res = "";
         for (var index = 0; index < str.Length; index++)
         {
             var c = str[index];
-            if (char.IsUpper(c) && index != 0)
+            if (!char.IsUpper(c) || index == 0)
             {
-                res += " ";
+                res += c;
+                continue;
             }
-
-            res += c;
+            
+            if (lowerCase)
+            {
+                res += $" {c.ToString().ToLower()}";
+            }
+            else
+            {
+                res += $" {c}";   
+            }
         }
 
         return res;

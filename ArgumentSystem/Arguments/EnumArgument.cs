@@ -38,14 +38,14 @@ public class EnumArgument<TEnum> : Argument where TEnum : struct, Enum
         });
     }
 
-    public static TryGet<T> Convert<T>(BaseToken token, Script script) where T : struct, Enum
+    public static TryGet<TEnum> Convert(BaseToken token, Script script)
     {
-        if (Convert(token, script, typeof(T)).HasErrored(out var error, out var value))
+        if (Convert(token, script, typeof(TEnum)).HasErrored(out var error, out var value))
         {
             return error;
         }
         
-        return (T)value;
+        return (TEnum)value;
     }
 
     public static TryGet<object> Convert(BaseToken token, Script script, Type enumType)
@@ -65,6 +65,6 @@ public class EnumArgument<TEnum> : Argument where TEnum : struct, Enum
     
     private TryGet<TEnum> InternalConvert(BaseToken token)
     {
-        return Convert<TEnum>(token, Script);
+        return Convert(token, Script);
     }
 }

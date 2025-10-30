@@ -4,7 +4,7 @@ namespace SER.TokenSystem.Slices;
 
 public class SingleSlice(char startChar) : Slice(startChar)
 {
-    public override string Value => RawRepresentation;
+    public override string Value => RawRep;
     
     public override bool CanContinueAfterAdd(char c)
     {

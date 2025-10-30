@@ -3,8 +3,6 @@ using System.Linq;
 using LabApi.Features.Console;
 using LabApi.Loader.Features.Paths;
 using SER.FlagSystem;
-using SER.Helpers;
-using SER.Helpers.Extensions;
 using SER.ScriptSystem;
 using SER.ScriptSystem.Structures;
 

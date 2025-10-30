@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Linq;
-using SER.Helpers.ResultSystem;
 using SER.ScriptSystem;
 using SER.ValueSystem;
 
@@ -8,30 +7,30 @@ namespace SER.TokenSystem.Tokens;
 
 public class DurationToken : LiteralValueToken<DurationValue>
 {
-    protected override Result InternalParse(Script scr)
+    protected override IParseResult InternalParse(Script scr)
     {
         var value = RawRep;
         if (TimeSpan.TryParse(value, out var result) && result.TotalMilliseconds > 0)
         {
             Value = result;
-            return true;
+            return new Success();
         }
 
         var unitIndex = Array.FindIndex(value.ToCharArray(), char.IsLetter);
         if (unitIndex == -1)
         {
-            return "No unit provided.";
+            return new Ignore();
         }
 
         var valuePart = value.Take(unitIndex).ToArray();
         if (!double.TryParse(string.Join("", valuePart), out var valueAsDouble))
         {
-            return $"Value part '{string.Join("", valuePart)}' is not a valid number.";
+            return new Ignore();
         }
         
         if (valueAsDouble < 0)
         {
-            return "Duration cannot be negative.";
+            return new Error("Duration cannot be negative.");
         }
 
         var unit = value.Substring(unitIndex);
@@ -47,10 +46,10 @@ public class DurationToken : LiteralValueToken<DurationValue>
 
         if (timeSpan is null)
         {
-            return $"Provided unit {unit} is not valid.";
+            return new Error($"Provided unit {unit} is not valid.");
         }
 
         Value = timeSpan.Value;
-        return true;
+        return new Success();
     }
 }

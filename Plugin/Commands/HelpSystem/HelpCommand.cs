@@ -14,6 +14,7 @@ using SER.MethodSystem.BaseMethods;
 using SER.MethodSystem.MethodDescriptors;
 using SER.Plugin.Commands.Interfaces;
 using SER.TokenSystem.Tokens;
+using SER.TokenSystem.Tokens.ExpressionTokens;
 using SER.ValueSystem;
 using SER.VariableSystem;
 using SER.VariableSystem.Variables;
@@ -506,7 +507,7 @@ public class HelpCommand : ICommand
                 if (ret.LiteralReturnTypes is { } types)
                 {
                     typeReturn = types
-                        .Select(LiteralValue.GetFriendlyName)
+                        .Select(t => t.FriendlyTypeName())
                         .Select(name => $"a {name} value")
                         .JoinStrings(" or ");
                 }
@@ -539,7 +540,7 @@ public class HelpCommand : ICommand
                 if (ret.ReturnTypes is { } types)
                 {
                     typeReturn = types
-                        .Select(LiteralValue.GetFriendlyName)
+                        .Select(t => t.FriendlyTypeName())
                         .Select(name => $"a {name} value")
                         .JoinStrings(" or ");
                 }
@@ -612,7 +613,7 @@ public class HelpCommand : ICommand
     public static string GetPlayerInfoAccessorsHelpPage()
     {
         StringBuilder sb = new();
-        var properties = PlayerPropertyExpression.PropertyInfoMap;
+        var properties = PlayerExpressionToken.PropertyInfoMap;
         foreach (var (property, info) in properties.Select(kvp => (kvp.Key, kvp.Value)))
         {
             sb.Append($"{property.ToString().LowerFirst()} -> {info.ReturnType.Name}");
@@ -625,7 +626,7 @@ public class HelpCommand : ICommand
             
             This syntax works as follows: {@plr property}
             > @plr: is a player variable with exactly 1 player stored in it
-            > property: is a property of the player we want to get information about (its a {{nameof(PlayerPropertyExpression.PlayerPropertyType)}} enum)
+            > property: is a property of the player we want to get information about (its a {{nameof(PlayerExpressionToken.PlayerProperty)}} enum)
             
             Here is a list of all available properties and what they return:
             {{sb}}

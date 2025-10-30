@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using MEC;
 using SER.Helpers.Exceptions;
+using SER.Helpers.Extensions;
 using SER.ScriptSystem;
 
 namespace SER.Helpers;
@@ -35,7 +36,7 @@ public static class BetterCoros
             catch (Exception ex)
             {
                 onException?.Invoke(ex);
-                scr.Error($"Coroutine failed with {ex.GetType().Name}: {ex.Message}\n{ex.StackTrace}");
+                scr.Error($"Coroutine failed with {ex.GetType().AccurateName}: {ex.Message}\n{ex.StackTrace}");
                 yield break;
             }
 

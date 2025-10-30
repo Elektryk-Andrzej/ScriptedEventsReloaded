@@ -26,7 +26,7 @@ public class ParenthesesToken : BaseToken
             throw new AndrzejFuckedUpException();
         }
 
-        Result error = $"Failed to get underlying tokens in the '{Slice.RawRepresentation}' parentheses.";
+        Result error = $"Failed to get underlying tokens in the '{Slice.RawRep}' parentheses.";
         if (Tokenizer.TokenizeLine(Slice.Value, Script, LineNum)
             .HasErrored(out var tokenizeError, out var tokens))
         {
@@ -36,15 +36,15 @@ public class ParenthesesToken : BaseToken
         return _tokens = tokens.ToArray();
     }
 
-    protected override Result InternalParse(Script scr)
+    protected override IParseResult InternalParse(Script scr)
     {
-        if (Slice is CollectionSlice { Type: CollectionSliceType.Round } slice)
+        if (Slice is CollectionSlice { Type: CollectionBrackets.Round } slice)
         {
             RawContent = slice.Value;
-            return true;
+            return new Success();
         }
         
-        return $"Slice '{Slice.RawRepresentation}' is not in round brackets.";
+        return new Ignore();
     }
 
     public TryGet<object> ParseExpression()

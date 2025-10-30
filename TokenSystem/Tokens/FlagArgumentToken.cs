@@ -8,11 +8,11 @@ namespace SER.TokenSystem.Tokens;
 
 public class FlagArgumentToken : BaseToken, IContextableToken
 {
-    protected override Result InternalParse(Script scr)
+    protected override IParseResult InternalParse(Script scr)
     {
-        if (Slice.RawRepresentation == "--") return true;
-        
-        return $"Value '{RawRep}' is not a valid flag argument beginning '--'";
+        return Slice.RawRep == "--"
+            ? new Success()
+            : new Ignore();
     }
 
     public TryGet<Context> TryGetContext(Script scr)

@@ -1,7 +1,7 @@
 ﻿using SER.ArgumentSystem.Arguments;
 using SER.ArgumentSystem.BaseArguments;
 using SER.MethodSystem.BaseMethods;
-using SER.TokenSystem.Tokens.Variables;
+using SER.TokenSystem.Tokens.VariableTokens;
 using SER.ValueSystem;
 
 namespace SER.MethodSystem.Methods.GeneralVariableMethods;

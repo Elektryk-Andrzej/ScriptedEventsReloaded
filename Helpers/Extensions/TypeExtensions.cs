@@ -44,4 +44,9 @@ public static class TypeExtensions
     {
         return (T) Activator.CreateInstance(type);
     }
+    
+    public static string FriendlyTypeName(this Type type, bool lowerCase = false)
+    {
+        return type.AccurateName.Spaceify(lowerCase);
+    }
 }

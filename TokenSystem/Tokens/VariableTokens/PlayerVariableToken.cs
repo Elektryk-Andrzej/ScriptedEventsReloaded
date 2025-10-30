@@ -5,15 +5,17 @@ using SER.ScriptSystem;
 using SER.ValueSystem;
 using SER.VariableSystem.Variables;
 
-namespace SER.TokenSystem.Tokens.Variables;
+namespace SER.TokenSystem.Tokens.VariableTokens;
 
-public class ReferenceVariableToken : VariableToken<ReferenceVariable, ReferenceValue>
+public class PlayerVariableToken : VariableToken<PlayerVariable, PlayerValue>
 {
-    public override char Prefix => '*';
-    
+    public override char Prefix => '@';
+
+    public static string Example => "@players";
+
     public override TryGet<Context> TryGetContext(Script scr)
     {
-        return new ReferenceVariableDefinitionContext(this)
+        return new PlayerVariableDefinitionContext(this)
         {
             Script = scr,
             LineNum = LineNum,

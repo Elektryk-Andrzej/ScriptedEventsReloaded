@@ -5,7 +5,7 @@ namespace SER.TokenSystem.Slices;
 
 public abstract class Slice(char startChar)
 {
-    public string RawRepresentation => PrivateRawRepresentation.ToString();
+    public string RawRep => PrivateRawRepresentation.ToString();
     protected StringBuilder PrivateRawRepresentation { get; } = new(startChar.ToString());
 
     public abstract string Value { get; }

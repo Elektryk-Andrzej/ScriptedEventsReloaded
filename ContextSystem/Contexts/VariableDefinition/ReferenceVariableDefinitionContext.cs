@@ -1,4 +1,4 @@
-﻿using SER.TokenSystem.Tokens.Variables;
+﻿using SER.TokenSystem.Tokens.VariableTokens;
 using SER.ValueSystem;
 using SER.VariableSystem.Variables;
 

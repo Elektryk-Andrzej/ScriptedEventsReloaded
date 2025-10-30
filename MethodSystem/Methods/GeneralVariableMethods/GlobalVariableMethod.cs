@@ -2,7 +2,7 @@
 using SER.ArgumentSystem.BaseArguments;
 using SER.Helpers.Exceptions;
 using SER.MethodSystem.BaseMethods;
-using SER.TokenSystem.Tokens.Variables;
+using SER.TokenSystem.Tokens.VariableTokens;
 using SER.VariableSystem;
 
 namespace SER.MethodSystem.Methods.GeneralVariableMethods;

@@ -1,8 +1,11 @@
-﻿using System.Text.RegularExpressions;
+﻿using System.Linq;
+using System.Text.RegularExpressions;
+using SER.Helpers.Extensions;
 using SER.Helpers.ResultSystem;
 using SER.ScriptSystem;
 using SER.TokenSystem.Slices;
 using SER.TokenSystem.Structures;
+using SER.TokenSystem.Tokens.ExpressionTokens;
 using SER.TokenSystem.Tokens.Interfaces;
 using SER.ValueSystem;
 
@@ -18,39 +21,48 @@ public class TextToken : LiteralValueToken<TextValue>
 
     public static string ParseValue(string text, Script script) => ExpressionRegex.Replace(text, match =>
     {
-        Result mainErr = $"Value '{match.Value}' is not a valid literal expression.";
-        // ReSharper disable once DuplicatedSequentialIfBodies
-        if (ExpressionToken
-            .TryGet(match.Value, script)
-            .HasErrored(out var error, out var token))
-        {
-            script.Executor.Warn(mainErr + error, script);
-            return "<error>";
-        }
-
-        if (token is not IValueCapableToken<LiteralValue> literal)
+        if (!Tokenizer.SliceLine(match.Value).WasSuccessful(out var slices))
         {
             return "<error>";
         }
 
-        if (literal.ExactValue.HasErrored(out error, out var result))
+        if (slices.FirstOrDefault() is not CollectionSlice { Type: CollectionBrackets.Curly } collection)
         {
-            script.Executor.Warn(mainErr + error, script);
+            return "<error>";
+        }
+        
+        if (!ExpressionToken.TryParse(collection, script).WasSuccessful(out var token))
+        {
+            return "<error>";
+        }
+
+        if (token is not IValueToken valueToken)
+        {
+            return "<error>";
+        }
+
+        if (!valueToken.CanReturn<LiteralValue>(out var get))
+        {
+            return "<error>";
+        }
+
+        if (!get().WasSuccessful(out var value))
+        {
             return "<error>";
         }
             
-        return result.ToString();
+        return value.StringRep;
     });
 
-    protected override Result InternalParse(Script scr)
+    protected override IParseResult InternalParse(Script scr)
     {
-        if (Slice is not CollectionSlice { Type: CollectionSliceType.Quotes })
+        if (Slice is not CollectionSlice { Type: CollectionBrackets.Quotes })
         {
-            return "Text must be in quotes.";
+            return new Ignore();
         }
         
         Value = Slice.Value;
-        return true;
+        return new Success();
     }
 
     public DynamicTryGet<string> GetDynamicResolver()

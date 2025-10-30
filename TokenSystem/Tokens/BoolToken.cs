@@ -1,19 +1,18 @@
-﻿using SER.Helpers.ResultSystem;
-using SER.ScriptSystem;
+﻿using SER.ScriptSystem;
 using SER.ValueSystem;
 
 namespace SER.TokenSystem.Tokens;
 
 public class BoolToken : LiteralValueToken<BoolValue>
 {
-    protected override Result InternalParse(Script scr)
+    protected override IParseResult InternalParse(Script scr)
     {
-        if (bool.TryParse(Slice.RawRepresentation, out var res1))
+        if (bool.TryParse(Slice.RawRep, out var res1))
         {
             Value = res1;
-            return true;
+            return new Success();
         }
         
-        return "Value is not a boolean.";
+        return new Ignore();
     }
 }

@@ -1,6 +1,6 @@
 ﻿namespace SER.TokenSystem.Structures;
 
-public enum CollectionSliceType
+public enum CollectionBrackets
 {
     Quotes,
     Curly,

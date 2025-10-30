@@ -2,6 +2,7 @@
 using JetBrains.Annotations;
 using LabApi.Features.Wrappers;
 using SER.ArgumentSystem.BaseArguments;
+using SER.Helpers.Extensions;
 using SER.Helpers.ResultSystem;
 using SER.TokenSystem.Tokens;
 using SER.TokenSystem.Tokens.Interfaces;
@@ -31,14 +32,19 @@ public class ItemsArgument(string name) : EnumHandlingArgument(name)
                     return Item.List.ToArray();
                 }
 
-                if (token is not IValueCapableToken<ReferenceValue> refToken)
+                if (token is not IValueToken valToken || !valToken.CanReturn<ReferenceValue>(out var get))
                 {
                     return rs;
                 }
 
                 return new(() =>
                 {
-                    if (ReferenceArgument<Item>.TryParse(refToken).WasSuccessful(out var item))
+                    if (get().HasErrored(out var error, out var refValue))
+                    {
+                        return error;
+                    }
+                    
+                    if (ReferenceArgument<Item>.TryParse(refValue).WasSuccessful(out var item))
                     {
                         return new[] { item };
                     }

@@ -6,10 +6,11 @@ using SER.ContextSystem.BaseContexts;
 using SER.ContextSystem.Extensions;
 using SER.ContextSystem.Structures;
 using SER.Helpers.Exceptions;
+using SER.Helpers.Extensions;
 using SER.Helpers.ResultSystem;
 using SER.TokenSystem.Tokens;
 using SER.TokenSystem.Tokens.Interfaces;
-using SER.TokenSystem.Tokens.Variables;
+using SER.TokenSystem.Tokens.VariableTokens;
 using SER.ValueSystem;
 using SER.VariableSystem.Bases;
 
@@ -61,39 +62,42 @@ public class ForeachLoopContext : LoopContext
             return TryAddTokenRes.Continue();
         }
 
-        switch (token)
+        if (token is not IValueToken valToken)
         {
-            case IValueCapableToken<PlayerValue> playerToken:
-            {
-                _values = () =>
-                {
-                    if (playerToken.ExactValue.HasErrored(out var error, out var value))
-                    {
-                        throw new ScriptRuntimeError(error);
-                    }
-
-                    return value.Players.Select(p => new PlayerValue(p)).ToArray();
-                };
-            
-                return TryAddTokenRes.End();
-            }
-
-            case IValueCapableToken<CollectionValue> collectionToken:
-            {
-                _values = () =>
-                {
-                    if (collectionToken.ExactValue.HasErrored(out var error, out var value))
-                    {
-                        throw new ScriptRuntimeError(error);
-                    }
-
-                    return value.CastedValues;
-                };
-                
-                return TryAddTokenRes.End();
-            }
+            goto Error;
         }
 
+        if (valToken.CanReturn<PlayerValue>(out var getPlayer))
+        {
+            _values = () =>
+            {
+                if (getPlayer().HasErrored(out var error, out var value))
+                {
+                    throw new ScriptRuntimeError(error);
+                }
+
+                return value.Players.Select(p => new PlayerValue(p)).ToArray();
+            };
+            
+            return TryAddTokenRes.End();
+        }
+
+        if (valToken.CanReturn<CollectionValue>(out var getCollection))
+        {
+            _values = () =>
+            {
+                if (getCollection().HasErrored(out var error, out var value))
+                {
+                    throw new ScriptRuntimeError(error);
+                }
+
+                return value.CastedValues;
+            };
+
+            return TryAddTokenRes.End();
+        }
+
+        Error:
         return TryAddTokenRes.Error(
             "'foreach' loop expected to have either a player value or collection value as its third argument, " +
             $"but received '{token.RawRep}'."

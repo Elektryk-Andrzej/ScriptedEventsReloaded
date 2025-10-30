@@ -5,17 +5,15 @@ using SER.ScriptSystem;
 using SER.ValueSystem;
 using SER.VariableSystem.Variables;
 
-namespace SER.TokenSystem.Tokens.Variables;
+namespace SER.TokenSystem.Tokens.VariableTokens;
 
-public class CollectionVariableToken : VariableToken<CollectionVariable, CollectionValue>
+public class ReferenceVariableToken : VariableToken<ReferenceVariable, ReferenceValue>
 {
-    public override char Prefix => '&';
-
-    public static string Example => "&collection";
-
+    public override char Prefix => '*';
+    
     public override TryGet<Context> TryGetContext(Script scr)
     {
-        return new CollectionVariableDefinitionContext(this)
+        return new ReferenceVariableDefinitionContext(this)
         {
             Script = scr,
             LineNum = LineNum,

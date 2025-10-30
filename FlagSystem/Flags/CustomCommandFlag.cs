@@ -22,8 +22,7 @@ public class CustomCommandFlag : Flag
 {
     public override string Description => 
         "Creates a command and binds it to the script. When the command is ran, it executes the script.";
-
-
+    
     public override Argument? InlineArgument => new(
         "command name",
         "The name of the command to create",
@@ -61,7 +60,7 @@ public class CustomCommandFlag : Flag
             "The script cannot run unless every single argument is specified. " +
             "When the command is ran, the provided values for the arguments turn into their own literal local " +
             "variables for you to use in the script. " +
-            "For example: making a command with an argument 'x' will then create a local variable {x} in your script. " +
+            "For example: making a command with an argument 'name' will then create a local variable $name in your script. " +
             "Side note: when a player is running the command, a @sender local player variable will also be created.",
             AddArguments,
             false
@@ -148,7 +147,8 @@ public class CustomCommandFlag : Flag
     {
         public bool Execute(ArraySegment<string> arguments, ICommandSender sender, out string response)
         {
-            if (RunAttachedScript(this, ScriptExecutor.Get(sender, arguments), arguments.ToArray()).HasErrored(out var error))
+            if (RunAttachedScript(this, ScriptExecutor.Get(sender), arguments.ToArray())
+                .HasErrored(out var error))
             {
                 response = error;
                 return false;       

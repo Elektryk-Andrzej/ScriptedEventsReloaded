@@ -9,6 +9,7 @@ using SER.Helpers.Extensions;
 using SER.MethodSystem;
 using SER.MethodSystem.Methods.LiteralVariableMethods;
 using SER.ScriptSystem;
+using SER.ScriptSystem.Structures;
 using SER.VariableSystem;
 using EventHandler = SER.EventSystem.EventHandler;
 using Events = LabApi.Events.Handlers;
@@ -22,7 +23,7 @@ public class MainPlugin : LabApi.Loader.Features.Plugins.Plugin
     public override string Description => "The scripting language for SCP:SL.";
     public override string Author => "Elektryk_Andrzej";
     public override Version RequiredApiVersion => LabApiProperties.CurrentVersion;
-    public override Version Version => new(0, 5, 0);
+    public override Version Version => new(0, 6, 0);
     
     public static string GitHubLink => "https://github.com/ScriptedEvents/ScriptedEventsReloaded";
     public static string HelpCommandName => "serhelp";
@@ -61,45 +62,20 @@ public class MainPlugin : LabApi.Loader.Features.Plugins.Plugin
         MethodIndex.Initialize();
         VariableIndex.Initialize();
         Flag.RegisterFlags();
+        ScriptExecutor.Initialize();
+        SendLogo();
         
         Events.ServerEvents.WaitingForPlayers += OnServerFullyInit;
-        Events.ServerEvents.RoundRestarted += () =>
-        {
-            Script.StopAll();
-            SetPlayerDataMethod.PlayerData.Clear();
-        };
+        Events.ServerEvents.RoundRestarted += Disable;
         
         Timing.CallDelayed(1.5f, FileSystem.Initialize);
-        Logger.Raw(
-            """
-             #####################################
-               █████████  ██████████ ███████████  
-              ███░░░░░███░░███░░░░░█░░███░░░░░███ 
-             ░███    ░░░  ░███  █ ░  ░███    ░███ 
-             ░░█████████  ░██████    ░██████████  
-              ░░░░░░░░███ ░███░░█    ░███░░░░░███ 
-              ███    ░███ ░███ ░   █ ░███    ░███ 
-             ░░█████████  ██████████ █████   █████
-              ░░░░░░░░░  ░░░░░░░░░░ ░░░░░   ░░░░░ 
-             #####################################
-             
-             This project would not be possible without the help of:
-             
-             """ + Contributors
-                .Select(c => $"> {c.Name} as {c
-                    .Contribution
-                    .GetFlags()
-                    .Select(f => f.ToString().Spaceify())
-                    .JoinStrings(", ")}"
-                )
-                .JoinStrings("\n"),
-            ConsoleColor.Cyan
-        );
     }
 
     public override void Disable()
     {
+        ScriptExecutor.Disable();
         Script.StopAll();
+        SetPlayerDataMethod.PlayerData.Clear();
     }
     
     private void OnServerFullyInit()
@@ -111,6 +87,35 @@ public class MainPlugin : LabApi.Loader.Features.Plugins.Plugin
              Help command: {HelpCommandName}
              GitHub repository: {GitHubLink}
              """,
+            ConsoleColor.Cyan
+        );
+    }
+
+    private static void SendLogo()
+    {
+        Logger.Raw(
+            """
+            #####################################
+              █████████  ██████████ ███████████  
+             ███░░░░░███░░███░░░░░█░░███░░░░░███ 
+            ░███    ░░░  ░███  █ ░  ░███    ░███ 
+            ░░█████████  ░██████    ░██████████  
+             ░░░░░░░░███ ░███░░█    ░███░░░░░███ 
+             ███    ░███ ░███ ░   █ ░███    ░███ 
+            ░░█████████  ██████████ █████   █████
+             ░░░░░░░░░  ░░░░░░░░░░ ░░░░░   ░░░░░ 
+            #####################################
+
+            This project would not be possible without the help of:
+
+            """ + Contributors
+                .Select(c => $"> {c.Name} as {c
+                    .Contribution
+                    .GetFlags()
+                    .Select(f => f.ToString().Spaceify())
+                    .JoinStrings(", ")}"
+                )
+                .JoinStrings("\n"),
             ConsoleColor.Cyan
         );
     }
