@@ -1,4 +1,5 @@
 ﻿using System;
+using Interactables.Interobjects.DoorUtils;
 using LabApi.Features.Enums;
 using LabApi.Features.Wrappers;
 using SER.ArgumentSystem.Arguments;
@@ -14,7 +15,7 @@ namespace SER.MethodSystem.Methods.DoorMethods;
 public class DoorInfoMethod : LiteralValueReturningMethod, IReferenceResolvingMethod
 {
     public Type ReferenceType => typeof(Door);
-    public override Type[] LiteralReturnTypes => [typeof(TextValue), typeof(BoolValue)];
+    public override Type[] LiteralReturnTypes => [typeof(TextValue), typeof(BoolValue), typeof(NumberValue)];
 
     public override string Description => null!;
 
@@ -27,7 +28,11 @@ public class DoorInfoMethod : LiteralValueReturningMethod, IReferenceResolvingMe
             "isLocked",
             "isUnlocked",
             Option.Enum<DoorName>(),
-            "unityName")
+            "unityName",
+            "remainingHealth",
+            "maxHealth",
+            Option.Enum<DoorPermissionFlags>()
+            )
     ];
 
     public override void Execute()
@@ -43,6 +48,9 @@ public class DoorInfoMethod : LiteralValueReturningMethod, IReferenceResolvingMe
             "isclosed" => new BoolValue(!door.IsOpened),
             "islocked" => new BoolValue(door.IsLocked),
             "isunlocked" => new BoolValue(!door.IsLocked),
+            "remaininghealth" => new NumberValue(door is BreakableDoor brek ? (decimal)brek.Health : -1),
+            "maxhealth" => new NumberValue(door is BreakableDoor brek ? (decimal)brek.MaxHealth : -1),
+            "doorpermissionflags" => new TextValue(door.Permissions.ToString()),
             _ => throw new AndrzejFuckedUpException()
         };
     }
