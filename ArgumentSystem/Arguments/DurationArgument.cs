@@ -16,7 +16,7 @@ public class DurationArgument(string name) : Argument(name)
     [UsedImplicitly]
     public DynamicTryGet<TimeSpan> GetConvertSolution(BaseToken token)
     {
-        if (token is not IValueToken valueToken || valueToken.CanReturn<DurationValue>(out var get))
+        if (token is not IValueToken valueToken || !valueToken.CanReturn<DurationValue>(out var get))
         {
             return $"Value '{token.RawRep}' is not a duration.";
         }

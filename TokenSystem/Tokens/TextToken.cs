@@ -1,5 +1,7 @@
 ﻿using System.Linq;
 using System.Text.RegularExpressions;
+using SER.Helpers;
+using SER.Helpers.Exceptions;
 using SER.Helpers.Extensions;
 using SER.Helpers.ResultSystem;
 using SER.ScriptSystem;
@@ -13,7 +15,7 @@ namespace SER.TokenSystem.Tokens;
 
 public class TextToken : LiteralValueToken<TextValue>
 {
-    private static readonly Regex ExpressionRegex = new(@"\{.*?\}", RegexOptions.Compiled);
+    private static readonly Regex ExpressionRegex = new(@"~?\{.*?\}", RegexOptions.Compiled);
 
     public string ParsedValue() => ContainsExpressions ? ParseValue(Value, Script) : Value;
 
@@ -21,33 +23,29 @@ public class TextToken : LiteralValueToken<TextValue>
 
     public static string ParseValue(string text, Script script) => ExpressionRegex.Replace(text, match =>
     {
-        if (!Tokenizer.SliceLine(match.Value).WasSuccessful(out var slices))
+        if (match.Value.StartsWith("~")) return match.Value.Substring(1);
+        
+        if (Tokenizer.SliceLine(match.Value).HasErrored(out var error, out var slices))
         {
+            Log.Warn(script, error);
             return "<error>";
         }
 
         if (slices.FirstOrDefault() is not CollectionSlice { Type: CollectionBrackets.Curly } collection)
         {
-            return "<error>";
+            throw new AndrzejFuckedUpException();
         }
         
-        if (!ExpressionToken.TryParse(collection, script).WasSuccessful(out var token))
+        // ReSharper disable once DuplicatedSequentialIfBodies
+        if (ExpressionToken.TryParse(collection, script).HasErrored(out error, out var token))
         {
+            Log.Warn(script, error);
             return "<error>";
         }
 
-        if (token is not IValueToken valueToken)
+        if (((BaseToken)token).TryGet<LiteralValue>().HasErrored(out error, out var value))
         {
-            return "<error>";
-        }
-
-        if (!valueToken.CanReturn<LiteralValue>(out var get))
-        {
-            return "<error>";
-        }
-
-        if (!get().WasSuccessful(out var value))
-        {
+            Log.Warn(script, error);
             return "<error>";
         }
             

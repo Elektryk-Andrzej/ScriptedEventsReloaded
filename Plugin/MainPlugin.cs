@@ -73,7 +73,6 @@ public class MainPlugin : LabApi.Loader.Features.Plugins.Plugin
 
     public override void Disable()
     {
-        ScriptExecutor.Disable();
         Script.StopAll();
         SetPlayerDataMethod.PlayerData.Clear();
     }

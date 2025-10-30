@@ -108,6 +108,7 @@
         <Compile Include="ArgumentSystem\Arguments\ScriptArgument.cs" />
         <Compile Include="ArgumentSystem\Arguments\TextArgument.cs" />
         <Compile Include="ArgumentSystem\Arguments\TokenArgument.cs" />
+        <Compile Include="ArgumentSystem\Arguments\UnknownReferenceArgument.cs" />
         <Compile Include="ArgumentSystem\Arguments\ValueArgument.cs" />
         <Compile Include="ArgumentSystem\Arguments\VariableArgument.cs" />
         <Compile Include="ArgumentSystem\BaseArguments\Argument.cs" />
@@ -160,6 +161,7 @@
         <Compile Include="Helpers\Exceptions\AndrzejFuckedUpException.cs" />
         <Compile Include="Helpers\Exceptions\ScriptRuntimeError.cs" />
         <Compile Include="Helpers\Extensions\SerExtensions.cs" />
+        <Compile Include="Helpers\MustSet.cs" />
         <Compile Include="Helpers\NumericExpressionReslover.cs" />
         <Compile Include="Helpers\Extensions\CollectionExtensions.cs" />
         <Compile Include="Helpers\Extensions\DictionaryExtensions.cs" />
@@ -319,6 +321,7 @@
         <Compile Include="TokenSystem\Tokens\CommentToken.cs" />
         <Compile Include="TokenSystem\Tokens\DurationToken.cs" />
         <Compile Include="TokenSystem\Tokens\ExpressionTokens\ExpressionToken.cs" />
+        <Compile Include="TokenSystem\Tokens\ExpressionTokens\LiteralVariableExpressionToken.cs" />
         <Compile Include="TokenSystem\Tokens\ExpressionTokens\MethodExpressionToken.cs" />
         <Compile Include="TokenSystem\Tokens\ExpressionTokens\PlayerExpressionToken.cs" />
         <Compile Include="TokenSystem\Tokens\FlagArgumentToken.cs" />

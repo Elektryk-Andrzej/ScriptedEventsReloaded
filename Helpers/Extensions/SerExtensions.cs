@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq;
+using System.Runtime.InteropServices;
 using JetBrains.Annotations;
 using SER.Helpers.Exceptions;
 using SER.Helpers.ResultSystem;
@@ -37,16 +38,22 @@ public static class SerExtensions
     {
         get = null!;
         if (token is not IValueToken valToken) return false;
-        return valToken.CanReturn<T>(out get);
+        return valToken.CanReturn(out get);
     }
     
     public static bool CanReturn<T>(this IValueToken valToken, out Func<TryGet<T>> get) where T : Value
     {
-        get = null!;
-        if (valToken.PossibleValueTypes is null) return true;
-        
         get = valToken.TryGet<T>;
-        return valToken.PossibleValueTypes.Any(type => typeof(T).IsAssignableFrom(type));
+        
+        if (valToken.PossibleValueTypes is null) return true;
+        return valToken.PossibleValueTypes.Any(type => typeof(T).IsAssignableFrom(type) || type.IsAssignableFrom(typeof(T)));
+    }
+    
+    public static TryGet<T> TryGet<T>(this BaseToken token) where T : Value
+    {
+        if (token is not IValueToken valToken) return $"Value '{token.RawRep}' cannot represent a {typeof(T).FriendlyTypeName()}";
+        
+        return valToken.Value().SuccessTryCast<Value, T>();
     }
 
     public static TryGet<T> TryGet<T>(this IValueToken valToken) where T : Value

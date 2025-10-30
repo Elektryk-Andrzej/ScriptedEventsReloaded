@@ -1,14 +1,17 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 using SER.Helpers;
 using SER.Helpers.Exceptions;
 using SER.Helpers.ResultSystem;
 using SER.ScriptSystem;
 using SER.TokenSystem.Slices;
 using SER.TokenSystem.Structures;
+using SER.TokenSystem.Tokens.Interfaces;
+using SER.ValueSystem;
 
 namespace SER.TokenSystem.Tokens;
 
-public class ParenthesesToken : BaseToken
+public class ParenthesesToken : BaseToken, IValueToken
 {
     private BaseToken[]? _tokens = null;
 
@@ -56,4 +59,22 @@ public class ParenthesesToken : BaseToken
         
         return NumericExpressionReslover.ParseExpression(tokens);
     }
+
+    public TryGet<Value> Value()
+    {
+        if (ParseExpression().HasErrored(out var error, out var value))
+        {
+            return error;
+        }
+
+        if (ValueSystem.Value.Parse(value) is not LiteralValue literalValue)
+        {
+            return RawContent;
+        }
+
+        return literalValue;
+    }
+
+    public Type[]? PossibleValueTypes => [typeof(LiteralValue)];
+    public bool IsConstant => false;
 }

@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Linq;
 using SER.ContextSystem;
+using SER.Helpers;
 using SER.Helpers.Exceptions;
+using SER.Helpers.Extensions;
 using SER.Helpers.ResultSystem;
 using SER.MethodSystem.BaseMethods;
 using SER.ValueSystem;
@@ -24,7 +26,7 @@ public class MethodExpressionToken : ExpressionToken
             return new Error($"Method '{methodToken.Method.Name}' does not return a value.");
         }
         
-        if (Contexter.ContextLine(tokens, null, Script).HasErrored(out var contextError, out var context))
+        if (Contexter.ContextLine(tokens, null, Script).HasErrored(out var contextError))
         {
             return new Error(contextError);
         }
@@ -33,7 +35,13 @@ public class MethodExpressionToken : ExpressionToken
         return new Success();
     }
 
-    public override TryGet<Value> Value() => _method?.ReturnValue ?? throw new AndrzejFuckedUpException();
+    public override TryGet<Value> Value()
+    {
+        if (_method is null) throw new AndrzejFuckedUpException();
+        
+        _method.Execute();
+        return _method.ReturnValue ?? throw new AndrzejFuckedUpException();
+    }
 
     public override Type[]? PossibleValueTypes => null;
 }

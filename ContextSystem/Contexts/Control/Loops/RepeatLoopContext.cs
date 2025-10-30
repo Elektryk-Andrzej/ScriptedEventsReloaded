@@ -38,7 +38,12 @@ public class RepeatLoopContext : StatementContext, IKeywordContext
                 
                 _repeatCount = (uint)numberToken.Value;
                 return TryAddTokenRes.End();
-            case IValueToken valToken when valToken.CanReturn<NumberValue>(out var getNumber):
+            case IValueToken valToken:
+                if (!valToken.CanReturn<NumberValue>(out var getNumber))
+                {
+                    return TryAddTokenRes.Error($"Value '{token.RawRep}' returns a value, but.");   
+                }
+                
                 _repeatCountExpression = () =>
                 {
                     if (getNumber().HasErrored(out var error, out var value))

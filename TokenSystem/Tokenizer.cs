@@ -36,6 +36,7 @@ public static class Tokenizer
     [
         typeof(PlayerExpressionToken),
         typeof(MethodExpressionToken),
+        typeof(LiteralVariableExpressionToken),
         
         typeof(ParenthesesToken),
         

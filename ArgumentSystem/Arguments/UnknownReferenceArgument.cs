@@ -8,12 +8,12 @@ using SER.ValueSystem;
 
 namespace SER.ArgumentSystem.Arguments;
 
-public class TextArgument(string name) : Argument(name)
+public class UnknownReferenceArgument(string name) : Argument(name)
 {
-    public override string InputDescription => "Any text e.g. \"Hello, World!\"";
-
+    public override string InputDescription => "an unverified reference e.g. @room";
+    
     [UsedImplicitly]
-    public DynamicTryGet<string> GetConvertSolution(BaseToken token)
+    public DynamicTryGet<bool> GetConvertSolution(BaseToken token)
     {
         if (token is TextToken textToken)
         {

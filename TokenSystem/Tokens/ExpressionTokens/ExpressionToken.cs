@@ -35,10 +35,14 @@ public abstract class ExpressionToken : BaseToken, IValueToken
 
     public static TryGet<ExpressionToken> TryParse(CollectionSlice slice, Script script)
     {
-        if (!Tokenizer.GetTokenFromSlice(slice, script, null).WasSuccessful(out var val) 
-            || val is not ExpressionToken expToken)
+        if (Tokenizer.GetTokenFromSlice(slice, script, null).HasErrored(out var error, out var val))
         {
-            return $"Value '{slice.RawRep}' is not an expression.";
+            return error;
+        }
+
+        if (val is not ExpressionToken expToken)
+        {
+            return $"Token '{slice.RawRep}' is not an {typeof(ExpressionToken).FriendlyTypeName()}, but a {val.GetType().FriendlyTypeName()}";
         }
         
         return expToken;

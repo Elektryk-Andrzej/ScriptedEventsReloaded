@@ -14,7 +14,7 @@ public class ValueArgument<T>(string name) : Argument(name) where T : Value
     [UsedImplicitly]
     public DynamicTryGet<T> GetConvertSolution(BaseToken token)
     {
-        if (token.CanReturn<T>(out var get))
+        if (!token.CanReturn<T>(out var get))
         {
             return $"Value '{token.RawRep}' cannot represent {InputDescription}";
         }
