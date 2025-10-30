@@ -22,6 +22,11 @@ public class ProvidedArguments(Method method)
 {
     private Dictionary<(string name, Type type), List<DynamicTryGet>> Arguments { get; } = [];
 
+    public bool GetIsValidReference(string argName)
+    {
+        return GetValue<bool, IsValidReferenceArgument>(argName);
+    }
+    
     public T GetToken<T>(string argName) where T : BaseToken
     {
         return GetValue<T, TokenArgument<T>>(argName);

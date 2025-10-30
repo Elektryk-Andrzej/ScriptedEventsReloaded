@@ -26,7 +26,7 @@ public class DoorInfoMethod : LiteralValueReturningMethod, IReferenceResolvingMe
             "isClosed",
             "isLocked",
             "isUnlocked",
-            Option.Enum<DoorName>(),
+            Option.Enum<DoorName>("name"),
             "unityName")
     ];
 
@@ -37,7 +37,7 @@ public class DoorInfoMethod : LiteralValueReturningMethod, IReferenceResolvingMe
         
         ReturnValue = info switch
         {
-            "doorname" => new TextValue(door.DoorName.ToString()),
+            "name" => new TextValue(door.DoorName.ToString()),
             "unityname" => new TextValue(door.Base.name),
             "isopen" => new BoolValue(door.IsOpened),
             "isclosed" => new BoolValue(!door.IsOpened),

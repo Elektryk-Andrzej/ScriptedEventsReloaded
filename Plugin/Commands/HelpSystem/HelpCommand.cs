@@ -507,7 +507,7 @@ public class HelpCommand : ICommand
                 if (ret.LiteralReturnTypes is { } types)
                 {
                     typeReturn = types
-                        .Select(t => t.FriendlyTypeName())
+                        .Select(Value.FriendlyName)
                         .Select(name => $"a {name} value")
                         .JoinStrings(" or ");
                 }
@@ -549,6 +549,7 @@ public class HelpCommand : ICommand
                     typeReturn = "a value depending on your input";
                 }
                 
+                sb.AppendLine();
                 sb.AppendLine($"This method returns {typeReturn}, which can be saved or used directly. ");
                 break;
             }

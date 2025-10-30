@@ -108,7 +108,7 @@
         <Compile Include="ArgumentSystem\Arguments\ScriptArgument.cs" />
         <Compile Include="ArgumentSystem\Arguments\TextArgument.cs" />
         <Compile Include="ArgumentSystem\Arguments\TokenArgument.cs" />
-        <Compile Include="ArgumentSystem\Arguments\UnknownReferenceArgument.cs" />
+        <Compile Include="ArgumentSystem\Arguments\IsValidReferenceArgument.cs" />
         <Compile Include="ArgumentSystem\Arguments\ValueArgument.cs" />
         <Compile Include="ArgumentSystem\Arguments\VariableArgument.cs" />
         <Compile Include="ArgumentSystem\BaseArguments\Argument.cs" />
