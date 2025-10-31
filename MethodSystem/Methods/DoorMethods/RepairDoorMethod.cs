@@ -2,29 +2,26 @@
 using SER.ArgumentSystem.Arguments;
 using SER.ArgumentSystem.BaseArguments;
 using SER.MethodSystem.BaseMethods;
+using SER.MethodSystem.MethodDescriptors;
 
 namespace SER.MethodSystem.Methods.DoorMethods;
-public class RepairDoorMethod : SynchronousMethod
+
+public class RepairDoorMethod : SynchronousMethod, IAdditionalDescription
 {
-    public override string Description => "Repairs specified doors if possible (for example, you can't repair Gate B, but you can repair normal HCZ doors)";
+    public override string Description => "Repairs specified doors if possible";
+
+    public string AdditionalDescription =>
+        "Remember, you can't repair things like gates, but you can repair normal doors like HCZ doors";
 
     public override Argument[] ExpectedArguments =>
     [
-        new DoorsArgument("doors")
-        {
-            Description="Doors to repair"
-        }
+        new DoorsArgument("doors to repair")
     ];
 
     public override void Execute()
     {
-        Door[] doors = Args.GetDoors("doors");
-        foreach(Door door in doors)
-        {
-            if(door is BreakableDoor brek)
-            {
-                brek.TryRepair();
-            }
-        }
+        Args.GetDoors("doors to repair")
+            .OfType<Door, BreakableDoor>()
+            .ForEach(door => door.TryRepair());
     }
 }
