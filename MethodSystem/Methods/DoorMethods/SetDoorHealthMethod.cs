@@ -2,11 +2,16 @@
 using SER.ArgumentSystem.Arguments;
 using SER.ArgumentSystem.BaseArguments;
 using SER.MethodSystem.BaseMethods;
+using SER.MethodSystem.MethodDescriptors;
 
 namespace SER.MethodSystem.Methods.DoorMethods;
-public class SetDoorHealthMethod : SynchronousMethod
+
+public class SetDoorHealthMethod : SynchronousMethod, IAdditionalDescription
 {
-    public override string Description => "Sets remaining health for specified doors if possible (for example, you can't set health for Gate B, but you can set health for normal HCZ doors)";
+    public override string Description => "Sets remaining health for specified doors if possible";
+
+    public string AdditionalDescription =>
+        "This is only applicable for doors that can break, like HCZ doors and not gates.";
 
     public override Argument[] ExpectedArguments =>
     [
@@ -16,14 +21,9 @@ public class SetDoorHealthMethod : SynchronousMethod
 
     public override void Execute()
     {
-        float HP = Args.GetFloat("health");
         Door[] doors = Args.GetDoors("doors");
-        foreach(Door door in doors)
-        {
-            if(door is BreakableDoor brek)
-            {
-                brek.Health = HP;
-            }
-        }
+        float health = Args.GetFloat("health");
+
+        doors.OfType<Door, BreakableDoor>().ForEach(door => door.Health = health);
     }
 }
