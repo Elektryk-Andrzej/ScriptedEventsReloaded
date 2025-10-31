@@ -186,6 +186,10 @@
         <Compile Include="MethodSystem\Methods\BroadcastMethods\CountdownMethod.cs" />
         <Compile Include="MethodSystem\Methods\CASSIEMethods\IsCassieSpeakingMethod.cs" />
         <Compile Include="MethodSystem\Methods\CollectionVariableMethods\CollectionFetchMethod.cs" />
+        <Compile Include="MethodSystem\Methods\DoorMethods\BreakDoorMethod.cs" />
+        <Compile Include="MethodSystem\Methods\DoorMethods\RepairDoorMethod.cs" />
+        <Compile Include="MethodSystem\Methods\DoorMethods\SetDoorHealthMethod.cs" />
+        <Compile Include="MethodSystem\Methods\DoorMethods\SetDoorMaxHealthMethod.cs" />
         <Compile Include="MethodSystem\Methods\DoorMethods\SetDoorPermissionMethod.cs" />
         <Compile Include="MethodSystem\Methods\ElevatorMethods\LockElevatorMethod.cs" />
         <Compile Include="MethodSystem\Methods\ElevatorMethods\SendElevatorMethod.cs" />
@@ -219,8 +223,11 @@
         <Compile Include="MethodSystem\Methods\PlayerMethods\SetCustomInfoMethod.cs" />
         <Compile Include="MethodSystem\Methods\PlayerMethods\GodModeMethod.cs" />
         <Compile Include="MethodSystem\Methods\PlayerMethods\NoclipMethod.cs" />
+        <Compile Include="MethodSystem\Methods\PlayerMethods\SetDisplayNameMethod.cs" />
+        <Compile Include="MethodSystem\Methods\PlayerMethods\SetEmoteMethod.cs" />
         <Compile Include="MethodSystem\Methods\PlayerMethods\SetGravityMethod.cs" />
         <Compile Include="MethodSystem\Methods\PlayerMethods\SetGroupMethod.cs" />
+        <Compile Include="MethodSystem\Methods\PlayerMethods\SetInfoAreaMethod.cs" />
         <Compile Include="MethodSystem\Methods\PlayerMethods\SetSizeMethod.cs" />
         <Compile Include="MethodSystem\Methods\PlayerVariableMethods\ContainsPlayerMethod.cs" />
         <Compile Include="MethodSystem\Methods\PlayerVariableMethods\GetPlayerFromReferenceMethod.cs" />
