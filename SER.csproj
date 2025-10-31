@@ -149,8 +149,12 @@
         <Compile Include="ContextSystem\Structures\TryAddContextRes.cs" />
         <Compile Include="ContextSystem\Structures\TryAddTokenRes.cs" />
         <Compile Include="EventSystem\EventHandler.cs" />
-        <Compile Include="ExampleScripts\ExampleScript.cs" />
-        <Compile Include="ExampleScripts\Scripts\InviteInfoScript.cs" />
+        <Compile Include="Examples\ChaosCoinScript.cs" />
+        <Compile Include="Examples\DoorRestartScript.cs" />
+        <Compile Include="Examples\IExample.cs" />
+        <Compile Include="Examples\RaveScript.cs" />
+        <Compile Include="Examples\ScanScript.cs" />
+        <Compile Include="Examples\WelcomeScript.cs" />
         <Compile Include="FlagSystem\Flags\CustomCommandFlag.cs" />
         <Compile Include="FlagSystem\Flags\OnCustomTriggerFlag.cs" />
         <Compile Include="FlagSystem\Flags\OnEventFlag.cs" />
@@ -295,6 +299,7 @@
         <Compile Include="MethodSystem\Methods\WaitingMethods\WaitUntilMethod.cs" />
         <Compile Include="Helpers\ResultSystem\Result.cs" />
         <Compile Include="Helpers\BetterCoros.cs" />
+        <Compile Include="Plugin\Commands\ExamplesCommand.cs" />
         <Compile Include="Plugin\Commands\HelpSystem\DocsCommand.cs" />
         <Compile Include="Plugin\Commands\HelpSystem\HelpCommand.cs" />
         <Compile Include="Plugin\Commands\HelpSystem\HelpInfoStorage.cs" />

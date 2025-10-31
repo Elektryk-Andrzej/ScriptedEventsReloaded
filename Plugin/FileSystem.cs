@@ -1,8 +1,12 @@
 ﻿using System.IO;
 using System.Linq;
+using System.Reflection;
 using LabApi.Features.Console;
 using LabApi.Loader.Features.Paths;
+using SER.Examples;
 using SER.FlagSystem;
+using SER.Helpers;
+using SER.Helpers.Extensions;
 using SER.ScriptSystem;
 using SER.ScriptSystem.Structures;
 
@@ -79,5 +83,22 @@ public static class FileSystem
         UpdateScriptPathCollection();
         
         return RegisteredScriptPaths.Any(p => p == path);
+    }
+
+    public static void GenerateExamples()
+    {
+        var examples = Assembly.GetExecutingAssembly().GetTypes()
+            .Where(t => typeof(IExample).IsAssignableFrom(t) && !t.IsAbstract)
+            .Select(t => t.CreateInstance<IExample>());
+
+        var dir = Directory.CreateDirectory(Path.Combine(DirPath, "Example Scripts"));
+
+        foreach (var example in examples)
+        {
+            var path = Path.Combine(dir.FullName, $"{example.Name}.txt");
+            Log.Signal($"created path {path}");
+            using var sw = File.CreateText(path);
+            sw.Write(example.Content);
+        }
     }
 }

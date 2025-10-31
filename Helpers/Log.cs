@@ -35,11 +35,6 @@ public static class Log
         Logger.Raw($"[Script '{scrName}'] {msg}", ConsoleColor.Red);
     }
 
-    public static void Assert(bool condition, string msg)
-    {
-        if (!condition) throw new AndrzejFuckedUpException(msg);
-    }
-
     public static void D(string msg)
     {
         #if DEBUG
