@@ -305,9 +305,11 @@
         <Compile Include="Plugin\Commands\RunCommand.cs" />
         <Compile Include="Plugin\Commands\StopAllCommand.cs" />
         <Compile Include="Plugin\Commands\StopCommand.cs" />
+        <Compile Include="Plugin\Config.cs" />
         <Compile Include="Plugin\FileSystem.cs" />
         <Compile Include="Plugin\MainPlugin.cs" />
         <Compile Include="Helpers\Log.cs" />
+        <Compile Include="Plugin\CommandEvents.cs" />
         <Compile Include="ScriptSystem\Script.cs" />
         <Compile Include="ScriptSystem\Structures\PlayerConsoleExecutor.cs" />
         <Compile Include="ScriptSystem\Structures\RemoteAdminExecutor.cs" />

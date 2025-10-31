@@ -9,7 +9,6 @@ using SER.Helpers.Extensions;
 using SER.MethodSystem;
 using SER.MethodSystem.Methods.LiteralVariableMethods;
 using SER.ScriptSystem;
-using SER.ScriptSystem.Structures;
 using SER.VariableSystem;
 using EventHandler = SER.EventSystem.EventHandler;
 using Events = LabApi.Events.Handlers;
@@ -17,7 +16,7 @@ using Events = LabApi.Events.Handlers;
 namespace SER.Plugin;
 
 [UsedImplicitly]
-public class MainPlugin : LabApi.Loader.Features.Plugins.Plugin
+public class MainPlugin : LabApi.Loader.Features.Plugins.Plugin<Config>
 {
     public override string Name => "SER";
     public override string Description => "The scripting language for SCP:SL.";
@@ -62,7 +61,7 @@ public class MainPlugin : LabApi.Loader.Features.Plugins.Plugin
         MethodIndex.Initialize();
         VariableIndex.Initialize();
         Flag.RegisterFlags();
-        ScriptExecutor.Initialize();
+        CommandEvents.Initialize();
         SendLogo();
         
         Events.ServerEvents.WaitingForPlayers += OnServerFullyInit;
