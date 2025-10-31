@@ -1,5 +1,4 @@
-﻿using System;
-using SER.Helpers.Extensions;
+﻿using SER.Helpers.Extensions;
 using SER.Helpers.ResultSystem;
 
 namespace SER.ValueSystem;
