@@ -12,5 +12,5 @@ public class NumberValue(decimal value) : LiteralValue<decimal>(value)
         return value.ExactValue;
     }
 
-    protected override string StringRep => ExactValue.ToString();
+    public override string StringRep => ExactValue.ToString();
 }

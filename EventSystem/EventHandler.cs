@@ -13,7 +13,7 @@ using SER.Helpers.Extensions;
 using SER.Helpers.ResultSystem;
 using SER.ScriptSystem;
 using SER.ScriptSystem.Structures;
-using SER.TokenSystem.Tokens.Variables;
+using SER.TokenSystem.Tokens.VariableTokens;
 using SER.ValueSystem;
 using SER.VariableSystem.Bases;
 using SER.VariableSystem.Variables;

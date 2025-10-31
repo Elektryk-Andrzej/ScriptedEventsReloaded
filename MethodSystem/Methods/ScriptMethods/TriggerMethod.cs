@@ -9,7 +9,7 @@ namespace SER.MethodSystem.Methods.ScriptMethods;
 
 public class TriggerMethod : SynchronousMethod
 {
-    public override string? Description => "Fires a given trigger, executing scripts which are attached to it.";
+    public override string Description => "Fires a given trigger, executing scripts which are attached to it.";
 
     public override Argument[] ExpectedArguments { get; } =
     [

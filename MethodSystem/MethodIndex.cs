@@ -49,8 +49,7 @@ public static class MethodIndex
             AddMethod(method);
         }
         
-        var assemblyName = Assembly.GetCallingAssembly().GetName().Name;
-        Logger.Info($"'{assemblyName}' plugin has added {definedMethods.Count} methods.");
+        Logger.Info($"'{assembly.GetName().Name}' plugin has added {definedMethods.Count} methods.");
     }
 
     /// <summary>

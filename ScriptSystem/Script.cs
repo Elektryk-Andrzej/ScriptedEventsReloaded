@@ -17,7 +17,7 @@ using SER.ScriptSystem.Structures;
 using SER.TokenSystem;
 using SER.TokenSystem.Structures;
 using SER.TokenSystem.Tokens;
-using SER.TokenSystem.Tokens.Variables;
+using SER.TokenSystem.Tokens.VariableTokens;
 using SER.VariableSystem;
 using SER.VariableSystem.Bases;
 using SER.VariableSystem.Variables;
@@ -211,7 +211,10 @@ public class Script
     {
         foreach (var line in Lines)
         {
-            Tokenizer.TokenizeLine(line, this);
+            if (Tokenizer.TokenizeLine(line, this).HasErrored(out var error))
+            {
+                return error;
+            }
         }
 
         Log.Debug($"Script {Name} tokenized {Lines.Length} lines into {Lines.Sum(l => l.Tokens.Length)} tokens");
@@ -275,7 +278,7 @@ public class Script
         {
             if (variable is not T casted)
             {
-                return $"Variable '{name}' is not of type '{typeof(T).Name}', it's of '{variable.GetType().Name}' instead.";
+                return $"Variable '{name}' is not of type '{typeof(T).Name}', it's of '{variable.GetType().AccurateName}' instead.";
             }
 
             return casted;

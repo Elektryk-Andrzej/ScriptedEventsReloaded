@@ -3,9 +3,9 @@ using JetBrains.Annotations;
 using LabApi.Features.Wrappers;
 using MapGeneration;
 using SER.ArgumentSystem.BaseArguments;
+using SER.Helpers.Extensions;
 using SER.Helpers.ResultSystem;
 using SER.TokenSystem.Tokens;
-using SER.TokenSystem.Tokens.Interfaces;
 using SER.ValueSystem;
 
 namespace SER.ArgumentSystem.Arguments;
@@ -33,14 +33,19 @@ public class RoomsArgument(string name) : EnumHandlingArgument(name)
                     return Room.List.ToArray();
                 }
 
-                if (token is not IValueCapableToken<ReferenceValue> refToken)
+                if (!token.CanReturn<ReferenceValue>(out var get))
                 {
                     return rs;
                 }
 
                 return new(() =>
                 {
-                    if (ReferenceArgument<Room>.TryParse(refToken).WasSuccessful(out var room))
+                    if (get().HasErrored(out var error, out var refVal))
+                    {
+                        return error;
+                    }
+                    
+                    if (ReferenceArgument<Room>.TryParse(refVal).WasSuccessful(out var room))
                     {
                         return new[] { room };
                     }

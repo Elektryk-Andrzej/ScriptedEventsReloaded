@@ -15,7 +15,7 @@ public class DurationValue(TimeSpan value) : LiteralValue<TimeSpan>(value)
         return value.ExactValue;
     }
 
-    protected override string StringRep
+    public override string StringRep
     {
         get
         {

@@ -26,7 +26,7 @@ public class MethodCommand : ICommand, IUsePermissions
         {
             Name = "Command",
             Content = string.Join(" ", arguments.ToArray()),
-            Executor = ScriptExecutor.Get(sender, arguments)
+            Executor = ScriptExecutor.Get(sender)
         };
         
         script.Run();

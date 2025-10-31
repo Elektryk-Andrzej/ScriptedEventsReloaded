@@ -1,14 +1,17 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 using SER.Helpers;
 using SER.Helpers.Exceptions;
 using SER.Helpers.ResultSystem;
 using SER.ScriptSystem;
 using SER.TokenSystem.Slices;
 using SER.TokenSystem.Structures;
+using SER.TokenSystem.Tokens.Interfaces;
+using SER.ValueSystem;
 
 namespace SER.TokenSystem.Tokens;
 
-public class ParenthesesToken : BaseToken
+public class ParenthesesToken : BaseToken, IValueToken
 {
     private BaseToken[]? _tokens = null;
 
@@ -26,7 +29,7 @@ public class ParenthesesToken : BaseToken
             throw new AndrzejFuckedUpException();
         }
 
-        Result error = $"Failed to get underlying tokens in the '{Slice.RawRepresentation}' parentheses.";
+        Result error = $"Failed to get underlying tokens in the '{Slice.RawRep}' parentheses.";
         if (Tokenizer.TokenizeLine(Slice.Value, Script, LineNum)
             .HasErrored(out var tokenizeError, out var tokens))
         {
@@ -36,15 +39,15 @@ public class ParenthesesToken : BaseToken
         return _tokens = tokens.ToArray();
     }
 
-    protected override Result InternalParse(Script scr)
+    protected override IParseResult InternalParse(Script scr)
     {
-        if (Slice is CollectionSlice { Type: CollectionSliceType.Round } slice)
+        if (Slice is CollectionSlice { Type: CollectionBrackets.Round } slice)
         {
             RawContent = slice.Value;
-            return true;
+            return new Success();
         }
         
-        return $"Slice '{Slice.RawRepresentation}' is not in round brackets.";
+        return new Ignore();
     }
 
     public TryGet<object> ParseExpression()
@@ -56,4 +59,22 @@ public class ParenthesesToken : BaseToken
         
         return NumericExpressionReslover.ParseExpression(tokens);
     }
+
+    public TryGet<Value> Value()
+    {
+        if (ParseExpression().HasErrored(out var error, out var value))
+        {
+            return error;
+        }
+
+        if (ValueSystem.Value.Parse(value) is not LiteralValue literalValue)
+        {
+            return RawContent;
+        }
+
+        return literalValue;
+    }
+
+    public Type[]? PossibleValueTypes => [typeof(LiteralValue)];
+    public bool IsConstant => false;
 }

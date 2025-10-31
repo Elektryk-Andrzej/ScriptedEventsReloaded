@@ -9,11 +9,11 @@ namespace SER.TokenSystem.Tokens;
 
 public class CommentToken : BaseToken, IContextableToken
 {
-    protected override Result InternalParse(Script scr)
+    protected override IParseResult InternalParse(Script scr)
     {
-        if (RawRep.FirstOrDefault() == '#') return true;
-        
-        return "Value is not a comment.";
+        return RawRep.FirstOrDefault() == '#' 
+            ? new Success() 
+            : new Ignore();
     }
 
     public TryGet<Context> TryGetContext(Script scr)

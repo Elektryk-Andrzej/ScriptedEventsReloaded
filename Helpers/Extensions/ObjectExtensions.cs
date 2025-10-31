@@ -13,4 +13,9 @@ public static class ObjectExtensions
     {
         return obj;
     }
+
+    public static string FriendlyTypeName(this object obj)
+    {
+        return obj.GetType().FriendlyTypeName();
+    }
 }

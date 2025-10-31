@@ -5,17 +5,17 @@ using SER.ScriptSystem;
 using SER.ValueSystem;
 using SER.VariableSystem.Variables;
 
-namespace SER.TokenSystem.Tokens.Variables;
+namespace SER.TokenSystem.Tokens.VariableTokens;
 
-public class PlayerVariableToken : VariableToken<PlayerVariable, PlayerValue>
+public class CollectionVariableToken : VariableToken<CollectionVariable, CollectionValue>
 {
-    public override char Prefix => '@';
+    public override char Prefix => '&';
 
-    public static string Example => "@players";
+    public static string Example => "&collection";
 
     public override TryGet<Context> TryGetContext(Script scr)
     {
-        return new PlayerVariableDefinitionContext(this)
+        return new CollectionVariableDefinitionContext(this)
         {
             Script = scr,
             LineNum = LineNum,

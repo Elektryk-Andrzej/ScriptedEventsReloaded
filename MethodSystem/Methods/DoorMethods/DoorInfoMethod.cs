@@ -27,12 +27,12 @@ public class DoorInfoMethod : LiteralValueReturningMethod, IReferenceResolvingMe
             "isClosed",
             "isLocked",
             "isUnlocked",
-            Option.Enum<DoorName>(),
+            Option.Enum<DoorName>("name"),
             "unityName",
             "remainingHealth",
             "maxHealth",
-            Option.Enum<DoorPermissionFlags>()
-            )
+            Option.Enum<DoorPermissionFlags>("permissions")
+        )
     ];
 
     public override void Execute()
@@ -42,15 +42,15 @@ public class DoorInfoMethod : LiteralValueReturningMethod, IReferenceResolvingMe
         
         ReturnValue = info switch
         {
-            "doorname" => new TextValue(door.DoorName.ToString()),
+            "name" => new TextValue(door.DoorName.ToString()),
             "unityname" => new TextValue(door.Base.name),
             "isopen" => new BoolValue(door.IsOpened),
             "isclosed" => new BoolValue(!door.IsOpened),
             "islocked" => new BoolValue(door.IsLocked),
             "isunlocked" => new BoolValue(!door.IsLocked),
-            "remaininghealth" => new NumberValue(door is BreakableDoor brek ? (decimal)brek.Health : -1),
-            "maxhealth" => new NumberValue(door is BreakableDoor brek ? (decimal)brek.MaxHealth : -1),
-            "doorpermissionflags" => new TextValue(door.Permissions.ToString()),
+            "remaininghealth" => new NumberValue(door is BreakableDoor bDoor ? (decimal)bDoor.Health : -1),
+            "maxhealth" => new NumberValue(door is BreakableDoor bDoor ? (decimal)bDoor.MaxHealth : -1),
+            "permissions" => new TextValue(door.Permissions.ToString()),
             _ => throw new AndrzejFuckedUpException()
         };
     }

@@ -11,11 +11,11 @@ public class ValidRefMethod : ReturningMethod<BoolValue>
 
     public override Argument[] ExpectedArguments { get; } =
     [
-        new ValueArgument<ReferenceValue>("reference")
+        new IsValidReferenceArgument("reference")
     ];
     
     public override void Execute()
     {
-        ReturnValue = new BoolValue(Args.GetValue<ReferenceValue>("reference").IsValid);
+        ReturnValue = Args.GetIsValidReference("reference");
     }
 }

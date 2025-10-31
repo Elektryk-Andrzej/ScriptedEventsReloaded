@@ -11,7 +11,7 @@ using SER.Helpers.ResultSystem;
 using SER.MethodSystem.BaseMethods;
 using SER.ScriptSystem;
 using SER.TokenSystem.Tokens;
-using SER.TokenSystem.Tokens.Variables;
+using SER.TokenSystem.Tokens.VariableTokens;
 using SER.ValueSystem;
 using SER.VariableSystem.Bases;
 using UnityEngine;
@@ -22,6 +22,11 @@ public class ProvidedArguments(Method method)
 {
     private Dictionary<(string name, Type type), List<DynamicTryGet>> Arguments { get; } = [];
 
+    public bool GetIsValidReference(string argName)
+    {
+        return GetValue<bool, IsValidReferenceArgument>(argName);
+    }
+    
     public T GetToken<T>(string argName) where T : BaseToken
     {
         return GetValue<T, TokenArgument<T>>(argName);
@@ -299,7 +304,7 @@ public class ProvidedArguments(Method method)
 
             if (evaluator is not DynamicTryGet<TValue> argEvalRes)
                 throw new AndrzejFuckedUpException(
-                    mainErr + $"Argument value is not of type {typeof(TValue).Name}");
+                    mainErr + $"Argument value is not of type {typeof(TValue).Name}, evaluator: {evaluator.GetType().AccurateName}.");
             
             resultList.Add(argEvalRes);
         }
@@ -332,7 +337,7 @@ public class ProvidedArguments(Method method)
             null when foundArg.IsOptional => [new DynamicTryGet<TValue>((TValue)(object)null!)], // magik
             _ => throw new AndrzejFuckedUpException(
                 $"Argument {argName} for method {method.Name} has its default value set to type " +
-                $"{foundArg.DefaultValue?.GetType().Name ?? "null"}, expected of type {typeof(TValue).Name} or a list of " +
+                $"{foundArg.DefaultValue?.GetType().AccurateName ?? "null"}, expected of type {typeof(TValue).Name} or a list of " +
                 $"{typeof(TValue).Name}s.")
         };
     }

@@ -1,14 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using SER.Helpers;
+using SER.Helpers.Exceptions;
 using SER.Helpers.Extensions;
 using SER.Helpers.ResultSystem;
 using SER.ScriptSystem;
 using SER.TokenSystem.Slices;
 using SER.TokenSystem.Structures;
 using SER.TokenSystem.Tokens;
-using SER.TokenSystem.Tokens.Variables;
+using SER.TokenSystem.Tokens.ExpressionTokens;
+using SER.TokenSystem.Tokens.VariableTokens;
 
 namespace SER.TokenSystem;
 
@@ -33,8 +34,12 @@ public static class Tokenizer
     
     public static readonly Type[] OrderedImportanceTokensFromCollectionSlices =
     [
-        typeof(ExpressionToken),
+        typeof(PlayerExpressionToken),
+        typeof(MethodExpressionToken),
+        typeof(LiteralVariableExpressionToken),
+        
         typeof(ParenthesesToken),
+        
         typeof(TextToken),
     ];
     
@@ -121,34 +126,43 @@ public static class Tokenizer
         return outList;
     }
 
-    public static void TokenizeLine(Line line, Script scr)
+    public static Result TokenizeLine(Line line, Script scr)
     {
-        line.Tokens = TokenizeLine(line.Slices, scr, line.LineNumber).ToArray();
+        if (TokenizeLine(line.Slices, scr, line.LineNumber).HasErrored(out var err, out var tokens))
+        {
+            return err;
+        }
+
+        line.Tokens = tokens;
+        return true;
     }
 
-    public static TryGet<IEnumerable<BaseToken>> TokenizeLine(string line, Script scr, uint? lineNum)
+    public static TryGet<BaseToken[]> TokenizeLine(string line, Script scr, uint? lineNum)
     {
         if (SliceLine(line)
             .HasErrored(out var sliceError, out var slices))
         {
             return sliceError;
         }
-        
-        return TokenizeLine(slices, scr, lineNum).ToArray();
+
+        return TokenizeLine(slices, scr, lineNum);
     }
 
-    public static IEnumerable<BaseToken> TokenizeLine(IEnumerable<Slice> slices, Script scr, uint? lineNum)
+    public static TryGet<BaseToken[]> TokenizeLine(IEnumerable<Slice> slices, Script scr, uint? lineNum)
     {
         var sliceArray = slices.ToArray();
         var tokens = sliceArray.Select(slice => GetTokenFromSlice(slice, scr, lineNum)).ToArray();
-        Log.Debug(
-            $"Slices [{sliceArray.Select(s => $"'{s.RawRepresentation}'").JoinStrings(" ")}] " +
-            $"-> " +
-            $"Tokens [{tokens.Select(t => $"<'{t.RawRep}' as {t.GetType().Name}>").JoinStrings(" ")}]");
-        return tokens;
+
+        var error = tokens.FirstOrDefault(t => t.HasErrored(out _))?.ErrorMsg;
+        if (error is not null)
+        {
+            return error;
+        }
+        
+        return tokens.Select(t => t.Value!).ToArray();
     }
 
-    public static BaseToken GetTokenFromSlice(Slice slice, Script scr, uint? lineNum)
+    public static TryGet<BaseToken> GetTokenFromSlice(Slice slice, Script scr, uint? lineNum)
     {
         var tokenCollection = slice is CollectionSlice 
             ? OrderedImportanceTokensFromCollectionSlices 
@@ -157,9 +171,12 @@ public static class Tokenizer
         foreach (var tokenType in tokenCollection)
         {
             var token = tokenType.CreateInstance<BaseToken>();
-            if (token.TryInit(slice, scr, lineNum).WasSuccess)
+            switch (token.TryInit(slice, scr, lineNum))
             {
-                return token;
+                case BaseToken.Success: return token;
+                case BaseToken.Ignore: continue;
+                case BaseToken.Error err: return err.Message;
+                default: throw new AndrzejFuckedUpException();
             }
         }
 

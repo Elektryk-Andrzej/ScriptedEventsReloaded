@@ -15,21 +15,16 @@ public class ReferenceArgument<TValue>(string name) : Argument(name)
     [UsedImplicitly]
     public DynamicTryGet<TValue> GetConvertSolution(BaseToken token)
     {
-        if (token is not IValueCapableToken<ReferenceValue> refToken)
+        if (token is not IValueToken valToken || !valToken.CanReturn<ReferenceValue>(out var get))
         {
             return $"Value '{token.RawRep}' does not represent a valid reference.";
         }
 
-        return new(() => TryParse(refToken));
+        return new(() => get().OnSuccess(TryParse));
     }
 
-    public static TryGet<TValue> TryParse(IValueCapableToken<ReferenceValue> token)
+    public static TryGet<TValue> TryParse(ReferenceValue value)
     {
-        if (token.ExactValue.HasErrored(out var error, out var value))
-        {
-            return error;
-        }
-
         if (value.Value is not TValue correctValue)
         {
             return $"The {value} reference is not compatible with {typeof(TValue).GetAccurateName()}.";

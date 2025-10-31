@@ -5,7 +5,7 @@ using SER.ScriptSystem;
 using SER.ValueSystem;
 using SER.VariableSystem.Variables;
 
-namespace SER.TokenSystem.Tokens.Variables;
+namespace SER.TokenSystem.Tokens.VariableTokens;
 
 public class LiteralVariableToken : VariableToken<LiteralVariable, LiteralValue>
 {

@@ -35,4 +35,7 @@ public abstract class Value
             _             => new ReferenceValue(obj),
         };
     }
+    
+    public static string FriendlyName(Type type) => type.Name.Replace("Value", "").ToLower();
+    public string FriendlyName() => FriendlyName(GetType());
 }

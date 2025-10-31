@@ -1,5 +1,6 @@
 ﻿using System;
 using SER.ContextSystem.Structures;
+using SER.Helpers.Extensions;
 using SER.Helpers.ResultSystem;
 using SER.ScriptSystem;
 using SER.TokenSystem.Tokens;
@@ -8,7 +9,7 @@ namespace SER.ContextSystem.BaseContexts;
 
 public abstract class Context
 {
-    public string Name => GetType().Name;
+    public string Name => GetType().FriendlyTypeName();
     
     public required Script Script { get; set; } = null!;
     

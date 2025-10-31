@@ -1,4 +1,5 @@
 ﻿using SER.Helpers.Exceptions;
+using SER.Helpers.Extensions;
 using SER.ValueSystem;
 using SER.VariableSystem.Variables;
 
@@ -20,7 +21,7 @@ public abstract class Variable
             ReferenceVariable @ref  => @ref,
             LiteralVariable lit     => new LiteralVariable(name, lit.Value),
             _ => throw new AndrzejFuckedUpException(
-                $"CopyVariable called on variable of type {variable.GetType().Name}")
+                $"CopyVariable called on variable of type {variable.GetType().AccurateName}")
         };
     }
 
@@ -33,7 +34,7 @@ public abstract class Variable
             PlayerValue plr      => new PlayerVariable(name, plr),
             ReferenceValue @ref  => new ReferenceVariable(name, @ref),
             _ => throw new AndrzejFuckedUpException(
-                $"CreateVariable called on invalid value type {value.GetType().Name}")
+                $"CreateVariable called on invalid value type {value.GetType().AccurateName}")
         };
     }
 }

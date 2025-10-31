@@ -4,6 +4,7 @@ using LabApi.Features.Enums;
 using LabApi.Features.Wrappers;
 using MapGeneration;
 using SER.ArgumentSystem.BaseArguments;
+using SER.Helpers.Extensions;
 using SER.Helpers.ResultSystem;
 using SER.TokenSystem.Tokens;
 using SER.TokenSystem.Tokens.Interfaces;
@@ -41,13 +42,18 @@ public class DoorsArgument(string name) : EnumHandlingArgument(name)
                     return Door.List.Where(d => d is not ElevatorDoor).ToArray();
                 }
 
-                if (token is not IValueCapableToken<ReferenceValue> refToken)
+                if (token is not IValueToken valToken || !valToken.CanReturn<ReferenceValue>(out var get))
                 {
                     return rs;
                 }
                 
                 return new(() =>
                 {
+                    if (get().HasErrored(out var error, out var refToken))
+                    {
+                        return error;
+                    }
+                    
                     if (ReferenceArgument<Door>.TryParse(refToken).WasSuccessful(out var door))
                     {
                         return new[] { door };

@@ -14,6 +14,7 @@ using SER.MethodSystem.BaseMethods;
 using SER.MethodSystem.MethodDescriptors;
 using SER.Plugin.Commands.Interfaces;
 using SER.TokenSystem.Tokens;
+using SER.TokenSystem.Tokens.ExpressionTokens;
 using SER.ValueSystem;
 using SER.VariableSystem;
 using SER.VariableSystem.Variables;
@@ -267,22 +268,48 @@ public class HelpCommand : ICommand
 
     private static string GetFlagInfo(string flagName)
     {
-        var info = Flag.FlagInfos[flagName];
-        var flagArgs = info.argDescription.Keys.Select(a => $"-- {a} ...").JoinStrings("\n");
-        var flagArgsInfo = info.argDescription.Select(kvp => $"{kvp.Key}: {kvp.Value}").JoinStrings("\n\n");
+        var flag = Flag.FlagInfos[flagName].CreateInstance<Flag>();
+        
+        var inlineArgumentUsage = flag.InlineArgument.HasValue
+            ? "..."
+            : string.Empty;
+        
+        var argumentsUsage = flag.Arguments
+            .Select(arg => $"-- {arg.Name} ...")
+            .JoinStrings("\n");
+
+        StringBuilder argumentDescription = new();
+        if (flag.InlineArgument.HasValue)
+        {
+            argumentDescription.AppendLine($"  Inline argument '{flag.InlineArgument.Value.Name}':");
+            argumentDescription.AppendLine($"  > {flag.InlineArgument.Value.Description}");
+            argumentDescription.AppendLine();
+        }
+
+        foreach (var arg in flag.Arguments)
+        {
+            argumentDescription.AppendLine($"  Additional argument '{arg.Name}':");
+            argumentDescription.AppendLine($"  > {arg.Description}");
+            
+            if (!arg.IsRequired)
+            {
+                argumentDescription.AppendLine($"  > This argument is not required for the flag to operate");
+            }
+            
+            argumentDescription.AppendLine();
+        }
         
         return
             $"""
              ===== {flagName} =====
-             > {info.description}
+             > {flag.Description}
              
              Usage:
-             !-- {flagName} {(info.inlineArgDescription?.argName is { } name ? $"{name}" : "")}
-             {flagArgs}
+             !-- {flagName} {inlineArgumentUsage}
+             {argumentsUsage}
              
-             Argument information:
-             {(info.inlineArgDescription is { } inlineArg ? $"{inlineArg.argName}: {inlineArg.description}\n" : "")}
-             {flagArgsInfo}
+             {(argumentDescription.Length > 0 ? "Arguments:" : "")}
+             {argumentDescription}
              """;
     }
 
@@ -480,7 +507,7 @@ public class HelpCommand : ICommand
                 if (ret.LiteralReturnTypes is { } types)
                 {
                     typeReturn = types
-                        .Select(LiteralValue.GetFriendlyName)
+                        .Select(Value.FriendlyName)
                         .Select(name => $"a {name} value")
                         .JoinStrings(" or ");
                 }
@@ -513,7 +540,7 @@ public class HelpCommand : ICommand
                 if (ret.ReturnTypes is { } types)
                 {
                     typeReturn = types
-                        .Select(LiteralValue.GetFriendlyName)
+                        .Select(t => t.FriendlyTypeName())
                         .Select(name => $"a {name} value")
                         .JoinStrings(" or ");
                 }
@@ -522,6 +549,7 @@ public class HelpCommand : ICommand
                     typeReturn = "a value depending on your input";
                 }
                 
+                sb.AppendLine();
                 sb.AppendLine($"This method returns {typeReturn}, which can be saved or used directly. ");
                 break;
             }
@@ -586,7 +614,7 @@ public class HelpCommand : ICommand
     public static string GetPlayerInfoAccessorsHelpPage()
     {
         StringBuilder sb = new();
-        var properties = PlayerPropertyExpression.PropertyInfoMap;
+        var properties = PlayerExpressionToken.PropertyInfoMap;
         foreach (var (property, info) in properties.Select(kvp => (kvp.Key, kvp.Value)))
         {
             sb.Append($"{property.ToString().LowerFirst()} -> {info.ReturnType.Name}");
@@ -599,7 +627,7 @@ public class HelpCommand : ICommand
             
             This syntax works as follows: {@plr property}
             > @plr: is a player variable with exactly 1 player stored in it
-            > property: is a property of the player we want to get information about (its a {{nameof(PlayerPropertyExpression.PlayerPropertyType)}} enum)
+            > property: is a property of the player we want to get information about (its a {{nameof(PlayerExpressionToken.PlayerProperty)}} enum)
             
             Here is a list of all available properties and what they return:
             {{sb}}

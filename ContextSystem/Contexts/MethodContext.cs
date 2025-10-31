@@ -20,7 +20,7 @@ public class MethodContext(MethodToken methodToken) : YieldingContext
     
     public override TryAddTokenRes TryAddToken(BaseToken token)
     {
-        Log.Debug($"'{Method.Name}' method is now receiving token '{token.RawRep}' ({token.GetType().Name})");
+        Log.Debug($"'{Method.Name}' method is now receiving token '{token.RawRep}' ({token.GetType().AccurateName})");
         
         if (Dispatcher.TryGetValueInfo(token, _providedArguments).HasErrored(out var error, out var skeleton))
             return TryAddTokenRes.Error(

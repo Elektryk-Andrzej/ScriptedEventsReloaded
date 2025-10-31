@@ -50,14 +50,19 @@ public class DoorArgument(string name) : EnumHandlingArgument(name)
             {
                 Result rs = $"Value '{token.RawRep}' cannot be interpreted as {InputDescription}.";
                 
-                if (token is not IValueCapableToken<ReferenceValue> refToken)
+                if (token is not IValueToken val || !val.CanReturn<ReferenceValue>(out var func))
                 {
                     return rs;
                 }
 
                 return new(() =>
                 {
-                    if (ReferenceArgument<Door>.TryParse(refToken).WasSuccessful(out var door))
+                    if (func().HasErrored(out var error, out var refVal))
+                    {
+                        return error;
+                    }
+                    
+                    if (ReferenceArgument<Door>.TryParse(refVal).WasSuccessful(out var door))
                     {
                         return door;
                     }

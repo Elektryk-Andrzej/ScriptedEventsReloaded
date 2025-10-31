@@ -4,7 +4,7 @@ using Interactables.Interobjects;
 using LabApi.Features.Enums;
 using MapGeneration;
 using SER.FlagSystem.Flags;
-using SER.TokenSystem.Tokens;
+using SER.TokenSystem.Tokens.ExpressionTokens;
 
 namespace SER.Plugin.Commands.HelpSystem;
 
@@ -18,6 +18,6 @@ public static class HelpInfoStorage
         typeof(ItemType),
         typeof(ElevatorGroup),
         typeof(CustomCommandFlag.ConsoleType),
-        typeof(PlayerPropertyExpression.PlayerPropertyType)
+        typeof(PlayerExpressionToken.PlayerProperty)
     ];
 }

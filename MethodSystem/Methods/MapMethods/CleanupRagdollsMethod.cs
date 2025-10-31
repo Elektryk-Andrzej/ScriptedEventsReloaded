@@ -9,7 +9,7 @@ using SER.MethodSystem.BaseMethods;
 
 namespace SER.MethodSystem.Methods.MapMethods;
 
-public class DestroyRagdollsMethod : SynchronousMethod
+public class CleanupRagdollsMethod : SynchronousMethod
 {
     public override string Description => "Destroys ragdolls.";
 

@@ -1,27 +1,28 @@
-﻿using SER.Helpers.Exceptions;
+﻿using System;
+using SER.Helpers.Exceptions;
+using SER.Helpers.Extensions;
 using SER.Helpers.ResultSystem;
 using SER.TokenSystem.Tokens.Interfaces;
 using SER.ValueSystem;
 
 namespace SER.TokenSystem.Tokens;
 
-public abstract class LiteralValueToken<T> : BaseToken, IValueCapableToken<LiteralValue> 
+public abstract class LiteralValueToken<T> : BaseToken, IValueToken
     where T : LiteralValue 
 {
     private bool _set = false;
-    
-#pragma warning disable CS9264
     public T Value
-#pragma warning restore CS9264
     {
-        get => _set ? field : throw new AndrzejFuckedUpException();
+        get => _set ? field : throw new AndrzejFuckedUpException($"Value of a {GetType().AccurateName} was not set.");
         protected set
         {
             _set = true;
             field = value;
         }
-    }
+    } = null!;
 
     public TryGet<LiteralValue> ExactValue => Value;
-    public TryGet<Value> BaseValue => Value;
+    TryGet<Value> IValueToken.Value() => Value;
+    public Type[] PossibleValueTypes => [typeof(T)];
+    public bool IsConstant => true;
 }

@@ -5,6 +5,7 @@ using SER.ContextSystem.BaseContexts;
 using SER.ContextSystem.Extensions;
 using SER.ContextSystem.Structures;
 using SER.Helpers.Exceptions;
+using SER.Helpers.Extensions;
 using SER.Helpers.ResultSystem;
 using SER.TokenSystem.Tokens;
 using SER.TokenSystem.Tokens.Interfaces;
@@ -37,25 +38,25 @@ public class RepeatLoopContext : StatementContext, IKeywordContext
                 
                 _repeatCount = (uint)numberToken.Value;
                 return TryAddTokenRes.End();
-            case IValueCapableToken<LiteralValue> literalValueToken:
+            case IValueToken valToken:
+                if (!valToken.CanReturn<NumberValue>(out var getNumber))
+                {
+                    return TryAddTokenRes.Error($"Value '{token.RawRep}' returns a value, but.");   
+                }
+                
                 _repeatCountExpression = () =>
                 {
-                    if (literalValueToken.ExactValue.HasErrored(out var error, out var value))
+                    if (getNumber().HasErrored(out var error, out var value))
                     {
                         return error;
                     }
 
-                    if (value is not NumberValue numberValue)
-                    {
-                        return $"Value '{value}' retreived from {token.RawRep} is not a number.";
-                    }
-
-                    if (numberValue.ExactValue < 0)
+                    if (value.ExactValue < 0)
                     {
                         return $"Value '{value}' cannot be negative.";
                     }
 
-                    return (uint)numberValue.ExactValue;
+                    return (uint)value.ExactValue;
                 };
                 return TryAddTokenRes.End();
         }

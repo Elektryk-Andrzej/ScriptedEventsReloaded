@@ -18,7 +18,11 @@
     <Target Name="PostBuild" AfterTargets="PostBuildEvent">
         <Copy
                 SourceFiles="$(TargetDir)SER.dll"
-                DestinationFolder="C:\Users\Olgie\AppData\Roaming\SCP Secret Laboratory\LabAPI\plugins\global"
+                DestinationFolder="$(LABAPI_PLUGINS)"
+        />
+        <Copy
+                SourceFiles="$(TargetDir)SER.dll"
+                DestinationFolder="$(SL_DEV_REFERENCES)"
         />
     </Target>
     <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
@@ -58,7 +62,7 @@
         <Private>true</Private>
       </Reference>
       <Reference Include="LabApi">
-        <HintPath>..\..\Desktop\LABAPI REF\LabApi.dll</HintPath>
+        <HintPath>$(SL_DEV_REFERENCES)\LabApi.dll</HintPath>
       </Reference>
       <Reference Include="Mirror">
         <HintPath>$(SL_DEV_REFERENCES)\Mirror.dll</HintPath>
@@ -104,6 +108,7 @@
         <Compile Include="ArgumentSystem\Arguments\ScriptArgument.cs" />
         <Compile Include="ArgumentSystem\Arguments\TextArgument.cs" />
         <Compile Include="ArgumentSystem\Arguments\TokenArgument.cs" />
+        <Compile Include="ArgumentSystem\Arguments\IsValidReferenceArgument.cs" />
         <Compile Include="ArgumentSystem\Arguments\ValueArgument.cs" />
         <Compile Include="ArgumentSystem\Arguments\VariableArgument.cs" />
         <Compile Include="ArgumentSystem\BaseArguments\Argument.cs" />
@@ -155,6 +160,8 @@
         <Compile Include="Helpers\Compiler\IsExternalInit.cs.cs" />
         <Compile Include="Helpers\Exceptions\AndrzejFuckedUpException.cs" />
         <Compile Include="Helpers\Exceptions\ScriptRuntimeError.cs" />
+        <Compile Include="Helpers\Extensions\SerExtensions.cs" />
+        <Compile Include="Helpers\MustSet.cs" />
         <Compile Include="Helpers\NumericExpressionReslover.cs" />
         <Compile Include="Helpers\Extensions\CollectionExtensions.cs" />
         <Compile Include="Helpers\Extensions\DictionaryExtensions.cs" />
@@ -179,6 +186,7 @@
         <Compile Include="MethodSystem\Methods\BroadcastMethods\CountdownMethod.cs" />
         <Compile Include="MethodSystem\Methods\CASSIEMethods\IsCassieSpeakingMethod.cs" />
         <Compile Include="MethodSystem\Methods\CollectionVariableMethods\CollectionFetchMethod.cs" />
+        <Compile Include="MethodSystem\Methods\DoorMethods\SetDoorPermissionMethod.cs" />
         <Compile Include="MethodSystem\Methods\ElevatorMethods\LockElevatorMethod.cs" />
         <Compile Include="MethodSystem\Methods\ElevatorMethods\SendElevatorMethod.cs" />
         <Compile Include="MethodSystem\Methods\ElevatorMethods\UnlockElevatorMethod.cs" />
@@ -188,10 +196,13 @@
         <Compile Include="MethodSystem\Methods\GeneralVariableMethods\GlobalVariableMethod.cs" />
         <Compile Include="MethodSystem\Methods\GeneralVariableMethods\PopVariableMethod.cs" />
         <Compile Include="MethodSystem\Methods\GeneralVariableMethods\VarExistsMethod.cs" />
+        <Compile Include="MethodSystem\Methods\HealthMethods\AddHumeMethod.cs" />
         <Compile Include="MethodSystem\Methods\HealthMethods\DamageInfoMethod.cs" />
         <Compile Include="MethodSystem\Methods\HealthMethods\HealMethod.cs" />
+        <Compile Include="MethodSystem\Methods\HealthMethods\SetHumeShieldMethod.cs" />
         <Compile Include="MethodSystem\Methods\ItemMethods\ItemInfoMethod.cs" />
         <Compile Include="MethodSystem\Methods\LiteralVariableMethods\PlayerDataExistsMethod.cs" />
+        <Compile Include="MethodSystem\Methods\MapMethods\CleanupPickupsMethod.cs" />
         <Compile Include="MethodSystem\Methods\MapMethods\DecontaminationMethod.cs" />
         <Compile Include="MethodSystem\Methods\OutputMethods\ErrorMethod.cs" />
         <Compile Include="MethodSystem\Methods\OutputMethods\PrintMethod.cs" />
@@ -201,13 +212,14 @@
         <Compile Include="MethodSystem\Methods\ItemMethods\DestroyItemMethod.cs" />
         <Compile Include="MethodSystem\Methods\LiteralVariableMethods\GetPlayerDataMethod.cs" />
         <Compile Include="MethodSystem\Methods\LiteralVariableMethods\SetPlayerDataMethod.cs" />
-        <Compile Include="MethodSystem\Methods\MapMethods\DestroyRagdollMethod.cs" />
+        <Compile Include="MethodSystem\Methods\MapMethods\CleanupRagdollsMethod.cs" />
         <Compile Include="MethodSystem\Methods\MathMethods\RandomNumMethod.cs" />
         <Compile Include="MethodSystem\Methods\PickupMethods\AddPickupToInventoryMethod.cs" />
         <Compile Include="MethodSystem\Methods\PlayerMethods\BypassMethod.cs" />
         <Compile Include="MethodSystem\Methods\PlayerMethods\SetCustomInfoMethod.cs" />
         <Compile Include="MethodSystem\Methods\PlayerMethods\GodModeMethod.cs" />
         <Compile Include="MethodSystem\Methods\PlayerMethods\NoclipMethod.cs" />
+        <Compile Include="MethodSystem\Methods\PlayerMethods\SetGravityMethod.cs" />
         <Compile Include="MethodSystem\Methods\PlayerMethods\SetGroupMethod.cs" />
         <Compile Include="MethodSystem\Methods\PlayerMethods\SetSizeMethod.cs" />
         <Compile Include="MethodSystem\Methods\PlayerVariableMethods\ContainsPlayerMethod.cs" />
@@ -286,7 +298,6 @@
         <Compile Include="Plugin\Commands\RunCommand.cs" />
         <Compile Include="Plugin\Commands\StopAllCommand.cs" />
         <Compile Include="Plugin\Commands\StopCommand.cs" />
-        <Compile Include="Plugin\Commands\TestCommand.cs" />
         <Compile Include="Plugin\FileSystem.cs" />
         <Compile Include="Plugin\MainPlugin.cs" />
         <Compile Include="Helpers\Log.cs" />
@@ -296,14 +307,10 @@
         <Compile Include="ScriptSystem\Structures\ServerConsoleExecutor.cs" />
         <Compile Include="ScriptSystem\Structures\ScriptExecutor.cs" />
         <Compile Include="Properties\AssemblyInfo.cs" />
-        <Compile Include="Testing\KeywordTest.cs" />
-        <Compile Include="Testing\MethodTest.cs" />
-        <Compile Include="Testing\Test.cs" />
-        <Compile Include="Testing\FlagTest.cs" />
         <Compile Include="TokenSystem\Slices\CollectionSlice.cs" />
         <Compile Include="TokenSystem\Slices\SingleSlice.cs" />
         <Compile Include="TokenSystem\Slices\Slice.cs" />
-        <Compile Include="TokenSystem\Structures\CollectionSliceType.cs" />
+        <Compile Include="TokenSystem\Structures\CollectionBrackets.cs" />
         <Compile Include="TokenSystem\Structures\IContextableToken.cs" />
         <Compile Include="TokenSystem\Structures\Line.cs" />
         <Compile Include="TokenSystem\Structures\ScriptControlMessage.cs" />
@@ -313,23 +320,25 @@
         <Compile Include="TokenSystem\Tokens\BoolToken.cs" />
         <Compile Include="TokenSystem\Tokens\CommentToken.cs" />
         <Compile Include="TokenSystem\Tokens\DurationToken.cs" />
+        <Compile Include="TokenSystem\Tokens\ExpressionTokens\ExpressionToken.cs" />
+        <Compile Include="TokenSystem\Tokens\ExpressionTokens\LiteralVariableExpressionToken.cs" />
+        <Compile Include="TokenSystem\Tokens\ExpressionTokens\MethodExpressionToken.cs" />
+        <Compile Include="TokenSystem\Tokens\ExpressionTokens\PlayerExpressionToken.cs" />
         <Compile Include="TokenSystem\Tokens\FlagArgumentToken.cs" />
         <Compile Include="TokenSystem\Tokens\FlagToken.cs" />
-        <Compile Include="TokenSystem\Tokens\Interfaces\IValueCapableToken.cs" />
         <Compile Include="TokenSystem\Tokens\Interfaces\IValueToken.cs" />
         <Compile Include="TokenSystem\Tokens\KeywordToken.cs" />
-        <Compile Include="TokenSystem\Tokens\ExpressionToken.cs" />
         <Compile Include="TokenSystem\Tokens\MethodToken.cs" />
         <Compile Include="TokenSystem\Tokens\NumberToken.cs" />
         <Compile Include="TokenSystem\Tokens\ParenthesesToken.cs" />
         <Compile Include="TokenSystem\Tokens\SymbolToken.cs" />
         <Compile Include="TokenSystem\Tokens\TextToken.cs" />
         <Compile Include="TokenSystem\Tokens\LiteralValueToken.cs" />
-        <Compile Include="TokenSystem\Tokens\Variables\CollectionVariableToken.cs" />
-        <Compile Include="TokenSystem\Tokens\Variables\LiteralVariableToken.cs" />
-        <Compile Include="TokenSystem\Tokens\Variables\PlayerVariableToken.cs" />
-        <Compile Include="TokenSystem\Tokens\Variables\ReferenceVariableToken.cs" />
-        <Compile Include="TokenSystem\Tokens\Variables\VariableToken.cs" />
+        <Compile Include="TokenSystem\Tokens\VariableTokens\CollectionVariableToken.cs" />
+        <Compile Include="TokenSystem\Tokens\VariableTokens\LiteralVariableToken.cs" />
+        <Compile Include="TokenSystem\Tokens\VariableTokens\PlayerVariableToken.cs" />
+        <Compile Include="TokenSystem\Tokens\VariableTokens\ReferenceVariableToken.cs" />
+        <Compile Include="TokenSystem\Tokens\VariableTokens\VariableToken.cs" />
         <Compile Include="ValueSystem\BoolValue.cs" />
         <Compile Include="ValueSystem\CollectionValue.cs" />
         <Compile Include="ValueSystem\DurationValue.cs" />
