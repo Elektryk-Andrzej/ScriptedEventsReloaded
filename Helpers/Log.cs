@@ -1,6 +1,5 @@
 ﻿using System;
 using LabApi.Features.Console;
-using SER.Helpers.Exceptions;
 using SER.ScriptSystem;
 
 namespace SER.Helpers;
