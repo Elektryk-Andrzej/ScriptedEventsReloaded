@@ -31,7 +31,7 @@ public class ChaosCoinScript : IExample
         end
 
         # select a random effect of the coin, from 9 available
-        $effect = RandomNum 9 9 int
+        $effect = RandomNum 1 9 int
 
         # russian rulette with a full gun :trollface:
         if $effect == 1
