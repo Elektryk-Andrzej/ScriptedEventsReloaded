@@ -16,6 +16,12 @@ public class RaveScript : IExample
         $duration = .5s
         *room = {@sender roomRef}
         
+        # verify that the player is in a room
+        if not {ValidRef *room}
+            Reply "you need to be in a room!"
+            stop
+        end
+        
         # changing colors for the room
         repeat 20
             TransitionLightColor *room #ff0000ff $duration
