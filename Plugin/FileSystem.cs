@@ -91,12 +91,10 @@ public static class FileSystem
             .Where(t => typeof(IExample).IsAssignableFrom(t) && !t.IsAbstract)
             .Select(t => t.CreateInstance<IExample>());
 
-        var dir = Directory.CreateDirectory(Path.Combine(DirPath, "Example Scripts"));
-
+        var exampleDir = Directory.CreateDirectory(Path.Combine(DirPath, "Example Scripts"));
         foreach (var example in examples)
         {
-            var path = Path.Combine(dir.FullName, $"{example.Name}.txt");
-            Log.Signal($"created path {path}");
+            var path = Path.Combine(exampleDir.FullName, $"{example.Name}.txt");
             using var sw = File.CreateText(path);
             sw.Write(example.Content);
         }
